@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Br's Financial Wizardry Dashboard</title>
+  <title>Br's Financial Macro Dashboard</title>
 
   <style>
     :root{
@@ -14,21 +14,19 @@
       --muted:#9aa7b2;
       --good:#19c37d;
       --bad:#ff4d4f;
-      --warn:#f7b500;
       --border:#1c2a40;
       --shadow: 0 16px 40px rgba(0,0,0,.45);
       --radius: 18px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
-
     *{box-sizing:border-box}
-    html, body {height:100%}
+    html,body{height:100%}
     body{
       margin:0;
       font-family:var(--sans);
       color:var(--text);
-      background: var(--bg);
+      background:var(--bg);
       overflow-x:hidden;
     }
 
@@ -43,112 +41,98 @@
         radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
         url("https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif");
       background-repeat:no-repeat, no-repeat, repeat;
-      background-size: auto, auto, 220px auto;
-      background-position: center, center, 0 0;
-      filter: saturate(1.05);
-      opacity: .12; /* keep it classy */
+      background-size:auto, auto, 220px auto;
+      background-position:center, center, 0 0;
+      opacity:.12;
       pointer-events:none;
     }
-
     body::after{
       content:"";
       position:fixed;
       inset:0;
       z-index:-1;
-      background: linear-gradient(180deg, rgba(7,10,16,.84), rgba(7,10,16,.92));
+      background: linear-gradient(180deg, rgba(7,10,16,.84), rgba(7,10,16,.93));
       pointer-events:none;
     }
 
     header{
-      position:sticky;
-      top:0;
-      z-index:10;
+      position:sticky; top:0; z-index:10;
       backdrop-filter: blur(12px);
       background: rgba(7,10,16,.65);
       border-bottom:1px solid rgba(28,42,64,.75);
     }
-
-    /* Use more screen width */
     .wrap{
-      width:min(1600px, calc(100vw - 28px));
+      width:min(1700px, calc(100vw - 28px));
       margin:0 auto;
-      padding:16px 0;
+      padding:14px 0;
     }
 
-    .titleRow{
-      display:flex;
-      gap:14px;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
+    .topRow{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:14px; flex-wrap:wrap;
       padding:0 14px;
     }
 
-    h1{
-      font-size:18px;
-      margin:0;
-      letter-spacing:.2px;
+    .btcStrip{
+      flex: 1 1 720px;
+      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
+      border:1px solid rgba(28,42,64,.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:12px 14px;
+      overflow:hidden;
     }
-    .sub{color:var(--muted); font-size:12px; margin-top:4px}
+    .btcTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .btcMain{
+      display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .btcPrice{
+      font-family:var(--mono);
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:-.6px;
+      margin:0;
+    }
+    .btcSide{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap:10px;
+      width:min(780px, 100%);
+    }
+    .mini{
+      border:1px solid rgba(28,42,64,.8);
+      background: rgba(255,255,255,.03);
+      border-radius: 14px;
+      padding:10px;
+      min-height:56px;
+    }
+    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
+    .v{font-size:14px; font-family: var(--mono)}
+    .delta.good{color:var(--good)}
+    .delta.bad{color:var(--bad)}
 
     .controls{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      font-size:12px;
+      flex: 0 0 auto;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
       color:var(--muted);
+      font-size:12px;
+      padding:0 0;
     }
-
-    button{
-      background: linear-gradient(180deg, #1b2a40, #142236);
-      color:var(--text);
-      border:1px solid rgba(28,42,64,.9);
-      padding:9px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      box-shadow: 0 10px 25px rgba(0,0,0,.35);
-    }
-    button:hover{filter:brightness(1.05)}
-
-    input, select{
+    select, button{
       background: rgba(12,19,32,.9);
       color: var(--text);
       border:1px solid rgba(28,42,64,.9);
       padding:8px 10px;
       border-radius:12px;
       font-family: var(--sans);
+      cursor:pointer;
     }
-
-    main{padding:16px 0 30px}
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-      padding:0 14px;
-    }
-
-    .card{
-      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
-      border:1px solid rgba(28,42,64,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:14px;
-      overflow:hidden;
-    }
-
-    .card h2{
-      margin:0 0 10px 0;
-      font-size:13px;
-      color:var(--muted);
-      letter-spacing:.2px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-
+    button:hover{filter:brightness(1.05)}
     .pill{
       font-size:11px;
       padding:4px 8px;
@@ -160,55 +144,24 @@
       white-space:nowrap;
     }
 
-    .big{
-      font-size:40px;
-      font-weight:750;
-      letter-spacing:-.6px;
-      margin:6px 0 6px 0;
-      font-family: var(--mono);
-    }
+    main{padding:14px 0 30px}
 
-    .mono{font-family:var(--mono)}
-    .muted{color:var(--muted)}
-    .delta.good{color:var(--good)}
-    .delta.bad{color:var(--bad)}
-    .delta.warn{color:var(--warn)}
-
-    .row{
+    .grid{
       display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
-      margin-top:12px;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+      padding:0 14px;
     }
-
-    .metric{
-      background: rgba(255,255,255,.03);
-      border:1px solid rgba(28,42,64,.8);
-      border-radius: 14px;
-      padding:10px;
-      min-height:60px;
+    .card{
+      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
+      border:1px solid rgba(28,42,64,.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
     }
-    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
-    .v{font-size:14px; font-family: var(--mono)}
-
-    .err{
-      margin-top:10px;
-      border:1px solid rgba(255,77,79,.45);
-      background: rgba(255,77,79,.08);
-      padding:10px 12px;
-      border-radius:12px;
-      color: #ffd7d7;
-      font-size:12px;
-      display:none;
-      white-space:pre-wrap;
-    }
-
-    /* Layout spans */
-    .span-8{grid-column: span 8;}
-    .span-4{grid-column: span 4;}
     .span-12{grid-column: span 12;}
 
-    /* Markets grid fills space better */
     .marketsGrid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
@@ -216,57 +169,88 @@
     }
     .w6{grid-column: span 6;}
     .w4{grid-column: span 4;}
-    .w12{grid-column: span 12;}
-
-    .embedCard{
-      padding:0;
-      overflow:hidden;
-    }
+    .embedCard{padding:0; overflow:hidden;}
     .embedHeader{
       padding:10px 12px 8px 12px;
       border-bottom:1px solid rgba(255,255,255,.06);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
     }
     .embedTitle{font-size:12px; color:var(--muted)}
     .embedBody{padding:8px 10px 12px 10px}
-
     .foot{
       margin-top:12px;
       font-size:12px;
       color:var(--muted);
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .err{
+      margin-top:10px;
+      border:1px solid rgba(255,77,79,.45);
+      background: rgba(255,77,79,.08);
+      padding:10px 12px;
+      border-radius:12px;
+      color:#ffd7d7;
+      font-size:12px;
+      display:none;
+      white-space:pre-wrap;
     }
 
-    @media (max-width: 1100px){
-      .span-8, .span-4 {grid-column: span 12;}
-      .row{grid-template-columns: repeat(2, 1fr);}
-      .w6, .w4 {grid-column: span 12;}
-      .big{font-size:36px}
+    @media (max-width: 1180px){
+      .btcSide{grid-template-columns: repeat(2, 1fr);}
+      .w6,.w4{grid-column: span 12;}
+      .btcPrice{font-size:38px}
     }
-
     @media (max-width: 520px){
-      .row{grid-template-columns: 1fr;}
-      .big{font-size:32px}
+      .btcSide{grid-template-columns: 1fr;}
+      .btcPrice{font-size:34px}
     }
   </style>
 </head>
 
 <body>
+
 <header>
   <div class="wrap">
-    <div class="titleRow">
-      <div>
-        <h1>Financial Macro Dashboard</h1>
-        <div class="sub">BTC + mempool + key markets • single-file HTML</div>
+    <div class="topRow">
+      <!-- Top BTC strip -->
+      <div class="btcStrip">
+        <div class="btcTitle">
+          <div>BTC / USD (Coinbase Exchange)</div>
+          <div class="pill" id="btcUpdated">–</div>
+        </div>
+
+        <div class="btcMain">
+          <div>
+            <div class="btcPrice" id="btcPrice">$–</div>
+            <div class="v" id="btcChange">24h: –</div>
+          </div>
+
+          <div class="btcSide">
+            <div class="mini">
+              <div class="k">24h High</div>
+              <div class="v" id="btcHigh">–</div>
+            </div>
+            <div class="mini">
+              <div class="k">24h Low</div>
+              <div class="v" id="btcLow">–</div>
+            </div>
+            <div class="mini">
+              <div class="k">24h Volume (BTC)</div>
+              <div class="v" id="btcVol">–</div>
+            </div>
+            <div class="mini">
+              <div class="k">Sats per $1</div>
+              <div class="v" id="satsPerUsd">–</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="err" id="btcErr"></div>
       </div>
+
+      <!-- Controls -->
       <div class="controls">
-        <label class="muted">Auto refresh</label>
+        <label>Auto refresh</label>
         <select id="refreshEvery">
           <option value="0">Off</option>
           <option value="30">30s</option>
@@ -274,7 +258,11 @@
           <option value="120">2m</option>
           <option value="300">5m</option>
         </select>
-        <button id="btnRefresh">Refresh now</button>
+        <button id="btnRefresh">Refresh</button>
+
+        <!-- Music toggle (requires click) -->
+        <button id="btnMusic">Play music</button>
+
         <span class="pill" id="status">Idle</span>
       </div>
     </div>
@@ -283,114 +271,45 @@
 
 <main class="wrap">
   <div class="grid">
-
-    <!-- BTC -->
-    <section class="card span-8">
-      <h2>
-        Bitcoin (Coinbase primary, CoinGecko fallback)
-        <span class="pill" id="btcUpdated">–</span>
-      </h2>
-
-      <div class="big" id="btcPrice">$–</div>
-      <div class="mono" id="btcChange">24h: –</div>
-
-      <div class="row">
-        <div class="metric">
-          <div class="k">24h High</div>
-          <div class="v" id="btcHigh">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">24h Low</div>
-          <div class="v" id="btcLow">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">24h Volume</div>
-          <div class="v" id="btcVol">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Source</div>
-          <div class="v" id="btcSrc">–</div>
-        </div>
-      </div>
-
-      <div class="err" id="btcErr"></div>
-    </section>
-
-    <!-- Mempool -->
-    <section class="card span-4">
-      <h2>
-        Mempool (mempool.space)
-        <span class="pill" id="mpUpdated">–</span>
-      </h2>
-
-      <div class="row" style="grid-template-columns: repeat(2, 1fr);">
-        <div class="metric">
-          <div class="k">Fee (fastest)</div>
-          <div class="v" id="feeFast">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Fee (30m)</div>
-          <div class="v" id="feeHalf">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Fee (60m)</div>
-          <div class="v" id="feeHour">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Mempool size</div>
-          <div class="v" id="mpSize">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Backlog blocks</div>
-          <div class="v" id="mpBacklog">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Difficulty</div>
-          <div class="v" id="difficulty">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Hashrate (est.)</div>
-          <div class="v" id="hashrate">–</div>
-        </div>
-        <div class="metric">
-          <div class="k">Next retarget</div>
-          <div class="v" id="retarget">–</div>
-        </div>
-      </div>
-
-      <div class="err" id="mpErr"></div>
-    </section>
-
     <!-- Markets -->
     <section class="card span-12">
-      <h2>
-        Markets (TradingView) — liquid proxies to avoid “symbol only available” errors
-        <span class="pill">SPY • QQQ • UUP • TLT • GLD • USO</span>
-      </h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="color:var(--muted);font-size:13px;">Markets (USD where applicable)</div>
+        <span class="pill">10Y • SPY • QQQ • MSTR • XAUUSD • OIL • BTC</span>
+      </div>
 
-      <div class="marketsGrid">
-        <div class="card embedCard w6"><div id="tv_spy"></div></div>
-        <div class="card embedCard w6"><div id="tv_qqq"></div></div>
+      <div class="marketsGrid" style="margin-top:12px;">
+        <!-- 10Y yield -->
+        <div class="card embedCard w4"><div id="tv_10y"></div></div>
 
-        <div class="card embedCard w4"><div id="tv_uup"></div></div>
-        <div class="card embedCard w4"><div id="tv_tlt"></div></div>
-        <div class="card embedCard w4"><div id="tv_gld"></div></div>
+        <!-- Equities -->
+        <div class="card embedCard w4"><div id="tv_spy"></div></div>
+        <div class="card embedCard w4"><div id="tv_qqq"></div></div>
+        <div class="card embedCard w4"><div id="tv_mstr"></div></div>
 
-        <div class="card embedCard w6"><div id="tv_uso"></div></div>
+        <!-- Commodities -->
+        <div class="card embedCard w4"><div id="tv_gold"></div></div>
+        <div class="card embedCard w4"><div id="tv_oil"></div></div>
+
+        <!-- BTC big -->
         <div class="card embedCard w6"><div id="tv_btc"></div></div>
       </div>
 
       <div class="foot">
-        <span>Sources: Coinbase Exchange, CoinGecko (fallback), mempool.space, TradingView widgets.</span>
-        <span class="mono" id="lastAll">Last refresh: –</span>
+        <span>BTC data: Coinbase Exchange. Charts: TradingView widgets. “Sats per $1” computed from BTC/USD.</span>
+        <span class="pill" id="lastAll">Last refresh: –</span>
       </div>
     </section>
-
   </div>
 </main>
 
+<!-- Music: put your file in repo at /assets/music.mp3 -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="assets/music.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
 <script>
-  // ---------- Helpers ----------
   const $ = (id) => document.getElementById(id);
 
   function fmtUSD2(n){
@@ -401,179 +320,53 @@
     if (n == null || Number.isNaN(n)) return "–";
     return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
   }
-  function fmtCompact(n){
+  function fmtNum0(n){
     if (n == null || Number.isNaN(n)) return "–";
-    return new Intl.NumberFormat(undefined, { notation:"compact", maximumFractionDigits: 2 }).format(n);
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
   }
-  function nowStamp(){
-    return new Date().toLocaleString();
-  }
+  function nowStamp(){ return new Date().toLocaleString(); }
   function setStatus(text){ $("status").textContent = text; }
-  function showErr(el, msg){
-    const box = $(el);
-    box.style.display = "block";
-    box.textContent = msg;
-  }
-  function clearErr(el){
-    const box = $(el);
-    box.style.display = "none";
-    box.textContent = "";
-  }
+  function showErr(el, msg){ const b=$(el); b.style.display="block"; b.textContent=msg; }
+  function clearErr(el){ const b=$(el); b.style.display="none"; b.textContent=""; }
 
-  async function fetchJSON(url, opts = {}){
-    const res = await fetch(url, opts);
+  async function fetchJSON(url){
+    const res = await fetch(url, { headers:{ "Accept":"application/json" }});
     if(!res.ok) throw new Error(`${url} HTTP ${res.status}`);
     return res.json();
   }
 
-  // ---------- BTC ----------
-  // Primary: Coinbase Exchange public endpoints (ticker + 24h stats)
-  // Fallback: CoinGecko
+  // BTC from Coinbase Exchange (reliable + direct)
   async function fetchBTC(){
     clearErr("btcErr");
+    const [ticker, stats] = await Promise.all([
+      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/ticker"),
+      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/stats")
+    ]);
 
-    // Try Coinbase first
-    try{
-      const [ticker, stats] = await Promise.all([
-        fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/ticker", {
-          headers: { "Accept": "application/json" }
-        }),
-        fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/stats", {
-          headers: { "Accept": "application/json" }
-        })
-      ]);
+    const price = Number(ticker.price);
+    const open  = Number(stats.open);
+    const high  = Number(stats.high);
+    const low   = Number(stats.low);
+    const vol   = Number(stats.volume);
 
-      const price = Number(ticker.price);
-      const open  = Number(stats.open);
-      const high  = Number(stats.high);
-      const low   = Number(stats.low);
-      const vol   = Number(stats.volume);
+    $("btcPrice").textContent = fmtUSD2(price);
 
-      $("btcPrice").textContent = fmtUSD2(price);
+    const chPct = (open && price) ? ((price - open) / open) * 100 : null;
+    const cls = (chPct ?? 0) >= 0 ? "good" : "bad";
+    $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(chPct)}%</span>`;
 
-      const chPct = (open && price) ? ((price - open) / open) * 100 : null;
-      const cls = (chPct ?? 0) >= 0 ? "good" : "bad";
-      $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(chPct)}%</span>`;
+    $("btcHigh").textContent = fmtUSD2(high);
+    $("btcLow").textContent  = fmtUSD2(low);
+    $("btcVol").textContent  = fmtNum(vol);
 
-      $("btcHigh").textContent = fmtUSD2(high);
-      $("btcLow").textContent  = fmtUSD2(low);
-      $("btcVol").textContent  = fmtCompact(vol);
-      $("btcSrc").textContent  = "Coinbase Exchange";
-
-      $("btcUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
-      return;
-    } catch (e){
-      // fall through to CoinGecko
-      console.warn("Coinbase failed, using CoinGecko:", e);
-    }
-
-    // Fallback: CoinGecko
-    const url = "https://api.coingecko.com/api/v3/simple/price" +
-      "?ids=bitcoin&vs_currencies=usd" +
-      "&include_24hr_change=true" +
-      "&include_24hr_high=true&include_24hr_low=true" +
-      "&include_24hr_vol=true" +
-      "&precision=2";
-
-    const j = await fetchJSON(url, { headers: { "accept": "application/json" }});
-    const b = j.bitcoin;
-    if(!b) throw new Error("CoinGecko: missing bitcoin payload");
-
-    $("btcPrice").textContent = fmtUSD2(b.usd);
-
-    const ch = b.usd_24h_change;
-    const cls = ch >= 0 ? "good" : "bad";
-    $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(ch)}%</span>`;
-
-    $("btcHigh").textContent = fmtUSD2(b.usd_24h_high);
-    $("btcLow").textContent  = fmtUSD2(b.usd_24h_low);
-    $("btcVol").textContent  = fmtCompact(b.usd_24h_vol);
-    $("btcSrc").textContent  = "CoinGecko (fallback)";
+    // sats per $1 = 1e8 / BTCUSD
+    const sats = price ? (1e8 / price) : null;
+    $("satsPerUsd").textContent = sats ? `${fmtNum0(sats)} sats` : "–";
 
     $("btcUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
   }
 
-  // ---------- Mempool ----------
-  async function fetchMempool(){
-    clearErr("mpErr");
-
-    const feeURL = "https://mempool.space/api/v1/fees/recommended";
-    const mpURL  = "https://mempool.space/api/mempool";
-
-    // These endpoints have changed in the past. We'll try a list until one works.
-    const difficultyCandidates = [
-      "https://mempool.space/api/v1/mining/difficulty-adjustment",
-      "https://mempool.space/api/v1/difficulty-adjustment",
-      "https://mempool.space/api/v1/mining/difficulty-adjustment/next"
-    ];
-
-    const hashrateCandidates = [
-      "https://mempool.space/api/v1/mining/hashrate/3d",
-      "https://mempool.space/api/v1/mining/hashrate"
-    ];
-
-    const [fee, mp] = await Promise.all([
-      fetchJSON(feeURL),
-      fetchJSON(mpURL)
-    ]);
-
-    $("feeFast").textContent = `${fee.fastestFee} sat/vB`;
-    $("feeHalf").textContent = `${fee.halfHourFee} sat/vB`;
-    $("feeHour").textContent = `${fee.hourFee} sat/vB`;
-
-    const vbytes = mp.vsize; // vbytes
-    const mvb = vbytes / 1e6; // "MvB" rough
-    $("mpSize").textContent = `${fmtNum(mvb)} MvB`;
-
-    // Rough block backlog estimate: use vsize against ~1,000,000 vbytes per block
-    const backlog = (vbytes != null) ? (vbytes / 1e6) : null;
-    $("mpBacklog").textContent = backlog != null ? `${fmtNum(backlog)} blocks` : "–";
-
-    // Difficulty - best effort
-    let diff = null;
-    for (const u of difficultyCandidates){
-      try { diff = await fetchJSON(u); break; } catch (e) {}
-    }
-    if (diff){
-      $("difficulty").textContent = diff.difficulty ? fmtCompact(diff.difficulty) : "–";
-      if (typeof diff.remainingBlocks === "number") {
-        $("retarget").textContent = `${diff.remainingBlocks} blocks`;
-      } else if (typeof diff.progressPercent === "number") {
-        $("retarget").textContent = `${fmtNum(100 - diff.progressPercent)}% remaining`;
-      } else {
-        $("retarget").textContent = "–";
-      }
-    } else {
-      $("difficulty").textContent = "–";
-      $("retarget").textContent = "–";
-    }
-
-    // Hashrate - best effort
-    let h = null;
-    for (const u of hashrateCandidates){
-      try { h = await fetchJSON(u); break; } catch (e) {}
-    }
-
-    let lastHash = null;
-    if (Array.isArray(h) && h.length){
-      const last = h[h.length - 1];
-      lastHash = last?.avgHashrate ?? last?.hashrate ?? last?.[1] ?? null;
-    } else if (typeof h === "object" && h){
-      lastHash = h.avgHashrate ?? h.hashrate ?? null;
-    }
-
-    if (lastHash != null){
-      const EH = lastHash / 1e18;
-      $("hashrate").textContent = `${fmtNum(EH)} EH/s`;
-    } else {
-      $("hashrate").textContent = "–";
-    }
-
-    $("mpUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
-  }
-
-  // ---------- TradingView widgets ----------
-  // Using liquid ETFs / proxies avoids the “only available on TradingView” errors.
+  // TradingView embeds
   function miniSymbol(containerId, symbol, title){
     const el = document.getElementById(containerId);
     if(!el) return;
@@ -584,9 +377,7 @@
         <div class="pill">${symbol}</div>
       </div>
       <div class="embedBody">
-        <div class="tradingview-widget-container">
-          <div class="tradingview-widget-container__widget"></div>
-        </div>
+        <div class="tradingview-widget-container"></div>
       </div>
     `;
 
@@ -652,32 +443,30 @@
   }
 
   function initWidgets(){
-    // Liquid proxies:
-    // SPY = S&P500 ETF, QQQ = Nasdaq 100 ETF,
-    // UUP = Dollar index-ish ETF proxy,
-    // TLT = long-duration US Treasuries,
-    // GLD = Gold ETF,
-    // USO = WTI oil proxy,
-    // BTCUSD = Coinbase feed.
-    miniSymbol("tv_spy", "AMEX:SPY", "S&P 500 Proxy (SPY)");
-    miniSymbol("tv_qqq", "NASDAQ:QQQ", "Nasdaq 100 Proxy (QQQ)");
-    miniSymbol("tv_uup", "AMEX:UUP", "US Dollar Proxy (UUP)");
-    miniSymbol("tv_tlt", "NASDAQ:TLT", "US Treasuries Proxy (TLT)");
-    miniSymbol("tv_gld", "AMEX:GLD", "Gold Proxy (GLD)");
-    miniSymbol("tv_uso", "AMEX:USO", "WTI Oil Proxy (USO)");
+    // 10Y: use TNX (widely supported). It's yield (not price) but it's the standard “10Y”.
+    miniSymbol("tv_10y",  "CBOE:TNX", "US 10Y Yield (TNX)");
+
+    // Equities
+    miniSymbol("tv_spy",  "AMEX:SPY", "S&P 500 (SPY)");
+    miniSymbol("tv_qqq",  "NASDAQ:QQQ","Nasdaq 100 (QQQ)");
+    miniSymbol("tv_mstr", "NASDAQ:MSTR","MicroStrategy (MSTR)");
+
+    // Commodities in USD
+    miniSymbol("tv_gold", "OANDA:XAUUSD","Gold / USD (oz)");
+    // Oil: this is a liquid USD proxy. If you want futures later we can swap to CL1! if it loads on your network.
+    miniSymbol("tv_oil",  "AMEX:USO", "WTI Oil Proxy (USO)");
+
+    // BTC chart
     bigSymbol("tv_btc", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
   }
 
-  // ---------- Refresh ----------
   async function refreshAll(){
     setStatus("Refreshing…");
     const start = performance.now();
-
     try {
-      await Promise.all([
-        fetchBTC().catch(e => showErr("btcErr", e.message)),
-        fetchMempool().catch(e => showErr("mpErr", e.message))
-      ]);
+      await fetchBTC();
+    } catch (e){
+      showErr("btcErr", e.message);
     } finally {
       const ms = Math.round(performance.now() - start);
       setStatus(`OK • ${ms}ms`);
@@ -686,6 +475,28 @@
     }
   }
 
+  // Music toggle (user gesture required)
+  const music = $("bgMusic");
+  const btnMusic = $("btnMusic");
+  let musicOn = false;
+
+  btnMusic.addEventListener("click", async () => {
+    try{
+      if(!musicOn){
+        await music.play();         // will work after click
+        musicOn = true;
+        btnMusic.textContent = "Pause music";
+      } else {
+        music.pause();
+        musicOn = false;
+        btnMusic.textContent = "Play music";
+      }
+    } catch (e){
+      alert("Music couldn't start (browser blocked it). Try clicking again, or ensure assets/music.mp3 exists.");
+    }
+  });
+
+  // Auto refresh
   let timer = null;
   function setAutoRefresh(seconds){
     if(timer) clearInterval(timer);
@@ -694,11 +505,8 @@
       timer = setInterval(refreshAll, seconds * 1000);
     }
   }
-
   $("btnRefresh").addEventListener("click", refreshAll);
-  $("refreshEvery").addEventListener("change", (e) => {
-    setAutoRefresh(parseInt(e.target.value, 10));
-  });
+  $("refreshEvery").addEventListener("change", (e) => setAutoRefresh(parseInt(e.target.value, 10)));
 
   initWidgets();
   refreshAll();
