@@ -627,6 +627,13 @@ button:hover{filter:brightness(1.06)}
         { text:"Open profile on X for latest updates", url:"https://x.com/DeItaone" }
       ]);
     }
+
+    // Final fallback keeps ticker useful and clickable.
+    buildTicker([
+      { text:`@${username}: Open latest posts`, url:profileUrl },
+      { text:"Live feed temporarily unavailable", url:profileUrl },
+      { text:"Tap here to view the profile", url:profileUrl }
+    ]);
   }
 
   // ---------- TradingView helpers ----------
