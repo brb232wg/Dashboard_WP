@@ -454,7 +454,7 @@ button:hover{filter:brightness(1.06)}
         </div>
 
         <!-- THIS IS THE SPOT YOU CIRCLED: ticker + timeframe buttons -->
-        <div class="tickerBar" title="Edit assets/ticker.json to change headlines">
+        <div class="tickerBar" title="Live headlines from @DeItaone on refresh">
           <div class="tickerInner" id="tickerInner"></div>
         </div>
 
@@ -593,13 +593,38 @@ button:hover{filter:brightness(1.06)}
   }
 
   async function loadTicker(){
+    const username = "DeItaone";
+
+    // Use a CORS-friendly proxy + RSS feed so this works from static hosting.
+    // Reloading the page fetches a fresh feed snapshot.
+    const rssUrl = `https://nitter.poast.org/${username}/rss`;
+    const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+
     try{
-      const j = await fetchJSON("assets/ticker.json");
-      buildTicker(j.items || []);
+      const res = await fetch(proxied, { cache: "no-store" });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const xmlText = await res.text();
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const entries = [...doc.querySelectorAll("item")].slice(0, 12);
+
+      const items = entries.map((item) => {
+        const title = (item.querySelector("title")?.textContent || "").trim();
+        const link = (item.querySelector("link")?.textContent || "").trim();
+
+        return {
+          text: `@${username}: ${title || "Update"}`,
+          url: link
+        };
+      }).filter((it) => it.text && it.url);
+
+      if(!items.length) throw new Error("No feed items");
+      buildTicker(items);
     } catch(e){
+      console.warn("Ticker feed unavailable", e);
       buildTicker([
-        { text:"⚠️ Ticker file missing. Create assets/ticker.json", url:"" },
-        { text:"Tip: Each item can include a URL and becomes clickable.", url:"" }
+        { text:`@${username} feed unavailable right now`, url:"https://x.com/DeItaone" },
+        { text:"Open profile on X for latest updates", url:"https://x.com/DeItaone" }
       ]);
     }
   }
