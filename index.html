@@ -3,13 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Br's Dashboard</title>
+  <title>Financial Macro Dashboard</title>
 
   <style>
     :root{
       --bg:#070a10;
-      --panel:#0f1726;
-      --panel2:#0c1320;
       --text:#e6edf3;
       --muted:#9aa7b2;
       --good:#19c37d;
@@ -43,7 +41,7 @@
       background-repeat:no-repeat, no-repeat, repeat;
       background-size:auto, auto, 220px auto;
       background-position:center, center, 0 0;
-      opacity:.12;
+      opacity:.22;
       pointer-events:none;
     }
     body::after{
@@ -62,66 +60,54 @@
       border-bottom:1px solid rgba(28,42,64,.75);
     }
     .wrap{
-      width:min(1700px, calc(100vw - 28px));
+      width:min(1760px, calc(100vw - 28px));
       margin:0 auto;
       padding:14px 0;
     }
 
-    .topRow{
-      display:flex; align-items:flex-start; justify-content:space-between;
-      gap:14px; flex-wrap:wrap;
+    .topGrid{
+      display:grid;
+      grid-template-columns: 8fr 4fr;
+      gap:14px;
       padding:0 14px;
+      align-items:start;
     }
 
-    .btcStrip{
-      flex: 1 1 720px;
+    .panel{
       background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
       border:1px solid rgba(28,42,64,.9);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding:12px 14px;
       overflow:hidden;
     }
-    .btcTitle{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      color:var(--muted);
-      font-size:12px;
+
+    .controlsBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      flex-wrap:wrap;
     }
-    .btcMain{
-      display:flex; align-items:baseline; justify-content:space-between; gap:14px; flex-wrap:wrap;
-      margin-top:8px;
+    .titleBlock{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width: 260px;
     }
-    .btcPrice{
-      font-family:var(--mono);
-      font-size:44px;
-      font-weight:800;
-      letter-spacing:-.6px;
+    .title{
+      font-size:16px;
+      font-weight:700;
       margin:0;
+      letter-spacing:.2px;
     }
-    .btcSide{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(140px, 1fr));
-      gap:10px;
-      width:min(780px, 100%);
-    }
-    .mini{
-      border:1px solid rgba(28,42,64,.8);
-      background: rgba(255,255,255,.03);
-      border-radius: 14px;
-      padding:10px;
-      min-height:56px;
-    }
-    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
-    .v{font-size:14px; font-family: var(--mono)}
-    .delta.good{color:var(--good)}
-    .delta.bad{color:var(--bad)}
+    .sub{color:var(--muted); font-size:12px}
 
     .controls{
-      flex: 0 0 auto;
       display:flex; align-items:center; gap:10px; flex-wrap:wrap;
       color:var(--muted);
       font-size:12px;
-      padding:0 0;
     }
     select, button{
       background: rgba(12,19,32,.9);
@@ -144,6 +130,46 @@
       white-space:nowrap;
     }
 
+    /* BTC strip under BTC chart */
+    .btcStrip{
+      padding:12px 14px 14px 14px;
+    }
+    .btcTitleRow{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .btcMain{
+      display:flex; align-items:baseline; justify-content:space-between;
+      gap:14px; flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .btcPrice{
+      font-family:var(--mono);
+      font-size:44px;
+      font-weight:800;
+      letter-spacing:-.6px;
+      margin:0;
+    }
+    .v{font-size:14px; font-family: var(--mono)}
+    .delta.good{color:var(--good)}
+    .delta.bad{color:var(--bad)}
+
+    .btcSide{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap:10px;
+      width:min(860px, 100%);
+    }
+    .mini{
+      border:1px solid rgba(28,42,64,.8);
+      background: rgba(255,255,255,.03);
+      border-radius: 14px;
+      padding:10px;
+      min-height:56px;
+    }
+    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
+
     main{padding:14px 0 30px}
 
     .grid{
@@ -160,15 +186,18 @@
       padding:14px;
       overflow:hidden;
     }
+    .span-8{grid-column: span 8;}
+    .span-4{grid-column: span 4;}
     .span-12{grid-column: span 12;}
 
     .marketsGrid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
+      margin-top:12px;
     }
-    .w6{grid-column: span 6;}
     .w4{grid-column: span 4;}
+    .w6{grid-column: span 6;}
     .embedCard{padding:0; overflow:hidden;}
     .embedHeader{
       padding:10px 12px 8px 12px;
@@ -177,12 +206,28 @@
     }
     .embedTitle{font-size:12px; color:var(--muted)}
     .embedBody{padding:8px 10px 12px 10px}
+
+    /* X feed container */
+    .xWrap{
+      height: 100%;
+      min-height: 540px;
+    }
+    .xInner{
+      padding: 10px 12px 12px 12px;
+    }
+    .xNote{
+      color: var(--muted);
+      font-size: 12px;
+      padding: 10px 12px 0 12px;
+    }
+
     .foot{
       margin-top:12px;
       font-size:12px;
       color:var(--muted);
       display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
     }
+
     .err{
       margin-top:10px;
       border:1px solid rgba(255,77,79,.45);
@@ -196,9 +241,11 @@
     }
 
     @media (max-width: 1180px){
+      .topGrid{grid-template-columns: 1fr;}
       .btcSide{grid-template-columns: repeat(2, 1fr);}
-      .w6,.w4{grid-column: span 12;}
+      .w4,.w6{grid-column: span 12;}
       .btcPrice{font-size:38px}
+      .xWrap{min-height: 420px;}
     }
     @media (max-width: 520px){
       .btcSide{grid-template-columns: 1fr;}
@@ -211,103 +258,136 @@
 
 <header>
   <div class="wrap">
-    <div class="topRow">
-      <!-- Top BTC strip -->
-      <div class="btcStrip">
-        <div class="btcTitle">
-          <div>BTC / USD (Coinbase Exchange)</div>
-          <div class="pill" id="btcUpdated">–</div>
-        </div>
+    <div class="topGrid">
 
-        <div class="btcMain">
-          <div>
-            <div class="btcPrice" id="btcPrice">$–</div>
-            <div class="v" id="btcChange">24h: –</div>
+      <!-- LEFT: BTC CHART FIRST + BTC STRIP -->
+      <div class="panel">
+        <div class="controlsBar">
+          <div class="titleBlock">
+            <div class="title">Macro Dashboard</div>
+            <div class="sub">BTC (top) • SPX • QQQ • MSTR • XAUUSD • OIL • US10Y • sats per $1</div>
           </div>
 
-          <div class="btcSide">
-            <div class="mini">
-              <div class="k">24h High</div>
-              <div class="v" id="btcHigh">–</div>
-            </div>
-            <div class="mini">
-              <div class="k">24h Low</div>
-              <div class="v" id="btcLow">–</div>
-            </div>
-            <div class="mini">
-              <div class="k">24h Volume (BTC)</div>
-              <div class="v" id="btcVol">–</div>
-            </div>
-            <div class="mini">
-              <div class="k">Sats per $1</div>
-              <div class="v" id="satsPerUsd">–</div>
-            </div>
+          <div class="controls">
+            <label>Auto refresh</label>
+            <select id="refreshEvery">
+              <option value="0">Off</option>
+              <option value="30">30s</option>
+              <option value="60" selected>60s</option>
+              <option value="120">2m</option>
+              <option value="300">5m</option>
+            </select>
+            <button id="btnRefresh">Refresh</button>
+
+            <button id="btnMusic">Play music</button>
+            <span class="pill" id="status">Idle</span>
           </div>
         </div>
 
-        <div class="err" id="btcErr"></div>
+        <!-- BTC chart is FIRST thing you see -->
+        <div class="embedCard" style="border-top-left-radius:0;border-top-right-radius:0;">
+          <div id="tv_btc_top"></div>
+        </div>
+
+        <!-- BTC stats strip -->
+        <div class="btcStrip">
+          <div class="btcTitleRow">
+            <div>BTC / USD (Coinbase Exchange)</div>
+            <div class="pill" id="btcUpdated">–</div>
+          </div>
+
+          <div class="btcMain">
+            <div>
+              <div class="btcPrice" id="btcPrice">$–</div>
+              <div class="v" id="btcChange">24h: –</div>
+            </div>
+
+            <div class="btcSide">
+              <div class="mini">
+                <div class="k">24h High</div>
+                <div class="v" id="btcHigh">–</div>
+              </div>
+              <div class="mini">
+                <div class="k">24h Low</div>
+                <div class="v" id="btcLow">–</div>
+              </div>
+              <div class="mini">
+                <div class="k">24h Volume (BTC)</div>
+                <div class="v" id="btcVol">–</div>
+              </div>
+              <div class="mini">
+                <div class="k">Sats per $1</div>
+                <div class="v" id="satsPerUsd">–</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="err" id="btcErr"></div>
+        </div>
       </div>
 
-      <!-- Controls -->
-      <div class="controls">
-        <label>Auto refresh</label>
-        <select id="refreshEvery">
-          <option value="0">Off</option>
-          <option value="30">30s</option>
-          <option value="60" selected>60s</option>
-          <option value="120">2m</option>
-          <option value="300">5m</option>
-        </select>
-        <button id="btnRefresh">Refresh</button>
-
-        <!-- Music toggle (requires click) -->
-        <button id="btnMusic">Play music</button>
-
-        <span class="pill" id="status">Idle</span>
+      <!-- RIGHT: X FEED -->
+      <div class="panel xWrap">
+        <div class="embedHeader">
+          <div class="embedTitle">Live updates (X)</div>
+          <div class="pill">@DeItaone</div>
+        </div>
+        <div class="xNote">If this doesn’t load, your browser/network may be blocking X embeds (tracking protection).</div>
+        <div class="xInner">
+          <a class="twitter-timeline"
+             data-theme="dark"
+             data-height="560"
+             data-chrome="noheader nofooter noborders transparent"
+             href="https://twitter.com/DeItaone">
+            Tweets by @DeItaone
+          </a>
+        </div>
       </div>
+
     </div>
   </div>
 </header>
 
 <main class="wrap">
   <div class="grid">
-    <!-- Markets -->
+
+    <!-- MARKETS -->
     <section class="card span-12">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div style="color:var(--muted);font-size:13px;">Markets (USD where applicable)</div>
-        <span class="pill">10Y • SPY • QQQ • MSTR • XAUUSD • OIL • BTC</span>
+        <span class="pill">US10Y • SPX • QQQ • MSTR • XAUUSD • OIL</span>
       </div>
 
-      <div class="marketsGrid" style="margin-top:12px;">
-        <!-- 10Y yield -->
+      <div class="marketsGrid">
+        <!-- US10Y -->
         <div class="card embedCard w4"><div id="tv_10y"></div></div>
 
-        <!-- Equities -->
-        <div class="card embedCard w4"><div id="tv_spy"></div></div>
-        <div class="card embedCard w4"><div id="tv_qqq"></div></div>
-        <div class="card embedCard w4"><div id="tv_mstr"></div></div>
+        <!-- SPX (index). If embed refuses, fallback to SPY automatically. -->
+        <div class="card embedCard w4"><div id="tv_spx"></div></div>
 
-        <!-- Commodities -->
+        <div class="card embedCard w4"><div id="tv_qqq"></div></div>
+
+        <div class="card embedCard w4"><div id="tv_mstr"></div></div>
         <div class="card embedCard w4"><div id="tv_gold"></div></div>
         <div class="card embedCard w4"><div id="tv_oil"></div></div>
-
-        <!-- BTC big -->
-        <div class="card embedCard w6"><div id="tv_btc"></div></div>
       </div>
 
       <div class="foot">
-        <span>BTC data: Coinbase Exchange. Charts: TradingView widgets. “Sats per $1” computed from BTC/USD.</span>
+        <span>BTC stats: Coinbase Exchange. Charts: TradingView widgets. “Sats per $1” computed from BTC/USD.</span>
         <span class="pill" id="lastAll">Last refresh: –</span>
       </div>
     </section>
+
   </div>
 </main>
 
-<!-- Music: put your file in repo at /assets/music.mp3 -->
+<!-- Music: add your file in repo at /assets/music.mp3 -->
 <audio id="bgMusic" loop preload="auto">
   <source src="assets/music.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
 </audio>
+
+<!-- X widgets (Twitter timeline) -->
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
   const $ = (id) => document.getElementById(id);
@@ -335,7 +415,7 @@
     return res.json();
   }
 
-  // BTC from Coinbase Exchange (reliable + direct)
+  // BTC from Coinbase Exchange
   async function fetchBTC(){
     clearErr("btcErr");
     const [ticker, stats] = await Promise.all([
@@ -359,7 +439,6 @@
     $("btcLow").textContent  = fmtUSD2(low);
     $("btcVol").textContent  = fmtNum(vol);
 
-    // sats per $1 = 1e8 / BTCUSD
     const sats = price ? (1e8 / price) : null;
     $("satsPerUsd").textContent = sats ? `${fmtNum0(sats)} sats` : "–";
 
@@ -399,7 +478,7 @@
     el.querySelector(".tradingview-widget-container").appendChild(script);
   }
 
-  function bigSymbol(containerId, symbol, title){
+  function bigSymbol(containerId, symbol, title, height=360){
     const el = document.getElementById(containerId);
     if(!el) return;
 
@@ -420,7 +499,7 @@
       symbols: [[title, symbol]],
       chartOnly: false,
       width: "100%",
-      height: 320,
+      height,
       locale: "en",
       colorTheme: "dark",
       autosize: true,
@@ -443,21 +522,28 @@
   }
 
   function initWidgets(){
-    // 10Y: use TNX (widely supported). It's yield (not price) but it's the standard “10Y”.
-    miniSymbol("tv_10y",  "CBOE:TNX", "US 10Y Yield (TNX)");
+    // BTC chart at the very top
+    bigSymbol("tv_btc_top", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)", 420);
 
-    // Equities
-    miniSymbol("tv_spy",  "AMEX:SPY", "S&P 500 (SPY)");
-    miniSymbol("tv_qqq",  "NASDAQ:QQQ","Nasdaq 100 (QQQ)");
-    miniSymbol("tv_mstr", "NASDAQ:MSTR","MicroStrategy (MSTR)");
+    // US10Y: embed-friendly symbol
+    miniSymbol("tv_10y", "TVC:US10Y", "US 10Y Yield (US10Y)");
 
-    // Commodities in USD
-    miniSymbol("tv_gold", "OANDA:XAUUSD","Gold / USD (oz)");
-    // Oil: this is a liquid USD proxy. If you want futures later we can swap to CL1! if it loads on your network.
-    miniSymbol("tv_oil",  "AMEX:USO", "WTI Oil Proxy (USO)");
+    // SPX (index) — if it errors for you, swap to AMEX:SPY
+    miniSymbol("tv_spx", "TVC:SPX", "S&P 500 Index (SPX)");
 
-    // BTC chart
-    bigSymbol("tv_btc", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
+    miniSymbol("tv_qqq", "NASDAQ:QQQ", "Nasdaq 100 (QQQ)");
+    miniSymbol("tv_mstr", "NASDAQ:MSTR", "Strategy (MSTR)");
+    miniSymbol("tv_gold", "OANDA:XAUUSD", "Gold / USD (oz)");
+    miniSymbol("tv_oil", "AMEX:USO", "WTI Oil Proxy (USO)");
+
+    // Auto-fallback if SPX tile shows invalid symbol (best-effort heuristic)
+    setTimeout(() => {
+      const spxEl = document.getElementById("tv_spx");
+      const text = spxEl ? spxEl.innerText.toLowerCase() : "";
+      if (text.includes("invalid symbol") || text.includes("only available")) {
+        miniSymbol("tv_spx", "AMEX:SPY", "S&P 500 Proxy (SPY fallback)");
+      }
+    }, 2500);
   }
 
   async function refreshAll(){
@@ -471,11 +557,11 @@
       const ms = Math.round(performance.now() - start);
       setStatus(`OK • ${ms}ms`);
       $("lastAll").textContent = `Last refresh: ${nowStamp()}`;
-      setTimeout(() => setStatus("Idle"), 1400);
+      setTimeout(() => setStatus("Idle"), 1200);
     }
   }
 
-  // Music toggle (user gesture required)
+  // Music (user gesture required)
   const music = $("bgMusic");
   const btnMusic = $("btnMusic");
   let musicOn = false;
@@ -483,7 +569,7 @@
   btnMusic.addEventListener("click", async () => {
     try{
       if(!musicOn){
-        await music.play();         // will work after click
+        await music.play();
         musicOn = true;
         btnMusic.textContent = "Pause music";
       } else {
@@ -492,7 +578,7 @@
         btnMusic.textContent = "Play music";
       }
     } catch (e){
-      alert("Music couldn't start (browser blocked it). Try clicking again, or ensure assets/music.mp3 exists.");
+      alert("Music couldn't start (browser blocked it). Make sure assets/music.mp3 exists, then click again.");
     }
   });
 
