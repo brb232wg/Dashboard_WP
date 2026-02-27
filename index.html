@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Br's War Room</title>
+<title>Br's Macro War Room</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
@@ -11,7 +11,6 @@
 :root{
   --bg:#05080f;
   --panel:#0b1220;
-  --panel2:#0a1020;
   --text:#e6edf3;
   --muted:#7f8ea3;
   --good:#19c37d;
@@ -47,7 +46,7 @@ body{
   grid-auto-rows:180px;
   gap:10px;
   padding:14px;
-  opacity:.20;
+  opacity:.18;
   pointer-events:none;
 }
 .bgTile{
@@ -55,10 +54,10 @@ body{
   height:100%;
   object-fit:cover;
   border-radius:16px;
-  filter: blur(1px) brightness(.78) contrast(1.05);
+  filter: blur(1px) brightness(.76) contrast(1.05);
 }
 
-/* Overlay for readability */
+/* Overlay */
 body::after{
   content:"";
   position:fixed;
@@ -67,7 +66,7 @@ body::after{
   background:
     radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
     radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
-    linear-gradient(180deg, rgba(5,8,15,.88), rgba(5,8,15,.96));
+    linear-gradient(180deg, rgba(5,8,15,.90), rgba(5,8,15,.96));
   pointer-events:none;
 }
 
@@ -119,7 +118,7 @@ body::after{
   background: rgba(25,195,125,.08);
 }
 
-/* ===== TOP BAR (buttons at top) ===== */
+/* ===== TOP BAR ===== */
 header{
   margin-left:240px;
   padding:18px 20px 0 20px;
@@ -238,13 +237,22 @@ button:hover{filter:brightness(1.06)}
 .k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
 .v{ font-size: 14px; }
 
-/* ===== Markets Grid (separated tiles) ===== */
+/* ===== Markets Grid ===== */
+/* Default: responsive auto-fit */
 .marketsGrid{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap:14px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
+/* Force 5 per row on wide screens */
+@media (min-width: 1500px){
+  .marketsGrid{
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* Tiles */
 .tile{
   background: rgba(6,10,18,.55);
   border: 1px solid rgba(70, 120, 190, .50);
@@ -266,6 +274,72 @@ button:hover{filter:brightness(1.06)}
 }
 .tileBody{
   padding:10px 10px 12px 10px;
+}
+
+/* ===== NEWS TICKER + RANGE BUTTONS (where you circled) ===== */
+.marketTopRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.tickerBar{
+  flex: 1 1 640px;
+  position: relative;
+  height: 40px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(70,120,190,.45);
+  background: rgba(255,255,255,.03);
+}
+
+.tickerInner{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  gap:28px;
+  padding: 0 14px;
+  white-space:nowrap;
+  will-change: transform;
+  animation: tickerMove 26s linear infinite;
+}
+
+.tickerItem{
+  color: var(--muted);
+  font-size: 12px;
+}
+.tickerItem a{
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.18);
+}
+.tickerItem a:hover{
+  border-bottom-color: rgba(25,195,125,.55);
+}
+
+@keyframes tickerMove{
+  0%{ transform: translateX(0); }
+  100%{ transform: translateX(-50%); }
+}
+
+.rangeGroup{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.rangeBtn{
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(55,85,130,.65);
+  background: rgba(12,20,35,.72);
+}
+.rangeBtn.active{
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(25,195,125,.25);
+  background: rgba(25,195,125,.08);
 }
 
 /* Responsive */
@@ -296,12 +370,12 @@ button:hover{filter:brightness(1.06)}
   <button class="modeBtn" data-mode="crypto">Crypto</button>
 </div>
 
-<!-- Top header (buttons at top) -->
+<!-- Top header -->
 <header>
   <div class="topBar">
     <div>
       <h1>Macro War Room</h1>
-      <div class="sub">BTC always on top • choose loadout on the left</div>
+      <div class="sub">BTC always on top • global timeframe controls • ticker + loadout below</div>
     </div>
 
     <div class="controls">
@@ -334,7 +408,7 @@ button:hover{filter:brightness(1.06)}
     <div class="tile" style="margin: 14px; border-color: rgba(25,195,125,.55);">
       <div class="tileHeader">
         <div class="tileTitle">BTCUSD</div>
-        <span class="pill">COINBASE</span>
+        <span class="pill">COINBASE:BTCUSD</span>
       </div>
       <div class="tileBody">
         <div id="tv_btc_top"></div>
@@ -373,9 +447,26 @@ button:hover{filter:brightness(1.06)}
   <!-- MARKETS CARD -->
   <section class="card">
     <div class="cardHeader">
-      <div class="cardTitle" id="modeTitle">Devil's Chess Board</div>
-      <span class="pill" id="modePill">Loadout</span>
+      <div class="marketTopRow" style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="cardTitle" id="modeTitle">Devil's Chess Board</div>
+          <span class="pill" id="modePill">Loadout</span>
+        </div>
+
+        <!-- THIS IS THE SPOT YOU CIRCLED: ticker + timeframe buttons -->
+        <div class="tickerBar" title="Edit assets/ticker.json to change headlines">
+          <div class="tickerInner" id="tickerInner"></div>
+        </div>
+
+        <div class="rangeGroup" aria-label="Chart timeframe">
+          <button class="rangeBtn active" data-range="1D">Daily</button>
+          <button class="rangeBtn" data-range="5D">Weekly</button>
+          <button class="rangeBtn" data-range="1M">Monthly</button>
+          <button class="rangeBtn" data-range="12M">Yearly</button>
+        </div>
+      </div>
     </div>
+
     <div class="cardBody">
       <div class="marketsGrid" id="marketsGrid"></div>
     </div>
@@ -390,6 +481,10 @@ button:hover{filter:brightness(1.06)}
 
 <script>
   const $ = (id) => document.getElementById(id);
+
+  // ===== Global chart range (applies to ALL charts) =====
+  // TradingView mini widget supports: 1D, 5D, 1M, 3M, 6M, 12M, 60M, ALL
+  let currentRange = "1D";
 
   // ---------- Formatting ----------
   function fmtUSD2(n){
@@ -443,7 +538,6 @@ button:hover{filter:brightness(1.06)}
   }
 
   async function fetchGBPUSD(){
-    // Free endpoint (no key). If it ever changes, we can swap providers.
     const j = await fetchJSON("https://open.er-api.com/v6/latest/GBP");
     const rate = j?.rates?.USD;
     $("gbpUsd").textContent = rate ? `1 GBP = ${fmtNum(rate)} USD` : "–";
@@ -465,7 +559,52 @@ button:hover{filter:brightness(1.06)}
     }
   }
 
-  // ---------- TradingView widget helpers ----------
+  // ---------- Ticker ----------
+  function buildTicker(items){
+    // We duplicate items so the animation can loop smoothly (moving -50%)
+    const safe = (items && items.length) ? items : [{ text:"Add headlines in assets/ticker.json", url:"" }];
+
+    const doubled = [...safe, ...safe];
+    const inner = $("tickerInner");
+    inner.innerHTML = "";
+
+    doubled.forEach(it => {
+      const span = document.createElement("span");
+      span.className = "tickerItem";
+
+      const text = (it && it.text) ? it.text : "";
+      const url  = (it && it.url) ? it.url : "";
+
+      if(url){
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = text;
+        span.appendChild(a);
+      } else {
+        span.textContent = text;
+      }
+      inner.appendChild(span);
+    });
+
+    // If items are short, speed up less; if long, keep default.
+    // (We keep it simple; you can tune CSS animation duration too.)
+  }
+
+  async function loadTicker(){
+    try{
+      const j = await fetchJSON("assets/ticker.json");
+      buildTicker(j.items || []);
+    } catch(e){
+      buildTicker([
+        { text:"⚠️ Ticker file missing. Create assets/ticker.json", url:"" },
+        { text:"Tip: Each item can include a URL and becomes clickable.", url:"" }
+      ]);
+    }
+  }
+
+  // ---------- TradingView helpers ----------
   function createTile(containerId, symbol, title){
     const tile = document.createElement("div");
     tile.className = "tile";
@@ -490,7 +629,7 @@ button:hover{filter:brightness(1.06)}
       width: "100%",
       height: 260,
       locale: "en",
-      dateRange: "12M",
+      dateRange: currentRange,
       colorTheme: "dark",
       isTransparent: true,
       autosize: true,
@@ -500,52 +639,130 @@ button:hover{filter:brightness(1.06)}
     tile.querySelector(`#${containerId}`).appendChild(s);
   }
 
+  // DXY real first (TVC:DXY), fallback to proxy (UUP)
+  function createTileWithFallback(containerId, primarySymbol, primaryTitle, fallbackSymbol, fallbackTitle){
+    const tile = document.createElement("div");
+    tile.className = "tile";
+
+    tile.innerHTML = `
+      <div class="tileHeader">
+        <div class="tileTitle">${primaryTitle}</div>
+        <span class="pill">${primarySymbol}</span>
+      </div>
+      <div class="tileBody">
+        <div id="${containerId}"></div>
+      </div>
+    `;
+    $("marketsGrid").appendChild(tile);
+
+    const mount = () => {
+      const s = document.createElement("script");
+      s.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+      s.async = true;
+      s.innerHTML = JSON.stringify({
+        symbol: primarySymbol,
+        width: "100%",
+        height: 260,
+        locale: "en",
+        dateRange: currentRange,
+        colorTheme: "dark",
+        isTransparent: true,
+        autosize: true,
+        chartOnly: false
+      });
+      tile.querySelector(`#${containerId}`).appendChild(s);
+    };
+
+    mount();
+
+    // Best-effort fallback: after 2.6s if the tile text contains common TV block messages
+    setTimeout(() => {
+      const t = tile.innerText.toLowerCase();
+      const blocked = t.includes("invalid symbol") || t.includes("only available on tradingview");
+
+      if(blocked){
+        tile.querySelector(".tileTitle").textContent = fallbackTitle;
+        tile.querySelector(".pill").textContent = fallbackSymbol;
+
+        const box = tile.querySelector(`#${containerId}`);
+        box.innerHTML = "";
+
+        const f = document.createElement("script");
+        f.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+        f.async = true;
+        f.innerHTML = JSON.stringify({
+          symbol: fallbackSymbol,
+          width: "100%",
+          height: 260,
+          locale: "en",
+          dateRange: currentRange,
+          colorTheme: "dark",
+          isTransparent: true,
+          autosize: true,
+          chartOnly: false
+        });
+        box.appendChild(f);
+      }
+    }, 2600);
+  }
+
   function loadBTCChart(){
     const host = document.getElementById("tv_btc_top");
     host.innerHTML = "";
 
     const s = document.createElement("script");
-    s.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    s.async=true;
-    s.innerHTML=JSON.stringify({
-      symbols:[["BTCUSD","COINBASE:BTCUSD"]],
-      width:"100%",
-      height:420,
-      locale:"en",
-      colorTheme:"dark",
-      autosize:true,
-      showVolume:true,
-      chartType:"area",
-      isTransparent:true
+    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+    s.async = true;
+
+    // symbol-overview accepts a range-like config in some variants;
+    // dateRange works reliably in mini widgets; here we pass it too (ignored if unsupported).
+    s.innerHTML = JSON.stringify({
+      symbols: [["BTCUSD","COINBASE:BTCUSD"]],
+      width: "100%",
+      height: 420,
+      locale: "en",
+      colorTheme: "dark",
+      autosize: true,
+      showVolume: true,
+      chartType: "area",
+      isTransparent: true,
+      dateRange: currentRange
     });
+
     host.appendChild(s);
   }
 
-  // ---------- Modes ----------
+  // ---------- Modes (max 10 charts / section) ----------
   let currentMode = "devil";
 
   function setMode(mode){
     currentMode = mode;
     $("marketsGrid").innerHTML = "";
 
-    // NOTE:
-    // Some “INDEX:” symbols are blocked in embeds with “TradingView only”.
-    // So for global indices we use reliable ETF proxies that always embed.
+    let count = 0;
+    const add = (id, sym, title) => {
+      if(count >= 10) return;
+      count++;
+      createTile(id, sym, title);
+    };
 
     if(mode === "devil"){
       $("modeTitle").textContent = "Devil's Chess Board";
       $("modePill").textContent = "Equities";
 
-      createTile("m_pltr", "NYSE:PLTR", "Palantir");
-      createTile("m_rtx",  "NYSE:RTX",  "Raytheon");
-      createTile("m_lmt",  "NYSE:LMT",  "Lockheed Martin");
-      createTile("m_noc",  "NYSE:NOC",  "Northrop Grumman");
-      createTile("m_gd",   "NYSE:GD",   "General Dynamics");
-      createTile("m_eslt", "NASDAQ:ESLT", "Elbit Systems");
-      createTile("m_nvda", "NASDAQ:NVDA", "Nvidia");
-      createTile("m_orcl", "NYSE:ORCL", "Oracle");
-      createTile("m_amd",  "NASDAQ:AMD", "AMD");
-      createTile("m_uuuu", "AMEX:UUUU", "Energy Fuels (UUUU)");
+      // Defense first
+      add("m_eslt", "NASDAQ:ESLT", "Elbit Systems");
+      add("m_rtx",  "NYSE:RTX",    "Raytheon");
+      add("m_lmt",  "NYSE:LMT",    "Lockheed Martin");
+      add("m_noc",  "NYSE:NOC",    "Northrop Grumman");
+      add("m_gd",   "NYSE:GD",     "General Dynamics");
+
+      // Then strategic tech / energy
+      add("m_pltr", "NASDAQ:PLTR", "Palantir");          // FIXED
+      add("m_nvda", "NASDAQ:NVDA", "Nvidia");
+      add("m_orcl", "NYSE:ORCL",   "Oracle");
+      add("m_amd",  "NASDAQ:AMD",  "AMD");
+      add("m_uuuu", "AMEX:UUUU",   "Energy Fuels (UUUU)");
       return;
     }
 
@@ -553,21 +770,30 @@ button:hover{filter:brightness(1.06)}
       $("modeTitle").textContent = "Global";
       $("modePill").textContent = "Macro";
 
-      // US indices (reliable)
-      createTile("g_qqq", "NASDAQ:QQQ", "NASDAQ 100 (QQQ)");
-      createTile("g_spy", "AMEX:SPY",   "S&P 500 (SPY)");
+      // Commodities first
+      add("g_xau",  "OANDA:XAUUSD", "Gold (XAUUSD / oz)");
+      add("g_xag",  "OANDA:XAGUSD", "Silver (XAGUSD / oz)");
+      add("g_uso",  "AMEX:USO",     "Oil (USO / USD)");
 
-      // UK / Japan / Europe (use ETF proxies to avoid TradingView-only index symbols)
-      createTile("g_ewu", "AMEX:EWU",   "UK (FTSE proxy) EWU");
-      createTile("g_ewj", "AMEX:EWJ",   "Japan (Nikkei proxy) EWJ");
-      createTile("g_fez", "AMEX:FEZ",   "Euro STOXX 50 proxy (FEZ)");
-      createTile("g_ewg", "AMEX:EWG",   "Germany (DAX proxy) EWG");
+      // Real DXY first, fallback to proxy
+      if(count < 10){
+        count++;
+        createTileWithFallback(
+          "g_dxy",
+          "TVC:DXY",
+          "US Dollar Index (DXY)",
+          "AMEX:UUP",
+          "DXY Proxy (UUP)"
+        );
+      }
 
-      // DXY + metals + oil (all embed reliably)
-      createTile("g_uup",  "AMEX:UUP",       "DXY proxy (UUP)");
-      createTile("g_xau",  "OANDA:XAUUSD",   "Gold (XAUUSD / oz)");
-      createTile("g_xag",  "OANDA:XAGUSD",   "Silver (XAGUSD / oz)");
-      createTile("g_uso",  "AMEX:USO",       "Oil (USO / USD)");
+      // Indices after (use reliable proxies to avoid “TradingView only”)
+      add("g_spy", "AMEX:SPY",   "S&P 500 (SPY)");
+      add("g_qqq", "NASDAQ:QQQ", "NASDAQ 100 (QQQ)");
+      add("g_ewu", "AMEX:EWU",   "UK (FTSE proxy) EWU");      // avoids FTSE index block
+      add("g_ewj", "AMEX:EWJ",   "Japan (Nikkei proxy) EWJ");
+      add("g_ewg", "AMEX:EWG",   "Germany (DAX proxy) EWG");
+      add("g_fez", "AMEX:FEZ",   "Euro STOXX 50 proxy (FEZ)");
       return;
     }
 
@@ -575,20 +801,38 @@ button:hover{filter:brightness(1.06)}
       $("modeTitle").textContent = "Crypto";
       $("modePill").textContent = "Digital";
 
-      createTile("c_btc",   "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
-      createTile("c_eth",   "COINBASE:ETHUSD", "Ethereum (ETHUSD)");
-      createTile("c_total", "CRYPTOCAP:TOTAL", "Crypto Total Cap");
-      createTile("c_dom",   "CRYPTOCAP:BTC.D", "BTC Dominance");
+      add("c_btc",   "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
+      add("c_eth",   "COINBASE:ETHUSD", "Ethereum (ETHUSD)");
+      add("c_total", "CRYPTOCAP:TOTAL", "Crypto Total Cap");
+      add("c_dom",   "CRYPTOCAP:BTC.D", "BTC Dominance");
       return;
     }
   }
 
-  // Side panel buttons
+  // Rebuild all charts when timeframe changes
+  function applyRange(newRange){
+    currentRange = newRange;
+
+    // Rebuild BTC chart and current section charts
+    loadBTCChart();
+    setMode(currentMode);
+  }
+
+  // Side panel
   document.querySelectorAll(".modeBtn").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
       setMode(btn.dataset.mode);
+    });
+  });
+
+  // Timeframe buttons
+  document.querySelectorAll(".rangeBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".rangeBtn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      applyRange(btn.dataset.range);
     });
   });
 
@@ -608,7 +852,7 @@ button:hover{filter:brightness(1.06)}
     setAutoRefresh(parseInt(e.target.value, 10));
   });
 
-  // Music toggle (requires click)
+  // Music toggle
   const music = $("bgMusic");
   const btnMusic = $("btnMusic");
   let musicOn = false;
@@ -630,6 +874,7 @@ button:hover{filter:brightness(1.06)}
   });
 
   // ---------- Boot ----------
+  loadTicker();
   loadBTCChart();
   setMode("devil");
   refreshAll();
