@@ -28,29 +28,42 @@
       overflow-x:hidden;
     }
 
-    /* Background video */
-    .bgVideo{
-      position:fixed;
-      inset:0;
-      z-index:-3;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      opacity:.15;
-      filter:saturate(1.05);
-      pointer-events:none;
+    /* Tiled video wall background */
+    .bgWall{
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      grid-auto-rows: 180px;
+      gap: 10px;
+      padding: 14px;
+      overflow: hidden;
+      opacity: .26;           /* overall visibility of tiles */
+      filter: saturate(1.05);
+      pointer-events: none;
     }
 
-    /* Dark overlay to keep readability */
+    .bgTile{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 16px;
+      transform: translateZ(0);
+      filter: blur(1.5px) contrast(1.05) brightness(.92);
+      opacity: .75;           /* each tile opacity */
+    }
+
+    /* Strong readability overlay */
     body::after{
       content:"";
       position:fixed;
       inset:0;
       z-index:-2;
       background:
-        radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.10), transparent 60%),
-        radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.12), transparent 60%),
-        linear-gradient(180deg, rgba(7,10,16,.88), rgba(7,10,16,.94));
+        radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
+        radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
+        linear-gradient(180deg, rgba(7,10,16,.86), rgba(7,10,16,.95));
       pointer-events:none;
     }
 
@@ -230,9 +243,22 @@
 
 <body>
   <!-- Background video placeholder -->
-  <video class="bgVideo" autoplay muted loop playsinline>
-    <source src="assets/bg.mp4" type="video/mp4">
-  </video>
+    <div class="bgWall" aria-hidden="true">
+      <!-- 12 tiles; you can change count -->
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+    </div>
 
   <header>
     <div class="wrap">
