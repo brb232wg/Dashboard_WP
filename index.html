@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Financial Macro Dashboard</title>
+  <title>BR's Macro Dashboard</title>
 
   <style>
     :root{
@@ -28,78 +28,62 @@
       overflow-x:hidden;
     }
 
-    /* Dancing cat background (subtle) */
-    body::before{
+    /* Background video */
+    .bgVideo{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:.25;
+      filter:saturate(1.05);
+      pointer-events:none;
+    }
+
+    /* Dark overlay to keep readability */
+    body::after{
       content:"";
       position:fixed;
       inset:0;
       z-index:-2;
       background:
-        radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
-        radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
-        url("https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif");
-      background-repeat:no-repeat, no-repeat, repeat;
-      background-size:auto, auto, 220px auto;
-      background-position:center, center, 0 0;
-      opacity:.22;
-      pointer-events:none;
-    }
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      z-index:-1;
-      background: linear-gradient(180deg, rgba(7,10,16,.84), rgba(7,10,16,.93));
+        radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.10), transparent 60%),
+        radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.12), transparent 60%),
+        linear-gradient(180deg, rgba(7,10,16,.88), rgba(7,10,16,.94));
       pointer-events:none;
     }
 
+    /* No sticky header = normal scroll */
     header{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(12px);
-      background: rgba(7,10,16,.65);
-      border-bottom:1px solid rgba(28,42,64,.75);
+      background: rgba(7,10,16,.35);
+      border-bottom:1px solid rgba(28,42,64,.55);
     }
+
     .wrap{
       width:min(1760px, calc(100vw - 28px));
       margin:0 auto;
       padding:14px 0;
     }
 
-    .topGrid{
-      display:grid;
-      grid-template-columns: 8fr 4fr;
-      gap:14px;
-      padding:0 14px;
-      align-items:start;
-    }
-
-    .panel{
-      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
-      border:1px solid rgba(28,42,64,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-
-    .controlsBar{
+    .topBar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:12px 14px;
-      border-bottom:1px solid rgba(255,255,255,.06);
       flex-wrap:wrap;
+      padding:0 14px;
     }
-    .titleBlock{
+    .title{
       display:flex;
       flex-direction:column;
       gap:4px;
-      min-width: 260px;
+      min-width: 240px;
     }
-    .title{
-      font-size:16px;
-      font-weight:700;
+    .title h1{
       margin:0;
+      font-size:16px;
+      font-weight:750;
       letter-spacing:.2px;
     }
     .sub{color:var(--muted); font-size:12px}
@@ -110,15 +94,16 @@
       font-size:12px;
     }
     select, button{
-      background: rgba(12,19,32,.9);
+      background: rgba(12,19,32,.78);
       color: var(--text);
       border:1px solid rgba(28,42,64,.9);
       padding:8px 10px;
       border-radius:12px;
       font-family: var(--sans);
       cursor:pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
     }
-    button:hover{filter:brightness(1.05)}
+    button:hover{filter:brightness(1.06)}
     .pill{
       font-size:11px;
       padding:4px 8px;
@@ -130,7 +115,22 @@
       white-space:nowrap;
     }
 
-    /* BTC strip under BTC chart */
+    .panel{
+      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
+      border:1px solid rgba(28,42,64,.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .topGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+      padding:14px;
+    }
+
+    /* BTC section */
     .btcStrip{
       padding:12px 14px 14px 14px;
     }
@@ -170,13 +170,12 @@
     }
     .k{font-size:11px; color:var(--muted); margin-bottom:6px}
 
-    main{padding:14px 0 30px}
-
+    main{padding:0 0 30px}
     .grid{
       display:grid;
       grid-template-columns: repeat(12, 1fr);
       gap:14px;
-      padding:0 14px;
+      padding:0 14px 14px 14px;
     }
     .card{
       background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
@@ -186,8 +185,6 @@
       padding:14px;
       overflow:hidden;
     }
-    .span-8{grid-column: span 8;}
-    .span-4{grid-column: span 4;}
     .span-12{grid-column: span 12;}
 
     .marketsGrid{
@@ -207,27 +204,6 @@
     .embedTitle{font-size:12px; color:var(--muted)}
     .embedBody{padding:8px 10px 12px 10px}
 
-    /* X feed container */
-    .xWrap{
-      height: 100%;
-      min-height: 540px;
-    }
-    .xInner{
-      padding: 10px 12px 12px 12px;
-    }
-    .xNote{
-      color: var(--muted);
-      font-size: 12px;
-      padding: 10px 12px 0 12px;
-    }
-
-    .foot{
-      margin-top:12px;
-      font-size:12px;
-      color:var(--muted);
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-    }
-
     .err{
       margin-top:10px;
       border:1px solid rgba(255,77,79,.45);
@@ -241,11 +217,9 @@
     }
 
     @media (max-width: 1180px){
-      .topGrid{grid-template-columns: 1fr;}
       .btcSide{grid-template-columns: repeat(2, 1fr);}
       .w4,.w6{grid-column: span 12;}
       .btcPrice{font-size:38px}
-      .xWrap{min-height: 420px;}
     }
     @media (max-width: 520px){
       .btcSide{grid-template-columns: 1fr;}
@@ -255,139 +229,109 @@
 </head>
 
 <body>
+  <!-- Background video placeholder -->
+  <video class="bgVideo" autoplay muted loop playsinline>
+    <source src="assets/bg.mp4" type="video/mp4">
+  </video>
 
-<header>
-  <div class="wrap">
-    <div class="topGrid">
-
-      <!-- LEFT: BTC CHART FIRST + BTC STRIP -->
-      <div class="panel">
-        <div class="controlsBar">
-          <div class="titleBlock">
-            <div class="title">Macro Dashboard</div>
-            <div class="sub">BTC (top) • SPX • QQQ • MSTR • XAUUSD • OIL • US10Y • sats per $1</div>
-          </div>
-
-          <div class="controls">
-            <label>Auto refresh</label>
-            <select id="refreshEvery">
-              <option value="0">Off</option>
-              <option value="30">30s</option>
-              <option value="60" selected>60s</option>
-              <option value="120">2m</option>
-              <option value="300">5m</option>
-            </select>
-            <button id="btnRefresh">Refresh</button>
-
-            <button id="btnMusic">Play music</button>
-            <span class="pill" id="status">Idle</span>
-          </div>
+  <header>
+    <div class="wrap">
+      <div class="topBar">
+        <div class="title">
+          <h1>Macro Dashboard</h1>
+          <div class="sub">BTC • SPX • QQQ • MSTR • Gold • Oil • 10Y</div>
         </div>
 
-        <!-- BTC chart is FIRST thing you see -->
-        <div class="embedCard" style="border-top-left-radius:0;border-top-right-radius:0;">
-          <div id="tv_btc_top"></div>
-        </div>
+        <div class="controls">
+          <label>Auto refresh</label>
+          <select id="refreshEvery">
+            <option value="0">Off</option>
+            <option value="30">30s</option>
+            <option value="60" selected>60s</option>
+            <option value="120">2m</option>
+            <option value="300">5m</option>
+          </select>
+          <button id="btnRefresh">Refresh</button>
 
-        <!-- BTC stats strip -->
-        <div class="btcStrip">
-          <div class="btcTitleRow">
-            <div>BTC / USD (Coinbase Exchange)</div>
-            <div class="pill" id="btcUpdated">–</div>
-          </div>
-
-          <div class="btcMain">
-            <div>
-              <div class="btcPrice" id="btcPrice">$–</div>
-              <div class="v" id="btcChange">24h: –</div>
-            </div>
-
-            <div class="btcSide">
-              <div class="mini">
-                <div class="k">24h High</div>
-                <div class="v" id="btcHigh">–</div>
-              </div>
-              <div class="mini">
-                <div class="k">24h Low</div>
-                <div class="v" id="btcLow">–</div>
-              </div>
-              <div class="mini">
-                <div class="k">24h Volume (BTC)</div>
-                <div class="v" id="btcVol">–</div>
-              </div>
-              <div class="mini">
-                <div class="k">Sats per $1</div>
-                <div class="v" id="satsPerUsd">–</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="err" id="btcErr"></div>
+          <button id="btnMusic">Play music</button>
+          <span class="pill" id="status">Idle</span>
         </div>
       </div>
 
-      <!-- RIGHT: X FEED -->
-      <div class="panel xWrap">
-        <div class="embedHeader">
-          <div class="embedTitle">Live updates (X)</div>
-          <div class="pill">@DeItaone</div>
-        </div>
-        <div class="xNote">If this doesn’t load, your browser/network may be blocking X embeds (tracking protection).</div>
-        <div class="xInner">
-          <a class="twitter-timeline"
-             data-theme="dark"
-             data-height="560"
-             data-chrome="noheader nofooter noborders transparent"
-             href="https://twitter.com/DeItaone">
-            Tweets by @DeItaone
-          </a>
+      <div class="topGrid">
+        <div class="panel">
+          <!-- BTC chart FIRST -->
+          <div class="embedCard">
+            <div id="tv_btc_top"></div>
+          </div>
+
+          <!-- BTC stats -->
+          <div class="btcStrip">
+            <div class="btcTitleRow">
+              <div>BTC / USD</div>
+              <div class="pill" id="btcUpdated">–</div>
+            </div>
+
+            <div class="btcMain">
+              <div>
+                <div class="btcPrice" id="btcPrice">$–</div>
+                <div class="v" id="btcChange">24h: –</div>
+              </div>
+
+              <div class="btcSide">
+                <div class="mini">
+                  <div class="k">24h High</div>
+                  <div class="v" id="btcHigh">–</div>
+                </div>
+                <div class="mini">
+                  <div class="k">24h Low</div>
+                  <div class="v" id="btcLow">–</div>
+                </div>
+                <div class="mini">
+                  <div class="k">24h Volume (BTC)</div>
+                  <div class="v" id="btcVol">–</div>
+                </div>
+                <div class="mini">
+                  <div class="k">Sats per $1</div>
+                  <div class="v" id="satsPerUsd">–</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="err" id="btcErr"></div>
+          </div>
         </div>
       </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+
+      <section class="card span-12">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div style="color:var(--muted);font-size:13px;">Markets</div>
+          <span class="pill">10Y • SPX • QQQ • MSTR • Gold • Oil</span>
+        </div>
+
+        <div class="marketsGrid">
+          <!-- FIX: use robust proxies that embed reliably -->
+          <div class="card embedCard w4"><div id="tv_10y"></div></div>
+          <div class="card embedCard w4"><div id="tv_spx"></div></div>
+          <div class="card embedCard w4"><div id="tv_qqq"></div></div>
+          <div class="card embedCard w4"><div id="tv_mstr"></div></div>
+          <div class="card embedCard w4"><div id="tv_gold"></div></div>
+          <div class="card embedCard w4"><div id="tv_oil"></div></div>
+        </div>
+      </section>
 
     </div>
-  </div>
-</header>
+  </main>
 
-<main class="wrap">
-  <div class="grid">
-
-    <!-- MARKETS -->
-    <section class="card span-12">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-        <div style="color:var(--muted);font-size:13px;">Markets (USD where applicable)</div>
-        <span class="pill">US10Y • SPX • QQQ • MSTR • XAUUSD • OIL</span>
-      </div>
-
-      <div class="marketsGrid">
-        <!-- US10Y -->
-        <div class="card embedCard w4"><div id="tv_10y"></div></div>
-
-        <!-- SPX (index). If embed refuses, fallback to SPY automatically. -->
-        <div class="card embedCard w4"><div id="tv_spx"></div></div>
-
-        <div class="card embedCard w4"><div id="tv_qqq"></div></div>
-
-        <div class="card embedCard w4"><div id="tv_mstr"></div></div>
-        <div class="card embedCard w4"><div id="tv_gold"></div></div>
-        <div class="card embedCard w4"><div id="tv_oil"></div></div>
-      </div>
-
-      <div class="foot">
-        <span>BTC stats: Coinbase Exchange. Charts: TradingView widgets. “Sats per $1” computed from BTC/USD.</span>
-        <span class="pill" id="lastAll">Last refresh: –</span>
-      </div>
-    </section>
-
-  </div>
-</main>
-
-<!-- Music: add your file in repo at /assets/music.mp3 -->
-<audio id="bgMusic" loop preload="auto">
-  <source src="assets/music.mp3" type="audio/mpeg">
-</audio>
-
-<!-- X widgets (Twitter timeline) -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <!-- Music -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="assets/music.mp3" type="audio/mpeg">
+  </audio>
 
 <script>
   const $ = (id) => document.getElementById(id);
@@ -404,18 +348,16 @@
     if (n == null || Number.isNaN(n)) return "–";
     return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
   }
-  function nowStamp(){ return new Date().toLocaleString(); }
   function setStatus(text){ $("status").textContent = text; }
   function showErr(el, msg){ const b=$(el); b.style.display="block"; b.textContent=msg; }
   function clearErr(el){ const b=$(el); b.style.display="none"; b.textContent=""; }
 
   async function fetchJSON(url){
     const res = await fetch(url, { headers:{ "Accept":"application/json" }});
-    if(!res.ok) throw new Error(`${url} HTTP ${res.status}`);
+    if(!res.ok) throw new Error(`${res.status}`);
     return res.json();
   }
 
-  // BTC from Coinbase Exchange
   async function fetchBTC(){
     clearErr("btcErr");
     const [ticker, stats] = await Promise.all([
@@ -478,7 +420,7 @@
     el.querySelector(".tradingview-widget-container").appendChild(script);
   }
 
-  function bigSymbol(containerId, symbol, title, height=360){
+  function bigSymbol(containerId, symbol, title, height=420){
     const el = document.getElementById(containerId);
     if(!el) return;
 
@@ -522,46 +464,40 @@
   }
 
   function initWidgets(){
-    // BTC chart at the very top
     bigSymbol("tv_btc_top", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)", 420);
 
-    // US10Y: embed-friendly symbol
-    miniSymbol("tv_10y", "TVC:US10Y", "US 10Y Yield (US10Y)");
-
-    // SPX (index) — if it errors for you, swap to AMEX:SPY
-    miniSymbol("tv_spx", "TVC:SPX", "S&P 500 Index (SPX)");
+    // FIXES:
+    // SPX often fails in embeds. Use SPY as the most reliable S&P 500 proxy tile.
+    // 10Y yield indices often fail in embeds. Use IEF (7–10Y Treasury ETF) as robust “10Y” price proxy.
+    miniSymbol("tv_10y", "NASDAQ:IEF", "US 7–10Y Treasuries (IEF)");
+    miniSymbol("tv_spx", "AMEX:SPY",  "S&P 500 (SPY)");
 
     miniSymbol("tv_qqq", "NASDAQ:QQQ", "Nasdaq 100 (QQQ)");
-    miniSymbol("tv_mstr", "NASDAQ:MSTR", "Strategy (MSTR)");
-    miniSymbol("tv_gold", "OANDA:XAUUSD", "Gold / USD (oz)");
-    miniSymbol("tv_oil", "AMEX:USO", "WTI Oil Proxy (USO)");
+    miniSymbol("tv_mstr","NASDAQ:MSTR","Strategy (MSTR)");
 
-    // Auto-fallback if SPX tile shows invalid symbol (best-effort heuristic)
-    setTimeout(() => {
-      const spxEl = document.getElementById("tv_spx");
-      const text = spxEl ? spxEl.innerText.toLowerCase() : "";
-      if (text.includes("invalid symbol") || text.includes("only available")) {
-        miniSymbol("tv_spx", "AMEX:SPY", "S&P 500 Proxy (SPY fallback)");
-      }
-    }, 2500);
+    // Gold per ounce in USD
+    miniSymbol("tv_gold","OANDA:XAUUSD","Gold (XAUUSD)");
+
+    // Oil in USD proxy that embeds reliably
+    miniSymbol("tv_oil", "AMEX:USO", "Oil (USO)");
   }
 
   async function refreshAll(){
     setStatus("Refreshing…");
     const start = performance.now();
-    try {
+    try{
       await fetchBTC();
-    } catch (e){
-      showErr("btcErr", e.message);
-    } finally {
       const ms = Math.round(performance.now() - start);
       setStatus(`OK • ${ms}ms`);
-      $("lastAll").textContent = `Last refresh: ${nowStamp()}`;
+    } catch(e){
+      showErr("btcErr", `BTC fetch failed (${e.message}).`);
+      setStatus("Error");
+    } finally {
       setTimeout(() => setStatus("Idle"), 1200);
     }
   }
 
-  // Music (user gesture required)
+  // Music toggle
   const music = $("bgMusic");
   const btnMusic = $("btnMusic");
   let musicOn = false;
@@ -578,7 +514,7 @@
         btnMusic.textContent = "Play music";
       }
     } catch (e){
-      alert("Music couldn't start (browser blocked it). Make sure assets/music.mp3 exists, then click again.");
+      alert("Music couldn't start. Ensure assets/music.mp3 exists, then click again.");
     }
   });
 
@@ -591,6 +527,7 @@
       timer = setInterval(refreshAll, seconds * 1000);
     }
   }
+
   $("btnRefresh").addEventListener("click", refreshAll);
   $("refreshEvery").addEventListener("change", (e) => setAutoRefresh(parseInt(e.target.value, 10)));
 
