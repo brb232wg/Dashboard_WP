@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Macro Dashboard</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#101826;
+      --panel2:#0f1520;
+      --text:#e6edf3;
+      --muted:#9aa7b2;
+      --good:#19c37d;
+      --bad:#ff4d4f;
+      --warn:#f7b500;
+      --border:#1e2a3a;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background: radial-gradient(900px 600px at 20% 10%, rgba(25,195,125,.09), transparent 60%),
+                  radial-gradient(900px 600px at 80% 0%, rgba(100,149,237,.10), transparent 55%),
+                  var(--bg);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,20,.7);
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:16px;}
+    .titleRow{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    h1{font-size:18px; margin:0; letter-spacing:.2px}
+    .sub{color:var(--muted); font-size:12px; margin-top:4px}
+    .controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      font-size:12px; color:var(--muted);
+    }
+    button{
+      background: linear-gradient(180deg, #1b2a40, #142236);
+      color:var(--text);
+      border:1px solid var(--border);
+      padding:9px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    button:hover{filter:brightness(1.05)}
+    input, select{
+      background: var(--panel2);
+      color: var(--text);
+      border:1px solid var(--border);
+      padding:8px 10px;
+      border-radius:12px;
+      font-family: var(--sans);
+    }
+    main{padding:18px 0 30px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(16,24,38,.95), rgba(12,18,28,.95));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:14px;
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:13px;
+      color:var(--muted);
+      letter-spacing:.2px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .pill{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-family: var(--mono);
+      white-space:nowrap;
+    }
+    .big{
+      font-size:32px;
+      font-weight:700;
+      letter-spacing:-.4px;
+      margin:4px 0 6px 0;
+      font-family: var(--mono);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+      margin-top:12px;
+    }
+    .metric{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius: 14px;
+      padding:10px;
+      min-height:58px;
+    }
+    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
+    .v{font-size:14px; font-family: var(--mono)}
+    .delta.good{color:var(--good)}
+    .delta.bad{color:var(--bad)}
+    .delta.warn{color:var(--warn)}
+    .mono{font-family:var(--mono)}
+    .muted{color:var(--muted)}
+    .span-6{grid-column: span 6;}
+    .span-5{grid-column: span 5;}
+    .span-7{grid-column: span 7;}
+    .span-12{grid-column: span 12;}
+    .span-4{grid-column: span 4;}
+    .span-8{grid-column: span 8;}
+    .tvgrid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .tv{grid-column: span 6;}
+    .tvTall{grid-column: span 12;}
+    .foot{
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted);
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .err{
+      margin-top:10px;
+      border:1px solid rgba(255,77,79,.4);
+      background: rgba(255,77,79,.08);
+      padding:10px 12px;
+      border-radius:12px;
+      color: #ffd7d7;
+      font-size:12px;
+      display:none;
+      white-space:pre-wrap;
+    }
+    @media (max-width: 950px){
+      .span-7, .span-5, .span-6, .span-8, .span-4, .tv{grid-column: span 12;}
+      .row{grid-template-columns: repeat(2, 1fr);}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="titleRow">
+      <div>
+        <h1>Financial Macro Dashboard</h1>
+        <div class="sub">BTC + mempool + key markets • single-file HTML</div>
+      </div>
+      <div class="controls">
+        <label class="muted">Auto refresh</label>
+        <select id="refreshEvery">
+          <option value="0">Off</option>
+          <option value="30">30s</option>
+          <option value="60" selected>60s</option>
+          <option value="120">2m</option>
+          <option value="300">5m</option>
+        </select>
+        <button id="btnRefresh">Refresh now</button>
+        <span class="pill" id="status">Idle</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <!-- BTC -->
+    <section class="card span-7">
+      <h2>
+        Bitcoin (CoinGecko)
+        <span class="pill" id="btcUpdated">–</span>
+      </h2>
+      <div class="big" id="btcPrice">$–</div>
+      <div class="mono" id="btcChange">24h: –</div>
+
+      <div class="row">
+        <div class="metric">
+          <div class="k">24h High</div>
+          <div class="v" id="btcHigh">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">24h Low</div>
+          <div class="v" id="btcLow">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">24h Volume</div>
+          <div class="v" id="btcVol">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Market Cap</div>
+          <div class="v" id="btcMcap">–</div>
+        </div>
+      </div>
+
+      <div class="err" id="btcErr"></div>
+    </section>
+
+    <!-- Mempool -->
+    <section class="card span-5">
+      <h2>
+        Mempool (mempool.space)
+        <span class="pill" id="mpUpdated">–</span>
+      </h2>
+
+      <div class="row">
+        <div class="metric">
+          <div class="k">Fee (fastest)</div>
+          <div class="v" id="feeFast">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Fee (half hour)</div>
+          <div class="v" id="feeHalf">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Fee (hour)</div>
+          <div class="v" id="feeHour">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Mempool size</div>
+          <div class="v" id="mpSize">–</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="metric">
+          <div class="k">Backlog blocks</div>
+          <div class="v" id="mpBacklog">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Difficulty</div>
+          <div class="v" id="difficulty">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Hashrate (est.)</div>
+          <div class="v" id="hashrate">–</div>
+        </div>
+        <div class="metric">
+          <div class="k">Next retarget</div>
+          <div class="v" id="retarget">–</div>
+        </div>
+      </div>
+
+      <div class="err" id="mpErr"></div>
+    </section>
+
+    <!-- Markets widgets -->
+    <section class="card span-12">
+      <h2>
+        Markets (TradingView)
+        <span class="pill">Embeds avoid CORS pain</span>
+      </h2>
+
+      <div class="tvgrid">
+        <div class="card tv" style="padding:0">
+          <div id="tv_spx"></div>
+        </div>
+        <div class="card tv" style="padding:0">
+          <div id="tv_qqq"></div>
+        </div>
+        <div class="card tv" style="padding:0">
+          <div id="tv_dxy"></div>
+        </div>
+        <div class="card tv" style="padding:0">
+          <div id="tv_gold"></div>
+        </div>
+        <div class="card tv" style="padding:0">
+          <div id="tv_us10y"></div>
+        </div>
+        <div class="card tv" style="padding:0">
+          <div id="tv_oil"></div>
+        </div>
+        <div class="card tvTall" style="padding:0">
+          <div id="tv_btc"></div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span>Tip: if widgets don’t load, some networks block TradingView. BTC/mempool cards still work.</span>
+        <span class="mono" id="lastAll">Last refresh: –</span>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  // ---------- Helpers ----------
+  const $ = (id) => document.getElementById(id);
+
+  function fmtUSD(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { style:"currency", currency:"USD", maximumFractionDigits: 0 }).format(n);
+  }
+  function fmtUSD2(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { style:"currency", currency:"USD", maximumFractionDigits: 2 }).format(n);
+  }
+  function fmtNum(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
+  }
+  function fmtCompact(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { notation:"compact", maximumFractionDigits: 2 }).format(n);
+  }
+  function nowStamp(){
+    const d = new Date();
+    return d.toLocaleString();
+  }
+  function setStatus(text){
+    $("status").textContent = text;
+  }
+  function showErr(el, msg){
+    const box = $(el);
+    box.style.display = "block";
+    box.textContent = msg;
+  }
+  function clearErr(el){
+    const box = $(el);
+    box.style.display = "none";
+    box.textContent = "";
+  }
+
+  // ---------- Data fetchers ----------
+  async function fetchBTC(){
+    clearErr("btcErr");
+    const url = "https://api.coingecko.com/api/v3/simple/price" +
+      "?ids=bitcoin&vs_currencies=usd" +
+      "&include_24hr_change=true" +
+      "&include_24hr_high=true&include_24hr_low=true" +
+      "&include_24hr_vol=true&include_market_cap=true" +
+      "&precision=2";
+
+    const res = await fetch(url, { headers: { "accept": "application/json" }});
+    if(!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
+    const j = await res.json();
+    const b = j.bitcoin;
+    if(!b) throw new Error("CoinGecko: missing bitcoin payload");
+
+    $("btcPrice").textContent = fmtUSD2(b.usd);
+
+    const ch = b.usd_24h_change;
+    const cls = ch >= 0 ? "good" : "bad";
+    $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(ch)}%</span>`;
+
+    $("btcHigh").textContent = fmtUSD2(b.usd_24h_high);
+    $("btcLow").textContent  = fmtUSD2(b.usd_24h_low);
+    $("btcVol").textContent  = fmtCompact(b.usd_24h_vol);
+    $("btcMcap").textContent = fmtCompact(b.usd_market_cap);
+
+    $("btcUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+  }
+
+  async function fetchMempool(){
+    clearErr("mpErr");
+
+    const feeURL = "https://mempool.space/api/v1/fees/recommended";
+    const mpURL  = "https://mempool.space/api/mempool";
+    const diffURL= "https://mempool.space/api/v1/mining/difficulty-adjustment";
+    const hashURL= "https://mempool.space/api/v1/mining/hashrate/3d";
+
+    const [feeRes, mpRes, diffRes, hashRes] = await Promise.all([
+      fetch(feeURL), fetch(mpURL), fetch(diffURL), fetch(hashURL)
+    ]);
+
+    if(!feeRes.ok)  throw new Error(`mempool fees HTTP ${feeRes.status}`);
+    if(!mpRes.ok)   throw new Error(`mempool mempool HTTP ${mpRes.status}`);
+    if(!diffRes.ok) throw new Error(`mempool difficulty HTTP ${diffRes.status}`);
+    if(!hashRes.ok) throw new Error(`mempool hashrate HTTP ${hashRes.status}`);
+
+    const fee = await feeRes.json();
+    const mp  = await mpRes.json();
+    const diff= await diffRes.json();
+    const h   = await hashRes.json();
+
+    $("feeFast").textContent = `${fee.fastestFee} sat/vB`;
+    $("feeHalf").textContent = `${fee.halfHourFee} sat/vB`;
+    $("feeHour").textContent = `${fee.hourFee} sat/vB`;
+
+    // mempool size bytes -> MB/GB
+    const vbytes = mp.vsize; // vbytes
+    const mb = vbytes / 1e6;
+    $("mpSize").textContent = `${fmtNum(mb)} MvB`;
+    $("mpBacklog").textContent = `${mp.total_fee ? "≈" : ""}${fmtNum(mp.count / 2500)} blocks (rough)`;
+
+    // difficulty adjustment payload: includes difficulty, remainingBlocks, timeAvg, progressPercent, difficultyChange?
+    $("difficulty").textContent = diff.difficulty ? fmtCompact(diff.difficulty) : "–";
+
+    if (typeof diff.remainingBlocks === "number") {
+      $("retarget").textContent = `${diff.remainingBlocks} blocks`;
+    } else if (typeof diff.progressPercent === "number") {
+      $("retarget").textContent = `${fmtNum(100 - diff.progressPercent)}% remaining`;
+    } else {
+      $("retarget").textContent = "–";
+    }
+
+    // hashrate endpoint: array of hashrate points or object depending on version
+    // We'll try best-effort: if it's array, use last value; if object, use hashrate
+    let lastHash = null;
+    if (Array.isArray(h) && h.length){
+      const last = h[h.length - 1];
+      lastHash = last?.avgHashrate ?? last?.hashrate ?? last?.[1] ?? null;
+    } else if (typeof h === "object" && h){
+      lastHash = h.avgHashrate ?? h.hashrate ?? null;
+    }
+    // hashrate in H/s; show EH/s if big
+    if (lastHash != null){
+      const EH = lastHash / 1e18;
+      $("hashrate").textContent = `${fmtNum(EH)} EH/s`;
+    } else {
+      $("hashrate").textContent = "–";
+    }
+
+    $("mpUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+  }
+
+  async function refreshAll(){
+    setStatus("Refreshing…");
+    const start = performance.now();
+
+    try {
+      await Promise.all([
+        fetchBTC().catch(e => { showErr("btcErr", e.message); }),
+        fetchMempool().catch(e => { showErr("mpErr", e.message); })
+      ]);
+    } finally {
+      const ms = Math.round(performance.now() - start);
+      setStatus(`OK • ${ms}ms`);
+      $("lastAll").textContent = `Last refresh: ${nowStamp()}`;
+      setTimeout(() => setStatus("Idle"), 1500);
+    }
+  }
+
+  // ---------- TradingView widgets ----------
+  // Lightweight widget embed. Docs: https://www.tradingview.com/widget/
+  function addTVWidget(containerId, symbol, title){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+
+    // Clear container
+    container.innerHTML = "";
+
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      symbol,
+      width: "100%",
+      height: 220,
+      locale: "en",
+      dateRange: "12M",
+      colorTheme: "dark",
+      isTransparent: true,
+      autosize: true,
+      largeChartUrl: "",
+      chartOnly: false
+    });
+
+    const wrap = document.createElement("div");
+    wrap.style.padding = "10px 12px 6px 12px";
+    wrap.style.borderBottom = "1px solid rgba(255,255,255,.06)";
+    wrap.innerHTML = `<div style="font-size:12px;color:#9aa7b2;">${title}</div>`;
+
+    const holder = document.createElement("div");
+    holder.className = "tradingview-widget-container";
+    holder.style.padding = "6px 10px 12px 10px";
+    holder.appendChild(script);
+
+    container.appendChild(wrap);
+    container.appendChild(holder);
+  }
+
+  function addTVBig(containerId, symbol, title){
+    const container = document.getElementById(containerId);
+    if(!container) return;
+
+    container.innerHTML = "";
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      symbols: [[title, symbol]],
+      chartOnly: false,
+      width: "100%",
+      height: 360,
+      locale: "en",
+      colorTheme: "dark",
+      autosize: true,
+      showVolume: true,
+      showMA: false,
+      hideDateRanges: false,
+      hideMarketStatus: false,
+      hideSymbolLogo: false,
+      scalePosition: "right",
+      scaleMode: "Normal",
+      fontFamily: "system-ui",
+      fontSize: "12",
+      noTimeScale: false,
+      valuesTracking: "1",
+      changeMode: "price-and-percent",
+      chartType: "area",
+      isTransparent: true
+    });
+
+    const header = document.createElement("div");
+    header.style.padding = "10px 12px 6px 12px";
+    header.style.borderBottom = "1px solid rgba(255,255,255,.06)";
+    header.innerHTML = `<div style="font-size:12px;color:#9aa7b2;">${title}</div>`;
+
+    const holder = document.createElement("div");
+    holder.className = "tradingview-widget-container";
+    holder.style.padding = "6px 10px 12px 10px";
+    holder.appendChild(script);
+
+    container.appendChild(header);
+    container.appendChild(holder);
+  }
+
+  function initWidgets(){
+    // Symbols:
+    // S&P 500 index: TVC:SPX
+    // Nasdaq 100: NASDAQ:NDX (or QQQ ETF: NASDAQ:QQQ)
+    // DXY: TVC:DXY
+    // Gold spot: OANDA:XAUUSD (or COMEX:GC1!)
+    // US 10Y yield: TVC:US10Y
+    // WTI crude: TVC:USOIL (or NYMEX:CL1!)
+    // BTCUSD: BITSTAMP:BTCUSD (or COINBASE:BTCUSD)
+    addTVWidget("tv_spx", "TVC:SPX", "S&P 500 (SPX)");
+    addTVWidget("tv_qqq", "NASDAQ:NDX", "Nasdaq 100 (NDX)");
+    addTVWidget("tv_dxy", "TVC:DXY", "US Dollar Index (DXY)");
+    addTVWidget("tv_gold", "OANDA:XAUUSD", "Gold (XAUUSD)");
+    addTVWidget("tv_us10y", "TVC:US10Y", "US 10Y Yield (US10Y)");
+    addTVWidget("tv_oil", "TVC:USOIL", "WTI Crude (USOIL)");
+    addTVBig("tv_btc", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
+  }
+
+  // ---------- Auto refresh control ----------
+  let timer = null;
+  function setAutoRefresh(seconds){
+    if(timer) clearInterval(timer);
+    timer = null;
+    if(seconds > 0){
+      timer = setInterval(refreshAll, seconds * 1000);
+    }
+  }
+
+  // ---------- Init ----------
+  $("btnRefresh").addEventListener("click", refreshAll);
+  $("refreshEvery").addEventListener("change", (e) => {
+    setAutoRefresh(parseInt(e.target.value, 10));
+  });
+
+  initWidgets();
+  refreshAll();
+  setAutoRefresh(parseInt($("refreshEvery").value, 10));
+</script>
+</body>
+</html>
