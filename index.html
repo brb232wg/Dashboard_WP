@@ -594,52 +594,38 @@ button:hover{filter:brightness(1.06)}
 
   async function loadTicker(){
     const username = "DeItaone";
-    const profileUrl = `https://x.com/${username}`;
 
-    const parseRssItems = (xmlText) => {
+    // Use a CORS-friendly proxy + RSS feed so this works from static hosting.
+    // Reloading the page fetches a fresh feed snapshot.
+    const rssUrl = `https://nitter.poast.org/${username}/rss`;
+    const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
+
+    try{
+      const res = await fetch(proxied, { cache: "no-store" });
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const xmlText = await res.text();
       const doc = new DOMParser().parseFromString(xmlText, "application/xml");
-      const hasParserError = doc.querySelector("parsererror");
-      if(hasParserError) return [];
+      const entries = [...doc.querySelectorAll("item")].slice(0, 12);
 
-      return [...doc.querySelectorAll("item")].slice(0, 12).map((item) => {
+      const items = entries.map((item) => {
         const title = (item.querySelector("title")?.textContent || "").trim();
         const link = (item.querySelector("link")?.textContent || "").trim();
 
         return {
           text: `@${username}: ${title || "Update"}`,
-          url: link || profileUrl
+          url: link
         };
-      }).filter((it) => it.text);
-    };
+      }).filter((it) => it.text && it.url);
 
-    // Try multiple live sources/proxies to avoid single-point outages.
-    const nitterRssSources = [
-      `https://nitter.poast.org/${username}/rss`,
-      `https://nitter.net/${username}/rss`,
-      `https://nitter.privacydev.net/${username}/rss`
-    ];
-
-    const candidates = [];
-    nitterRssSources.forEach((rss) => {
-      candidates.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(rss)}`);
-      candidates.push(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rss)}`);
-      candidates.push(rss);
-    });
-
-    for(const url of candidates){
-      try{
-        const res = await fetch(url, { cache: "no-store" });
-        if(!res.ok) continue;
-
-        const xmlText = await res.text();
-        const items = parseRssItems(xmlText);
-        if(items.length){
-          buildTicker(items);
-          return;
-        }
-      } catch(_e){
-        // Try next endpoint.
-      }
+      if(!items.length) throw new Error("No feed items");
+      buildTicker(items);
+    } catch(e){
+      console.warn("Ticker feed unavailable", e);
+      buildTicker([
+        { text:`@${username} feed unavailable right now`, url:"https://x.com/DeItaone" },
+        { text:"Open profile on X for latest updates", url:"https://x.com/DeItaone" }
+      ]);
     }
 
     // Final fallback keeps ticker useful and clickable.
