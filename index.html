@@ -3,28 +3,37 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Br's Macro War Room</title>
+<title>Br's War Room</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --bg:#05080f;
-  --panel:#0d1422;
+  --panel:#0b1220;
+  --panel2:#0a1020;
   --text:#e6edf3;
   --muted:#7f8ea3;
   --good:#19c37d;
   --bad:#ff4d4f;
   --accent:#19c37d;
+
   --radius:16px;
+  --border: rgba(55, 85, 130, .45);
+  --border2: rgba(70, 120, 190, .55);
+  --shadow: 0 18px 55px rgba(0,0,0,.55);
+
+  --terminal: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --headline: 'Orbitron', system-ui, sans-serif;
 }
 
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:'Share Tech Mono', monospace;
+  font-family:var(--terminal);
   overflow-x:hidden;
 }
 
@@ -46,16 +55,20 @@ body{
   height:100%;
   object-fit:cover;
   border-radius:16px;
-  filter:blur(1px) brightness(.85);
+  filter: blur(1px) brightness(.78) contrast(1.05);
 }
 
-/* Overlay */
+/* Overlay for readability */
 body::after{
   content:"";
   position:fixed;
   inset:0;
   z-index:-2;
-  background:linear-gradient(180deg,rgba(5,8,15,.85),rgba(5,8,15,.95));
+  background:
+    radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
+    radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
+    linear-gradient(180deg, rgba(5,8,15,.88), rgba(5,8,15,.96));
+  pointer-events:none;
 }
 
 /* ===== SIDE PANEL ===== */
@@ -64,109 +77,209 @@ body::after{
   top:50%;
   left:0;
   transform:translateY(-50%);
-  width:220px;
-  background:rgba(8,14,24,.95);
-  border-right:1px solid rgba(40,60,90,.4);
-  padding:20px 12px;
+  width:230px;
+  background:rgba(7,12,22,.94);
+  border-right:1px solid var(--border);
+  padding:18px 12px;
   display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:12px;
   z-index:10;
+  backdrop-filter: blur(10px);
+  box-shadow: 12px 0 40px rgba(0,0,0,.35);
 }
+
 .panelTitle{
-  font-family:'Orbitron';
+  font-family:var(--headline);
   font-size:12px;
   color:var(--muted);
   text-transform:uppercase;
-}
-.modeBtn{
-  background:rgba(20,30,50,.7);
-  border:1px solid rgba(40,60,90,.6);
-  padding:10px;
-  border-radius:10px;
-  color:var(--text);
-  cursor:pointer;
-  font-family:'Share Tech Mono';
-  transition:.2s;
-}
-.modeBtn:hover{background:rgba(30,50,80,.9)}
-.modeBtn.active{
-  border-color:var(--accent);
-  box-shadow:0 0 12px rgba(25,195,125,.4);
+  letter-spacing:1.4px;
+  margin-bottom:4px;
 }
 
-/* ===== MAIN LAYOUT ===== */
-.wrap{
+.modeBtn{
+  background:rgba(16,26,44,.75);
+  border:1px solid rgba(55,85,130,.55);
+  padding:10px;
+  border-radius:12px;
+  color:var(--text);
+  cursor:pointer;
+  font-family:var(--terminal);
+  transition:.18s ease;
+  text-align:left;
+}
+.modeBtn:hover{
+  border-color: rgba(25,195,125,.55);
+  background: rgba(20,40,70,.55);
+}
+.modeBtn.active{
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(25,195,125,.35);
+  background: rgba(25,195,125,.08);
+}
+
+/* ===== TOP BAR (buttons at top) ===== */
+header{
   margin-left:240px;
-  padding:20px;
+  padding:18px 20px 0 20px;
   max-width:1700px;
 }
 
+.topBar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
 h1{
-  font-family:'Orbitron';
+  margin:0;
+  font-family:var(--headline);
   letter-spacing:2px;
   text-transform:uppercase;
+  font-size:18px;
 }
-
-.card{
-  background:var(--panel);
-  border:1px solid rgba(40,60,90,.5);
-  border-radius:var(--radius);
-  padding:14px;
-  margin-bottom:20px;
-}
-
-.btcPrice{
-  font-size:42px;
-  font-family:'Orbitron';
-}
-
-.miniStats{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:10px;
-  margin-top:10px;
-}
-
-.statBox{
-  background:rgba(255,255,255,.03);
-  padding:10px;
-  border-radius:10px;
-  border:1px solid rgba(40,60,90,.4);
-}
-
-.marketsGrid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:14px;
-}
-
-.embedCard{
-  padding:0;
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:6px;
 }
 
 .controls{
   display:flex;
+  align-items:center;
   gap:10px;
-  margin-top:10px;
+  flex-wrap:wrap;
 }
 
-button{
-  background:rgba(20,30,50,.7);
-  border:1px solid rgba(40,60,90,.6);
+select, button{
+  background:rgba(12,20,35,.72);
+  border:1px solid rgba(55,85,130,.65);
   color:var(--text);
-  padding:8px 12px;
-  border-radius:10px;
+  padding:9px 12px;
+  border-radius:12px;
   cursor:pointer;
+  font-family:var(--terminal);
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
 }
-button:hover{background:rgba(30,50,80,.9)}
+button:hover{filter:brightness(1.06)}
+.pill{
+  font-size:11px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid rgba(55,85,130,.65);
+  background: rgba(255,255,255,.03);
+  color: var(--muted);
+}
 
+/* ===== MAIN ===== */
+.wrap{
+  margin-left:240px;
+  padding:12px 20px 30px 20px;
+  max-width:1700px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(10,16,30,.92), rgba(8,12,24,.92));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  margin-bottom:16px;
+}
+
+.cardHeader{
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cardTitle{
+  font-family:var(--headline);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.cardBody{ padding: 10px 14px 14px 14px; }
+
+.btcPrice{
+  font-size:44px;
+  font-family:var(--headline);
+  letter-spacing:-.5px;
+  margin-top:8px;
+}
+
+.delta.good{color:var(--good)}
+.delta.bad{color:var(--bad)}
+
+.miniStats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+
+.statBox{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(55,85,130,.45);
+  border-radius:12px;
+  padding:10px;
+}
+
+.k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+.v{ font-size: 14px; }
+
+/* ===== Markets Grid (separated tiles) ===== */
+.marketsGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap:14px;
+}
+
+.tile{
+  background: rgba(6,10,18,.55);
+  border: 1px solid rgba(70, 120, 190, .50);
+  border-radius: 16px;
+  overflow:hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.tileHeader{
+  padding:10px 12px 8px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.tileTitle{
+  font-size:12px;
+  color:var(--muted);
+}
+.tileBody{
+  padding:10px 10px 12px 10px;
+}
+
+/* Responsive */
+@media (max-width: 980px){
+  .sidePanel{ position:static; transform:none; width:auto; margin:12px; }
+  header,.wrap{ margin-left:0; }
+}
 </style>
 </head>
 
 <body>
 
-<div class="bgWall">
+<!-- Background video wall -->
+<div class="bgWall" aria-hidden="true">
   <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
   <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
   <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
@@ -175,148 +288,352 @@ button:hover{background:rgba(30,50,80,.9)}
   <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
 </div>
 
+<!-- Side Panel -->
 <div class="sidePanel">
   <div class="panelTitle">Market View</div>
   <button class="modeBtn active" data-mode="devil">Devil's Chess Board</button>
-  <button class="modeBtn" data-mode="indices">Global Indices</button>
+  <button class="modeBtn" data-mode="global">Global</button>
   <button class="modeBtn" data-mode="crypto">Crypto</button>
 </div>
 
+<!-- Top header (buttons at top) -->
+<header>
+  <div class="topBar">
+    <div>
+      <h1>Macro War Room</h1>
+      <div class="sub">BTC always on top • choose loadout on the left</div>
+    </div>
+
+    <div class="controls">
+      <label style="color:var(--muted);font-size:12px;">Auto refresh</label>
+      <select id="refreshEvery">
+        <option value="0">Off</option>
+        <option value="30">30s</option>
+        <option value="60" selected>60s</option>
+        <option value="120">2m</option>
+        <option value="300">5m</option>
+      </select>
+
+      <button id="btnRefresh">Refresh</button>
+      <button id="btnMusic">Play music</button>
+      <span class="pill" id="status">Idle</span>
+    </div>
+  </div>
+</header>
+
 <div class="wrap">
 
-<h1>Macro War Room</h1>
+  <!-- BTC TOP CARD -->
+  <section class="card">
+    <div class="cardHeader">
+      <div class="cardTitle">Bitcoin</div>
+      <span class="pill" id="btcUpdated">–</span>
+    </div>
 
-<div class="card">
-  <div id="tv_btc_top"></div>
+    <!-- BTC chart -->
+    <div class="tile" style="margin: 14px; border-color: rgba(25,195,125,.55);">
+      <div class="tileHeader">
+        <div class="tileTitle">BTCUSD</div>
+        <span class="pill">COINBASE</span>
+      </div>
+      <div class="tileBody">
+        <div id="tv_btc_top"></div>
+      </div>
+    </div>
 
-  <div class="btcPrice" id="btcPrice">$--</div>
-  <div id="btcChange"></div>
+    <div class="cardBody">
+      <div class="btcPrice" id="btcPrice">$–</div>
+      <div class="v" id="btcChange">24h: –</div>
 
-  <div class="miniStats">
-    <div class="statBox">24h High: <span id="btcHigh">-</span></div>
-    <div class="statBox">24h Low: <span id="btcLow">-</span></div>
-    <div class="statBox">24h Volume: <span id="btcVol">-</span></div>
-    <div class="statBox">Sats per $1: <span id="satsPerUsd">-</span></div>
-  </div>
+      <div class="miniStats">
+        <div class="statBox">
+          <div class="k">24h High</div>
+          <div class="v" id="btcHigh">–</div>
+        </div>
+        <div class="statBox">
+          <div class="k">24h Low</div>
+          <div class="v" id="btcLow">–</div>
+        </div>
+        <div class="statBox">
+          <div class="k">24h Volume (BTC)</div>
+          <div class="v" id="btcVol">–</div>
+        </div>
+        <div class="statBox">
+          <div class="k">Sats per $1</div>
+          <div class="v" id="satsPerUsd">–</div>
+        </div>
+        <div class="statBox">
+          <div class="k">GBP → USD</div>
+          <div class="v" id="gbpUsd">–</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKETS CARD -->
+  <section class="card">
+    <div class="cardHeader">
+      <div class="cardTitle" id="modeTitle">Devil's Chess Board</div>
+      <span class="pill" id="modePill">Loadout</span>
+    </div>
+    <div class="cardBody">
+      <div class="marketsGrid" id="marketsGrid"></div>
+    </div>
+  </section>
+
 </div>
 
-<div class="card">
-  <div class="marketsGrid" id="marketsGrid"></div>
-</div>
-
-<div class="controls">
-  <button id="refreshBtn">Refresh</button>
-  <button id="musicBtn">Play Music</button>
-</div>
-
-</div>
-
-<audio id="bgMusic" loop>
+<!-- Music -->
+<audio id="bgMusic" loop preload="auto">
   <source src="assets/music.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-const $ = id => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-async function fetchBTC(){
-  const ticker = await fetch("https://api.exchange.coinbase.com/products/BTC-USD/ticker").then(r=>r.json());
-  const stats  = await fetch("https://api.exchange.coinbase.com/products/BTC-USD/stats").then(r=>r.json());
+  // ---------- Formatting ----------
+  function fmtUSD2(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { style:"currency", currency:"USD", maximumFractionDigits: 2 }).format(n);
+  }
+  function fmtNum(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
+  }
+  function fmtNum0(n){
+    if (n == null || Number.isNaN(n)) return "–";
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
+  }
+  function setStatus(t){ $("status").textContent = t; }
+  function nowTime(){ return new Date().toLocaleTimeString(); }
 
-  const price = Number(ticker.price);
-  const open = Number(stats.open);
+  // ---------- Data (BTC + GBPUSD) ----------
+  async function fetchJSON(url){
+    const res = await fetch(url, { headers:{ "Accept":"application/json" }});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
 
-  $("btcPrice").innerText = "$"+price.toLocaleString();
-  const pct = ((price-open)/open)*100;
-  $("btcChange").innerText = "24h: "+pct.toFixed(2)+"%";
+  async function fetchBTC(){
+    const [ticker, stats] = await Promise.all([
+      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/ticker"),
+      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/stats")
+    ]);
 
-  $("btcHigh").innerText = "$"+Number(stats.high).toLocaleString();
-  $("btcLow").innerText = "$"+Number(stats.low).toLocaleString();
-  $("btcVol").innerText = Number(stats.volume).toLocaleString();
-  $("satsPerUsd").innerText = Math.floor(100000000/price).toLocaleString()+" sats";
-}
+    const price = Number(ticker.price);
+    const open  = Number(stats.open);
+    const high  = Number(stats.high);
+    const low   = Number(stats.low);
+    const vol   = Number(stats.volume);
 
-function miniSymbol(container, symbol, title){
-  const div=document.createElement("div");
-  div.className="embedCard";
-  div.innerHTML=`<div id="${container}"></div>`;
-  $("marketsGrid").appendChild(div);
+    $("btcPrice").textContent = fmtUSD2(price);
 
-  const s=document.createElement("script");
-  s.src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
-  s.async=true;
-  s.innerHTML=JSON.stringify({
-    symbol,
-    width:"100%",
-    height:260,
-    locale:"en",
-    dateRange:"12M",
-    colorTheme:"dark",
-    isTransparent:true
+    const chPct = (open && price) ? ((price - open) / open) * 100 : null;
+    const cls = (chPct ?? 0) >= 0 ? "good" : "bad";
+    $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(chPct)}%</span>`;
+
+    $("btcHigh").textContent = fmtUSD2(high);
+    $("btcLow").textContent  = fmtUSD2(low);
+    $("btcVol").textContent  = fmtNum(vol);
+
+    const sats = price ? (1e8 / price) : null;
+    $("satsPerUsd").textContent = sats ? `${fmtNum0(sats)} sats` : "–";
+
+    $("btcUpdated").textContent = `Updated ${nowTime()}`;
+  }
+
+  async function fetchGBPUSD(){
+    // Free endpoint (no key). If it ever changes, we can swap providers.
+    const j = await fetchJSON("https://open.er-api.com/v6/latest/GBP");
+    const rate = j?.rates?.USD;
+    $("gbpUsd").textContent = rate ? `1 GBP = ${fmtNum(rate)} USD` : "–";
+  }
+
+  async function refreshAll(){
+    setStatus("Refreshing…");
+    const start = performance.now();
+
+    try{
+      await Promise.all([fetchBTC(), fetchGBPUSD()]);
+      const ms = Math.round(performance.now() - start);
+      setStatus(`OK • ${ms}ms`);
+    } catch(e){
+      setStatus("Error");
+      console.warn(e);
+    } finally {
+      setTimeout(() => setStatus("Idle"), 1200);
+    }
+  }
+
+  // ---------- TradingView widget helpers ----------
+  function createTile(containerId, symbol, title){
+    const tile = document.createElement("div");
+    tile.className = "tile";
+
+    tile.innerHTML = `
+      <div class="tileHeader">
+        <div class="tileTitle">${title}</div>
+        <span class="pill">${symbol}</span>
+      </div>
+      <div class="tileBody">
+        <div id="${containerId}"></div>
+      </div>
+    `;
+
+    $("marketsGrid").appendChild(tile);
+
+    const s = document.createElement("script");
+    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+    s.async = true;
+    s.innerHTML = JSON.stringify({
+      symbol,
+      width: "100%",
+      height: 260,
+      locale: "en",
+      dateRange: "12M",
+      colorTheme: "dark",
+      isTransparent: true,
+      autosize: true,
+      chartOnly: false
+    });
+
+    tile.querySelector(`#${containerId}`).appendChild(s);
+  }
+
+  function loadBTCChart(){
+    const host = document.getElementById("tv_btc_top");
+    host.innerHTML = "";
+
+    const s = document.createElement("script");
+    s.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+    s.async=true;
+    s.innerHTML=JSON.stringify({
+      symbols:[["BTCUSD","COINBASE:BTCUSD"]],
+      width:"100%",
+      height:420,
+      locale:"en",
+      colorTheme:"dark",
+      autosize:true,
+      showVolume:true,
+      chartType:"area",
+      isTransparent:true
+    });
+    host.appendChild(s);
+  }
+
+  // ---------- Modes ----------
+  let currentMode = "devil";
+
+  function setMode(mode){
+    currentMode = mode;
+    $("marketsGrid").innerHTML = "";
+
+    // NOTE:
+    // Some “INDEX:” symbols are blocked in embeds with “TradingView only”.
+    // So for global indices we use reliable ETF proxies that always embed.
+
+    if(mode === "devil"){
+      $("modeTitle").textContent = "Devil's Chess Board";
+      $("modePill").textContent = "Equities";
+
+      createTile("m_pltr", "NYSE:PLTR", "Palantir");
+      createTile("m_rtx",  "NYSE:RTX",  "Raytheon");
+      createTile("m_lmt",  "NYSE:LMT",  "Lockheed Martin");
+      createTile("m_noc",  "NYSE:NOC",  "Northrop Grumman");
+      createTile("m_gd",   "NYSE:GD",   "General Dynamics");
+      createTile("m_eslt", "NASDAQ:ESLT", "Elbit Systems");
+      createTile("m_nvda", "NASDAQ:NVDA", "Nvidia");
+      createTile("m_orcl", "NYSE:ORCL", "Oracle");
+      createTile("m_amd",  "NASDAQ:AMD", "AMD");
+      createTile("m_uuuu", "AMEX:UUUU", "Energy Fuels (UUUU)");
+      return;
+    }
+
+    if(mode === "global"){
+      $("modeTitle").textContent = "Global";
+      $("modePill").textContent = "Macro";
+
+      // US indices (reliable)
+      createTile("g_qqq", "NASDAQ:QQQ", "NASDAQ 100 (QQQ)");
+      createTile("g_spy", "AMEX:SPY",   "S&P 500 (SPY)");
+
+      // UK / Japan / Europe (use ETF proxies to avoid TradingView-only index symbols)
+      createTile("g_ewu", "AMEX:EWU",   "UK (FTSE proxy) EWU");
+      createTile("g_ewj", "AMEX:EWJ",   "Japan (Nikkei proxy) EWJ");
+      createTile("g_fez", "AMEX:FEZ",   "Euro STOXX 50 proxy (FEZ)");
+      createTile("g_ewg", "AMEX:EWG",   "Germany (DAX proxy) EWG");
+
+      // DXY + metals + oil (all embed reliably)
+      createTile("g_uup",  "AMEX:UUP",       "DXY proxy (UUP)");
+      createTile("g_xau",  "OANDA:XAUUSD",   "Gold (XAUUSD / oz)");
+      createTile("g_xag",  "OANDA:XAGUSD",   "Silver (XAGUSD / oz)");
+      createTile("g_uso",  "AMEX:USO",       "Oil (USO / USD)");
+      return;
+    }
+
+    if(mode === "crypto"){
+      $("modeTitle").textContent = "Crypto";
+      $("modePill").textContent = "Digital";
+
+      createTile("c_btc",   "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
+      createTile("c_eth",   "COINBASE:ETHUSD", "Ethereum (ETHUSD)");
+      createTile("c_total", "CRYPTOCAP:TOTAL", "Crypto Total Cap");
+      createTile("c_dom",   "CRYPTOCAP:BTC.D", "BTC Dominance");
+      return;
+    }
+  }
+
+  // Side panel buttons
+  document.querySelectorAll(".modeBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      setMode(btn.dataset.mode);
+    });
   });
-  div.firstChild.appendChild(s);
-}
 
-function loadMode(mode){
-  $("marketsGrid").innerHTML="";
-  if(mode==="devil"){
-    miniSymbol("pltr","NYSE:PLTR");
-    miniSymbol("rtx","NYSE:RTX");
-    miniSymbol("lmt","NYSE:LMT");
-    miniSymbol("noc","NYSE:NOC");
-    miniSymbol("amd","NASDAQ:AMD");
-    miniSymbol("gd","NYSE:GD");
+  // ---------- Controls ----------
+  $("btnRefresh").addEventListener("click", refreshAll);
+
+  // Auto refresh
+  let timer = null;
+  function setAutoRefresh(seconds){
+    if(timer) clearInterval(timer);
+    timer = null;
+    if(seconds > 0){
+      timer = setInterval(refreshAll, seconds * 1000);
+    }
   }
-  if(mode==="indices"){
-    miniSymbol("qqq","NASDAQ:QQQ");
-    miniSymbol("spy","AMEX:SPY");
-    miniSymbol("ftse","FTSE:UKX");
-    miniSymbol("nikkei","INDEX:NKY");
-    miniSymbol("stoxx","INDEX:SX5E");
-    miniSymbol("dax","XETR:DAX");
-  }
-  if(mode==="crypto"){
-    miniSymbol("btc","COINBASE:BTCUSD");
-    miniSymbol("eth","COINBASE:ETHUSD");
-    miniSymbol("total","CRYPTOCAP:TOTAL");
-    miniSymbol("dom","CRYPTOCAP:BTC.D");
-  }
-}
+  $("refreshEvery").addEventListener("change", (e) => {
+    setAutoRefresh(parseInt(e.target.value, 10));
+  });
 
-document.querySelectorAll(".modeBtn").forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    loadMode(btn.dataset.mode);
-  };
-});
+  // Music toggle (requires click)
+  const music = $("bgMusic");
+  const btnMusic = $("btnMusic");
+  let musicOn = false;
 
-$("refreshBtn").onclick=fetchBTC;
+  btnMusic.addEventListener("click", async () => {
+    try{
+      if(!musicOn){
+        await music.play();
+        musicOn = true;
+        btnMusic.textContent = "Pause music";
+      } else {
+        music.pause();
+        musicOn = false;
+        btnMusic.textContent = "Play music";
+      }
+    } catch(e){
+      alert("Music couldn't start. Make sure assets/music.mp3 exists, then click again.");
+    }
+  });
 
-const music=$("bgMusic");
-let playing=false;
-$("musicBtn").onclick=()=>{
-  if(!playing){music.play();playing=true;$("musicBtn").innerText="Pause Music";}
-  else{music.pause();playing=false;$("musicBtn").innerText="Play Music";}
-};
-
-const btcScript=document.createElement("script");
-btcScript.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-btcScript.async=true;
-btcScript.innerHTML=JSON.stringify({
-  symbols:[["BTCUSD","COINBASE:BTCUSD"]],
-  width:"100%",
-  height:400,
-  locale:"en",
-  colorTheme:"dark",
-  autosize:true,
-  showVolume:true,
-  chartType:"area",
-  isTransparent:true
-});
-document.getElementById("tv_btc_top").appendChild(btcScript);
-
-fetchBTC();
-loadMode("devil");
+  // ---------- Boot ----------
+  loadBTCChart();
+  setMode("devil");
+  refreshAll();
+  setAutoRefresh(parseInt($("refreshEvery").value, 10));
 </script>
 
 </body>
