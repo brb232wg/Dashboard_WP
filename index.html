@@ -454,7 +454,7 @@ button:hover{filter:brightness(1.06)}
         </div>
 
         <!-- THIS IS THE SPOT YOU CIRCLED: ticker + timeframe buttons -->
-        <div class="tickerBar" title="Edit assets/ticker.json to change headlines">
+        <div class="tickerBar" title="Live headlines from @DeItaone on refresh">
           <div class="tickerInner" id="tickerInner"></div>
         </div>
 
@@ -593,15 +593,61 @@ button:hover{filter:brightness(1.06)}
   }
 
   async function loadTicker(){
-    try{
-      const j = await fetchJSON("assets/ticker.json");
-      buildTicker(j.items || []);
-    } catch(e){
-      buildTicker([
-        { text:"⚠️ Ticker file missing. Create assets/ticker.json", url:"" },
-        { text:"Tip: Each item can include a URL and becomes clickable.", url:"" }
-      ]);
+    const username = "DeItaone";
+    const profileUrl = `https://x.com/${username}`;
+
+    const parseRssItems = (xmlText) => {
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const hasParserError = doc.querySelector("parsererror");
+      if(hasParserError) return [];
+
+      return [...doc.querySelectorAll("item")].slice(0, 12).map((item) => {
+        const title = (item.querySelector("title")?.textContent || "").trim();
+        const link = (item.querySelector("link")?.textContent || "").trim();
+
+        return {
+          text: `@${username}: ${title || "Update"}`,
+          url: link || profileUrl
+        };
+      }).filter((it) => it.text);
+    };
+
+    // Try multiple live sources/proxies to avoid single-point outages.
+    const nitterRssSources = [
+      `https://nitter.poast.org/${username}/rss`,
+      `https://nitter.net/${username}/rss`,
+      `https://nitter.privacydev.net/${username}/rss`
+    ];
+
+    const candidates = [];
+    nitterRssSources.forEach((rss) => {
+      candidates.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(rss)}`);
+      candidates.push(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rss)}`);
+      candidates.push(rss);
+    });
+
+    for(const url of candidates){
+      try{
+        const res = await fetch(url, { cache: "no-store" });
+        if(!res.ok) continue;
+
+        const xmlText = await res.text();
+        const items = parseRssItems(xmlText);
+        if(items.length){
+          buildTicker(items);
+          return;
+        }
+      } catch(_e){
+        // Try next endpoint.
+      }
     }
+
+    // Final fallback keeps ticker useful and clickable.
+    buildTicker([
+      { text:`@${username}: Open latest posts`, url:profileUrl },
+      { text:"Live feed temporarily unavailable", url:profileUrl },
+      { text:"Tap here to view the profile", url:profileUrl }
+    ]);
   }
 
   // ---------- TradingView helpers ----------
