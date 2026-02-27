@@ -1,565 +1,323 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Br's Macro Dashboard</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Br's Macro War Room</title>
 
-  <style>
-    :root{
-      --bg:#070a10;
-      --text:#e6edf3;
-      --muted:#9aa7b2;
-      --good:#19c37d;
-      --bad:#ff4d4f;
-      --border:#1c2a40;
-      --shadow: 0 16px 40px rgba(0,0,0,.45);
-      --radius: 18px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background:var(--bg);
-      overflow-x:hidden;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    /* Tiled video wall background */
-    .bgWall{
-      position: fixed;
-      inset: 0;
-      z-index: -3;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      grid-auto-rows: 180px;
-      gap: 10px;
-      padding: 14px;
-      overflow: hidden;
-      opacity: .26;           /* overall visibility of tiles */
-      filter: saturate(1.05);
-      pointer-events: none;
-    }
+<style>
+:root{
+  --bg:#05080f;
+  --panel:#0d1422;
+  --text:#e6edf3;
+  --muted:#7f8ea3;
+  --good:#19c37d;
+  --bad:#ff4d4f;
+  --accent:#19c37d;
+  --radius:16px;
+}
 
-    .bgTile{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 16px;
-      transform: translateZ(0);
-      filter: blur(1.5px) contrast(1.05) brightness(.92);
-      opacity: .75;           /* each tile opacity */
-    }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Share Tech Mono', monospace;
+  overflow-x:hidden;
+}
 
-    /* Strong readability overlay */
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      z-index:-2;
-      background:
-        radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
-        radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
-        linear-gradient(180deg, rgba(7,10,16,.86), rgba(7,10,16,.95));
-      pointer-events:none;
-    }
+/* ===== BACKGROUND VIDEO GRID ===== */
+.bgWall{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  grid-auto-rows:180px;
+  gap:10px;
+  padding:14px;
+  opacity:.20;
+  pointer-events:none;
+}
+.bgTile{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:16px;
+  filter:blur(1px) brightness(.85);
+}
 
-    /* No sticky header = normal scroll */
-    header{
-      background: rgba(7,10,16,.35);
-      border-bottom:1px solid rgba(28,42,64,.55);
-    }
+/* Overlay */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:linear-gradient(180deg,rgba(5,8,15,.85),rgba(5,8,15,.95));
+}
 
-    .wrap{
-      width:min(1760px, calc(100vw - 28px));
-      margin:0 auto;
-      padding:14px 0;
-    }
+/* ===== SIDE PANEL ===== */
+.sidePanel{
+  position:fixed;
+  top:50%;
+  left:0;
+  transform:translateY(-50%);
+  width:220px;
+  background:rgba(8,14,24,.95);
+  border-right:1px solid rgba(40,60,90,.4);
+  padding:20px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  z-index:10;
+}
+.panelTitle{
+  font-family:'Orbitron';
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.modeBtn{
+  background:rgba(20,30,50,.7);
+  border:1px solid rgba(40,60,90,.6);
+  padding:10px;
+  border-radius:10px;
+  color:var(--text);
+  cursor:pointer;
+  font-family:'Share Tech Mono';
+  transition:.2s;
+}
+.modeBtn:hover{background:rgba(30,50,80,.9)}
+.modeBtn.active{
+  border-color:var(--accent);
+  box-shadow:0 0 12px rgba(25,195,125,.4);
+}
 
-    .topBar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      padding:0 14px;
-    }
-    .title{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      min-width: 240px;
-    }
-    .title h1{
-      margin:0;
-      font-size:16px;
-      font-weight:750;
-      letter-spacing:.2px;
-    }
-    .sub{color:var(--muted); font-size:12px}
+/* ===== MAIN LAYOUT ===== */
+.wrap{
+  margin-left:240px;
+  padding:20px;
+  max-width:1700px;
+}
 
-    .controls{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      color:var(--muted);
-      font-size:12px;
-    }
-    select, button{
-      background: rgba(12,19,32,.78);
-      color: var(--text);
-      border:1px solid rgba(28,42,64,.9);
-      padding:8px 10px;
-      border-radius:12px;
-      font-family: var(--sans);
-      cursor:pointer;
-      box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    }
-    button:hover{filter:brightness(1.06)}
-    .pill{
-      font-size:11px;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(28,42,64,.9);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-      font-family: var(--mono);
-      white-space:nowrap;
-    }
+h1{
+  font-family:'Orbitron';
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
 
-    .panel{
-      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
-      border:1px solid rgba(28,42,64,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
+.card{
+  background:var(--panel);
+  border:1px solid rgba(40,60,90,.5);
+  border-radius:var(--radius);
+  padding:14px;
+  margin-bottom:20px;
+}
 
-    .topGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
-      padding:14px;
-    }
+.btcPrice{
+  font-size:42px;
+  font-family:'Orbitron';
+}
 
-    /* BTC section */
-    .btcStrip{
-      padding:12px 14px 14px 14px;
-    }
-    .btcTitleRow{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .btcMain{
-      display:flex; align-items:baseline; justify-content:space-between;
-      gap:14px; flex-wrap:wrap;
-      margin-top:8px;
-    }
-    .btcPrice{
-      font-family:var(--mono);
-      font-size:44px;
-      font-weight:800;
-      letter-spacing:-.6px;
-      margin:0;
-    }
-    .v{font-size:14px; font-family: var(--mono)}
-    .delta.good{color:var(--good)}
-    .delta.bad{color:var(--bad)}
+.miniStats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:10px;
+  margin-top:10px;
+}
 
-    .btcSide{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(140px, 1fr));
-      gap:10px;
-      width:min(860px, 100%);
-    }
-    .mini{
-      border:1px solid rgba(28,42,64,.8);
-      background: rgba(255,255,255,.03);
-      border-radius: 14px;
-      padding:10px;
-      min-height:56px;
-    }
-    .k{font-size:11px; color:var(--muted); margin-bottom:6px}
+.statBox{
+  background:rgba(255,255,255,.03);
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(40,60,90,.4);
+}
 
-    main{padding:0 0 30px}
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-      padding:0 14px 14px 14px;
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(15,23,38,.92), rgba(10,16,28,.92));
-      border:1px solid rgba(28,42,64,.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:14px;
-      overflow:hidden;
-    }
-    .span-12{grid-column: span 12;}
+.marketsGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:14px;
+}
 
-    .marketsGrid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-      margin-top:12px;
-    }
-    .w4{grid-column: span 4;}
-    .w6{grid-column: span 6;}
-    .embedCard{padding:0; overflow:hidden;}
-    .embedHeader{
-      padding:10px 12px 8px 12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-    }
-    .embedTitle{font-size:12px; color:var(--muted)}
-    .embedBody{padding:8px 10px 12px 10px}
+.embedCard{
+  padding:0;
+}
 
-    .err{
-      margin-top:10px;
-      border:1px solid rgba(255,77,79,.45);
-      background: rgba(255,77,79,.08);
-      padding:10px 12px;
-      border-radius:12px;
-      color:#ffd7d7;
-      font-size:12px;
-      display:none;
-      white-space:pre-wrap;
-    }
+.controls{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
 
-    @media (max-width: 1180px){
-      .btcSide{grid-template-columns: repeat(2, 1fr);}
-      .w4,.w6{grid-column: span 12;}
-      .btcPrice{font-size:38px}
-    }
-    @media (max-width: 520px){
-      .btcSide{grid-template-columns: 1fr;}
-      .btcPrice{font-size:34px}
-    }
-  </style>
+button{
+  background:rgba(20,30,50,.7);
+  border:1px solid rgba(40,60,90,.6);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+button:hover{background:rgba(30,50,80,.9)}
+
+</style>
 </head>
 
 <body>
-  <!-- Background video placeholder -->
-    <div class="bgWall" aria-hidden="true">
-      <!-- 12 tiles; you can change count -->
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
 
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-      <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-    </div>
+<div class="bgWall">
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
+</div>
 
-  <header>
-    <div class="wrap">
-      <div class="topBar">
-        <div class="title">
-          <h1>Macro Dashboard</h1>
-          <div class="sub">BTC • SPX • QQQ • MSTR • Gold • Oil • 10Y</div>
-        </div>
+<div class="sidePanel">
+  <div class="panelTitle">Market View</div>
+  <button class="modeBtn active" data-mode="devil">Devil's Chess Board</button>
+  <button class="modeBtn" data-mode="indices">Global Indices</button>
+  <button class="modeBtn" data-mode="crypto">Crypto</button>
+</div>
 
-        <div class="controls">
-          <label>Auto refresh</label>
-          <select id="refreshEvery">
-            <option value="0">Off</option>
-            <option value="30">30s</option>
-            <option value="60" selected>60s</option>
-            <option value="120">2m</option>
-            <option value="300">5m</option>
-          </select>
-          <button id="btnRefresh">Refresh</button>
+<div class="wrap">
 
-          <button id="btnMusic">Play music</button>
-          <span class="pill" id="status">Idle</span>
-        </div>
-      </div>
+<h1>Macro War Room</h1>
 
-      <div class="topGrid">
-        <div class="panel">
-          <!-- BTC chart FIRST -->
-          <div class="embedCard">
-            <div id="tv_btc_top"></div>
-          </div>
+<div class="card">
+  <div id="tv_btc_top"></div>
 
-          <!-- BTC stats -->
-          <div class="btcStrip">
-            <div class="btcTitleRow">
-              <div>BTC / USD</div>
-              <div class="pill" id="btcUpdated">–</div>
-            </div>
+  <div class="btcPrice" id="btcPrice">$--</div>
+  <div id="btcChange"></div>
 
-            <div class="btcMain">
-              <div>
-                <div class="btcPrice" id="btcPrice">$–</div>
-                <div class="v" id="btcChange">24h: –</div>
-              </div>
+  <div class="miniStats">
+    <div class="statBox">24h High: <span id="btcHigh">-</span></div>
+    <div class="statBox">24h Low: <span id="btcLow">-</span></div>
+    <div class="statBox">24h Volume: <span id="btcVol">-</span></div>
+    <div class="statBox">Sats per $1: <span id="satsPerUsd">-</span></div>
+  </div>
+</div>
 
-              <div class="btcSide">
-                <div class="mini">
-                  <div class="k">24h High</div>
-                  <div class="v" id="btcHigh">–</div>
-                </div>
-                <div class="mini">
-                  <div class="k">24h Low</div>
-                  <div class="v" id="btcLow">–</div>
-                </div>
-                <div class="mini">
-                  <div class="k">24h Volume (BTC)</div>
-                  <div class="v" id="btcVol">–</div>
-                </div>
-                <div class="mini">
-                  <div class="k">Sats per $1</div>
-                  <div class="v" id="satsPerUsd">–</div>
-                </div>
-              </div>
-            </div>
+<div class="card">
+  <div class="marketsGrid" id="marketsGrid"></div>
+</div>
 
-            <div class="err" id="btcErr"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+<div class="controls">
+  <button id="refreshBtn">Refresh</button>
+  <button id="musicBtn">Play Music</button>
+</div>
 
-  <main class="wrap">
-    <div class="grid">
+</div>
 
-      <section class="card span-12">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-          <div style="color:var(--muted);font-size:13px;">Markets</div>
-          <span class="pill">10Y • SPX • QQQ • MSTR • Gold • Oil</span>
-        </div>
-
-        <div class="marketsGrid">
-          <!-- FIX: use robust proxies that embed reliably -->
-          <div class="card embedCard w4"><div id="tv_10y"></div></div>
-          <div class="card embedCard w4"><div id="tv_spx"></div></div>
-          <div class="card embedCard w4"><div id="tv_qqq"></div></div>
-          <div class="card embedCard w4"><div id="tv_mstr"></div></div>
-          <div class="card embedCard w4"><div id="tv_gold"></div></div>
-          <div class="card embedCard w4"><div id="tv_oil"></div></div>
-        </div>
-      </section>
-
-    </div>
-  </main>
-
-  <!-- Music -->
-  <audio id="bgMusic" loop preload="auto">
-    <source src="assets/music.mp3" type="audio/mpeg">
-  </audio>
+<audio id="bgMusic" loop>
+  <source src="assets/music.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-  const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-  function fmtUSD2(n){
-    if (n == null || Number.isNaN(n)) return "–";
-    return new Intl.NumberFormat(undefined, { style:"currency", currency:"USD", maximumFractionDigits: 2 }).format(n);
-  }
-  function fmtNum(n){
-    if (n == null || Number.isNaN(n)) return "–";
-    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
-  }
-  function fmtNum0(n){
-    if (n == null || Number.isNaN(n)) return "–";
-    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
-  }
-  function setStatus(text){ $("status").textContent = text; }
-  function showErr(el, msg){ const b=$(el); b.style.display="block"; b.textContent=msg; }
-  function clearErr(el){ const b=$(el); b.style.display="none"; b.textContent=""; }
+async function fetchBTC(){
+  const ticker = await fetch("https://api.exchange.coinbase.com/products/BTC-USD/ticker").then(r=>r.json());
+  const stats  = await fetch("https://api.exchange.coinbase.com/products/BTC-USD/stats").then(r=>r.json());
 
-  async function fetchJSON(url){
-    const res = await fetch(url, { headers:{ "Accept":"application/json" }});
-    if(!res.ok) throw new Error(`${res.status}`);
-    return res.json();
-  }
+  const price = Number(ticker.price);
+  const open = Number(stats.open);
 
-  async function fetchBTC(){
-    clearErr("btcErr");
-    const [ticker, stats] = await Promise.all([
-      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/ticker"),
-      fetchJSON("https://api.exchange.coinbase.com/products/BTC-USD/stats")
-    ]);
+  $("btcPrice").innerText = "$"+price.toLocaleString();
+  const pct = ((price-open)/open)*100;
+  $("btcChange").innerText = "24h: "+pct.toFixed(2)+"%";
 
-    const price = Number(ticker.price);
-    const open  = Number(stats.open);
-    const high  = Number(stats.high);
-    const low   = Number(stats.low);
-    const vol   = Number(stats.volume);
+  $("btcHigh").innerText = "$"+Number(stats.high).toLocaleString();
+  $("btcLow").innerText = "$"+Number(stats.low).toLocaleString();
+  $("btcVol").innerText = Number(stats.volume).toLocaleString();
+  $("satsPerUsd").innerText = Math.floor(100000000/price).toLocaleString()+" sats";
+}
 
-    $("btcPrice").textContent = fmtUSD2(price);
+function miniSymbol(container, symbol, title){
+  const div=document.createElement("div");
+  div.className="embedCard";
+  div.innerHTML=`<div id="${container}"></div>`;
+  $("marketsGrid").appendChild(div);
 
-    const chPct = (open && price) ? ((price - open) / open) * 100 : null;
-    const cls = (chPct ?? 0) >= 0 ? "good" : "bad";
-    $("btcChange").innerHTML = `24h: <span class="delta ${cls}">${fmtNum(chPct)}%</span>`;
-
-    $("btcHigh").textContent = fmtUSD2(high);
-    $("btcLow").textContent  = fmtUSD2(low);
-    $("btcVol").textContent  = fmtNum(vol);
-
-    const sats = price ? (1e8 / price) : null;
-    $("satsPerUsd").textContent = sats ? `${fmtNum0(sats)} sats` : "–";
-
-    $("btcUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
-  }
-
-  // TradingView embeds
-  function miniSymbol(containerId, symbol, title){
-    const el = document.getElementById(containerId);
-    if(!el) return;
-
-    el.innerHTML = `
-      <div class="embedHeader">
-        <div class="embedTitle">${title}</div>
-        <div class="pill">${symbol}</div>
-      </div>
-      <div class="embedBody">
-        <div class="tradingview-widget-container"></div>
-      </div>
-    `;
-
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      symbol,
-      width: "100%",
-      height: 260,
-      locale: "en",
-      dateRange: "12M",
-      colorTheme: "dark",
-      isTransparent: true,
-      autosize: true,
-      chartOnly: false
-    });
-
-    el.querySelector(".tradingview-widget-container").appendChild(script);
-  }
-
-  function bigSymbol(containerId, symbol, title, height=420){
-    const el = document.getElementById(containerId);
-    if(!el) return;
-
-    el.innerHTML = `
-      <div class="embedHeader">
-        <div class="embedTitle">${title}</div>
-        <div class="pill">${symbol}</div>
-      </div>
-      <div class="embedBody">
-        <div class="tradingview-widget-container"></div>
-      </div>
-    `;
-
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      symbols: [[title, symbol]],
-      chartOnly: false,
-      width: "100%",
-      height,
-      locale: "en",
-      colorTheme: "dark",
-      autosize: true,
-      showVolume: true,
-      showMA: false,
-      hideDateRanges: false,
-      hideMarketStatus: false,
-      hideSymbolLogo: false,
-      scalePosition: "right",
-      scaleMode: "Normal",
-      fontFamily: "system-ui",
-      fontSize: "12",
-      valuesTracking: "1",
-      changeMode: "price-and-percent",
-      chartType: "area",
-      isTransparent: true
-    });
-
-    el.querySelector(".tradingview-widget-container").appendChild(script);
-  }
-
-  function initWidgets(){
-    bigSymbol("tv_btc_top", "COINBASE:BTCUSD", "Bitcoin (BTCUSD)", 420);
-
-    // FIXES:
-    // SPX often fails in embeds. Use SPY as the most reliable S&P 500 proxy tile.
-    // 10Y yield indices often fail in embeds. Use IEF (7–10Y Treasury ETF) as robust “10Y” price proxy.
-    miniSymbol("tv_10y", "NASDAQ:IEF", "US 7–10Y Treasuries (IEF)");
-    miniSymbol("tv_spx", "AMEX:SPY",  "S&P 500 (SPY)");
-
-    miniSymbol("tv_qqq", "NASDAQ:QQQ", "Nasdaq 100 (QQQ)");
-    miniSymbol("tv_mstr","NASDAQ:MSTR","Strategy (MSTR)");
-
-    // Gold per ounce in USD
-    miniSymbol("tv_gold","OANDA:XAUUSD","Gold (XAUUSD)");
-
-    // Oil in USD proxy that embeds reliably
-    miniSymbol("tv_oil", "AMEX:USO", "Oil (USO)");
-  }
-
-  async function refreshAll(){
-    setStatus("Refreshing…");
-    const start = performance.now();
-    try{
-      await fetchBTC();
-      const ms = Math.round(performance.now() - start);
-      setStatus(`OK • ${ms}ms`);
-    } catch(e){
-      showErr("btcErr", `BTC fetch failed (${e.message}).`);
-      setStatus("Error");
-    } finally {
-      setTimeout(() => setStatus("Idle"), 1200);
-    }
-  }
-
-  // Music toggle
-  const music = $("bgMusic");
-  const btnMusic = $("btnMusic");
-  let musicOn = false;
-
-  btnMusic.addEventListener("click", async () => {
-    try{
-      if(!musicOn){
-        await music.play();
-        musicOn = true;
-        btnMusic.textContent = "Pause music";
-      } else {
-        music.pause();
-        musicOn = false;
-        btnMusic.textContent = "Play music";
-      }
-    } catch (e){
-      alert("Music couldn't start. Ensure assets/music.mp3 exists, then click again.");
-    }
+  const s=document.createElement("script");
+  s.src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+  s.async=true;
+  s.innerHTML=JSON.stringify({
+    symbol,
+    width:"100%",
+    height:260,
+    locale:"en",
+    dateRange:"12M",
+    colorTheme:"dark",
+    isTransparent:true
   });
+  div.firstChild.appendChild(s);
+}
 
-  // Auto refresh
-  let timer = null;
-  function setAutoRefresh(seconds){
-    if(timer) clearInterval(timer);
-    timer = null;
-    if(seconds > 0){
-      timer = setInterval(refreshAll, seconds * 1000);
-    }
+function loadMode(mode){
+  $("marketsGrid").innerHTML="";
+  if(mode==="devil"){
+    miniSymbol("pltr","NYSE:PLTR");
+    miniSymbol("rtx","NYSE:RTX");
+    miniSymbol("lmt","NYSE:LMT");
+    miniSymbol("noc","NYSE:NOC");
+    miniSymbol("amd","NASDAQ:AMD");
+    miniSymbol("gd","NYSE:GD");
   }
+  if(mode==="indices"){
+    miniSymbol("qqq","NASDAQ:QQQ");
+    miniSymbol("spy","AMEX:SPY");
+    miniSymbol("ftse","FTSE:UKX");
+    miniSymbol("nikkei","INDEX:NKY");
+    miniSymbol("stoxx","INDEX:SX5E");
+    miniSymbol("dax","XETR:DAX");
+  }
+  if(mode==="crypto"){
+    miniSymbol("btc","COINBASE:BTCUSD");
+    miniSymbol("eth","COINBASE:ETHUSD");
+    miniSymbol("total","CRYPTOCAP:TOTAL");
+    miniSymbol("dom","CRYPTOCAP:BTC.D");
+  }
+}
 
-  $("btnRefresh").addEventListener("click", refreshAll);
-  $("refreshEvery").addEventListener("change", (e) => setAutoRefresh(parseInt(e.target.value, 10)));
+document.querySelectorAll(".modeBtn").forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    loadMode(btn.dataset.mode);
+  };
+});
 
-  initWidgets();
-  refreshAll();
-  setAutoRefresh(parseInt($("refreshEvery").value, 10));
+$("refreshBtn").onclick=fetchBTC;
+
+const music=$("bgMusic");
+let playing=false;
+$("musicBtn").onclick=()=>{
+  if(!playing){music.play();playing=true;$("musicBtn").innerText="Pause Music";}
+  else{music.pause();playing=false;$("musicBtn").innerText="Play Music";}
+};
+
+const btcScript=document.createElement("script");
+btcScript.src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+btcScript.async=true;
+btcScript.innerHTML=JSON.stringify({
+  symbols:[["BTCUSD","COINBASE:BTCUSD"]],
+  width:"100%",
+  height:400,
+  locale:"en",
+  colorTheme:"dark",
+  autosize:true,
+  showVolume:true,
+  chartType:"area",
+  isTransparent:true
+});
+document.getElementById("tv_btc_top").appendChild(btcScript);
+
+fetchBTC();
+loadMode("devil");
 </script>
+
 </body>
 </html>
