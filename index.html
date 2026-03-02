@@ -118,6 +118,50 @@ body::after{
   background: rgba(25,195,125,.08);
 }
 
+.notePanel{
+  border:1px solid rgba(55,85,130,.45);
+  background:rgba(9,16,29,.75);
+  border-radius:14px;
+  padding:10px;
+  margin-bottom:6px;
+}
+.noteRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+}
+.noteBtns{
+  display:flex;
+  gap:6px;
+}
+.noteBtn{
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  padding:0;
+  font-weight:700;
+  line-height:1;
+}
+.noteArea{
+  width:100%;
+  min-height:118px;
+  resize:vertical;
+  border-radius:10px;
+  border:1px solid rgba(70,120,190,.5);
+  background:rgba(3,8,18,.75);
+  color:var(--text);
+  padding:8px;
+  font-family:var(--terminal);
+  font-size:12px;
+}
+.noteHint{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:10px;
+}
+
 /* ===== TOP BAR ===== */
 header{
   margin-left:240px;
@@ -364,6 +408,19 @@ button:hover{filter:brightness(1.06)}
 
 <!-- Side Panel -->
 <div class="sidePanel">
+  <div class="notePanel">
+    <div class="noteRow">
+      <div class="panelTitle" style="margin:0;">Notes</div>
+      <div class="noteBtns" aria-label="Note actions">
+        <button class="noteBtn" id="btnNoteNew" title="New note">+</button>
+        <button class="noteBtn" id="btnNoteClear" title="Clear note">−</button>
+        <button class="noteBtn" id="btnNoteSave" title="Save as .txt">$</button>
+      </div>
+    </div>
+    <textarea id="noteArea" class="noteArea" placeholder="Write notes here..."></textarea>
+    <div class="noteHint">+ new • − clear • $ save .txt</div>
+  </div>
+
   <div class="panelTitle">Market View</div>
   <button class="modeBtn active" data-mode="devil">Devil's Chess Board</button>
   <button class="modeBtn" data-mode="global">Global</button>
@@ -866,6 +923,49 @@ button:hover{filter:brightness(1.06)}
       btn.classList.add("active");
       applyRange(btn.dataset.range);
     });
+  });
+
+  // ---------- Notes ----------
+  const noteArea = $("noteArea");
+  const noteStorageKey = "macroWarRoom.note";
+
+  const savedNote = localStorage.getItem(noteStorageKey);
+  if(savedNote) noteArea.value = savedNote;
+
+  noteArea.addEventListener("input", () => {
+    localStorage.setItem(noteStorageKey, noteArea.value);
+  });
+
+  $("btnNoteNew").addEventListener("click", () => {
+    const stamp = new Date().toLocaleString();
+    const prefix = noteArea.value.trim() ? "\n\n" : "";
+    noteArea.value += `${prefix}--- New note (${stamp}) ---\n`;
+    noteArea.focus();
+    localStorage.setItem(noteStorageKey, noteArea.value);
+  });
+
+  $("btnNoteClear").addEventListener("click", () => {
+    noteArea.value = "";
+    localStorage.removeItem(noteStorageKey);
+    noteArea.focus();
+  });
+
+  $("btnNoteSave").addEventListener("click", () => {
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const fileName = `macro-war-room-note-${stamp}.txt`;
+    const content = noteArea.value || "";
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const href = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(href);
   });
 
   // ---------- Controls ----------
