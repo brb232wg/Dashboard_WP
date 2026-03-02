@@ -1,0 +1,14 @@
+{
+  "name": "Macro War Room",
+  "short_name": "WarRoom",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#05080f",
+  "background_color": "#05080f",
+  "display": "standalone"
+}
