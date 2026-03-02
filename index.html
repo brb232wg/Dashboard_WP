@@ -118,6 +118,50 @@ body::after{
   background: rgba(25,195,125,.08);
 }
 
+.notePanel{
+  border:1px solid rgba(55,85,130,.45);
+  background:rgba(9,16,29,.75);
+  border-radius:14px;
+  padding:10px;
+  margin-bottom:6px;
+}
+.noteRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+}
+.noteBtns{
+  display:flex;
+  gap:6px;
+}
+.noteBtn{
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  padding:0;
+  font-weight:700;
+  line-height:1;
+}
+.noteArea{
+  width:100%;
+  min-height:118px;
+  resize:vertical;
+  border-radius:10px;
+  border:1px solid rgba(70,120,190,.5);
+  background:rgba(3,8,18,.75);
+  color:var(--text);
+  padding:8px;
+  font-family:var(--terminal);
+  font-size:12px;
+}
+.noteHint{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:10px;
+}
+
 /* ===== TOP BAR ===== */
 header{
   margin-left:240px;
@@ -364,6 +408,19 @@ button:hover{filter:brightness(1.06)}
 
 <!-- Side Panel -->
 <div class="sidePanel">
+  <div class="notePanel">
+    <div class="noteRow">
+      <div class="panelTitle" style="margin:0;">Notes</div>
+      <div class="noteBtns" aria-label="Note actions">
+        <button class="noteBtn" id="btnNoteNew" title="New note">+</button>
+        <button class="noteBtn" id="btnNoteClear" title="Clear note">−</button>
+        <button class="noteBtn" id="btnNoteSave" title="Save as .txt">$</button>
+      </div>
+    </div>
+    <textarea id="noteArea" class="noteArea" placeholder="Write notes here..."></textarea>
+    <div class="noteHint">+ new • − clear • $ save .txt</div>
+  </div>
+
   <div class="panelTitle">Market View</div>
   <button class="modeBtn active" data-mode="devil">Devil's Chess Board</button>
   <button class="modeBtn" data-mode="global">Global</button>
@@ -454,7 +511,7 @@ button:hover{filter:brightness(1.06)}
         </div>
 
         <!-- THIS IS THE SPOT YOU CIRCLED: ticker + timeframe buttons -->
-        <div class="tickerBar" title="Edit assets/ticker.json to change headlines">
+        <div class="tickerBar" title="Live headlines from @DeItaone on refresh">
           <div class="tickerInner" id="tickerInner"></div>
         </div>
 
@@ -593,15 +650,61 @@ button:hover{filter:brightness(1.06)}
   }
 
   async function loadTicker(){
-    try{
-      const j = await fetchJSON("assets/ticker.json");
-      buildTicker(j.items || []);
-    } catch(e){
-      buildTicker([
-        { text:"⚠️ Ticker file missing. Create assets/ticker.json", url:"" },
-        { text:"Tip: Each item can include a URL and becomes clickable.", url:"" }
-      ]);
+    const username = "DeItaone";
+    const profileUrl = `https://x.com/${username}`;
+
+    const parseRssItems = (xmlText) => {
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const hasParserError = doc.querySelector("parsererror");
+      if(hasParserError) return [];
+
+      return [...doc.querySelectorAll("item")].slice(0, 12).map((item) => {
+        const title = (item.querySelector("title")?.textContent || "").trim();
+        const link = (item.querySelector("link")?.textContent || "").trim();
+
+        return {
+          text: `@${username}: ${title || "Update"}`,
+          url: link || profileUrl
+        };
+      }).filter((it) => it.text);
+    };
+
+    // Try multiple live sources/proxies to avoid single-point outages.
+    const nitterRssSources = [
+      `https://nitter.poast.org/${username}/rss`,
+      `https://nitter.net/${username}/rss`,
+      `https://nitter.privacydev.net/${username}/rss`
+    ];
+
+    const candidates = [];
+    nitterRssSources.forEach((rss) => {
+      candidates.push(`https://api.allorigins.win/raw?url=${encodeURIComponent(rss)}`);
+      candidates.push(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rss)}`);
+      candidates.push(rss);
+    });
+
+    for(const url of candidates){
+      try{
+        const res = await fetch(url, { cache: "no-store" });
+        if(!res.ok) continue;
+
+        const xmlText = await res.text();
+        const items = parseRssItems(xmlText);
+        if(items.length){
+          buildTicker(items);
+          return;
+        }
+      } catch(_e){
+        // Try next endpoint.
+      }
     }
+
+    // Final fallback keeps ticker useful and clickable.
+    buildTicker([
+      { text:`@${username}: Open latest posts`, url:profileUrl },
+      { text:"Live feed temporarily unavailable", url:profileUrl },
+      { text:"Tap here to view the profile", url:profileUrl }
+    ]);
   }
 
   // ---------- TradingView helpers ----------
@@ -834,6 +937,49 @@ button:hover{filter:brightness(1.06)}
       btn.classList.add("active");
       applyRange(btn.dataset.range);
     });
+  });
+
+  // ---------- Notes ----------
+  const noteArea = $("noteArea");
+  const noteStorageKey = "macroWarRoom.note";
+
+  const savedNote = localStorage.getItem(noteStorageKey);
+  if(savedNote) noteArea.value = savedNote;
+
+  noteArea.addEventListener("input", () => {
+    localStorage.setItem(noteStorageKey, noteArea.value);
+  });
+
+  $("btnNoteNew").addEventListener("click", () => {
+    const stamp = new Date().toLocaleString();
+    const prefix = noteArea.value.trim() ? "\n\n" : "";
+    noteArea.value += `${prefix}--- New note (${stamp}) ---\n`;
+    noteArea.focus();
+    localStorage.setItem(noteStorageKey, noteArea.value);
+  });
+
+  $("btnNoteClear").addEventListener("click", () => {
+    noteArea.value = "";
+    localStorage.removeItem(noteStorageKey);
+    noteArea.focus();
+  });
+
+  $("btnNoteSave").addEventListener("click", () => {
+    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const fileName = `macro-war-room-note-${stamp}.txt`;
+    const content = noteArea.value || "";
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const href = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(href);
   });
 
   // ---------- Controls ----------
