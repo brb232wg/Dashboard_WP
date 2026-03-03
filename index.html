@@ -1,3 +1,6 @@
+<!-- =========================
+     FILE 1: index.html
+     ========================= -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -41,27 +44,6 @@ body{
   color:var(--text);
   font-family:var(--terminal);
   overflow-x:hidden;
-}
-
-/* ===== BACKGROUND VIDEO GRID ===== */
-.bgWall{
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  grid-auto-rows:180px;
-  gap:10px;
-  padding:14px;
-  opacity:.18;
-  pointer-events:none;
-}
-.bgTile{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:16px;
-  filter: blur(1px) brightness(.76) contrast(1.05);
 }
 
 /* Overlay */
@@ -125,6 +107,28 @@ body::after{
   background: rgba(25,195,125,.08);
 }
 
+/* Nav link buttons (for multi-page) */
+.navBtn{
+  display:block;
+  text-decoration:none;
+  background:rgba(16,26,44,.75);
+  border:1px solid rgba(55,85,130,.55);
+  padding:10px;
+  border-radius:12px;
+  color:var(--text);
+  transition:.18s ease;
+  font-family:var(--terminal);
+}
+.navBtn:hover{
+  border-color: rgba(25,195,125,.55);
+  background: rgba(20,40,70,.55);
+}
+.navBtn.active{
+  border-color: var(--accent);
+  box-shadow: 0 0 16px rgba(25,195,125,.35);
+  background: rgba(25,195,125,.08);
+}
+
 .notePanel{
   border:1px solid rgba(55,85,130,.45);
   background:rgba(9,16,29,.75);
@@ -175,7 +179,6 @@ header{
   padding:18px 20px 0 20px;
   max-width:1700px;
 }
-
 .topBar{
   display:flex;
   align-items:flex-start;
@@ -184,7 +187,6 @@ header{
   flex-wrap:wrap;
   margin-bottom:12px;
 }
-
 h1{
   margin:0;
   font-family:var(--headline);
@@ -197,7 +199,6 @@ h1{
   font-size:12px;
   margin-top:6px;
 }
-
 .controls{
   display:flex;
   align-items:center;
@@ -231,7 +232,6 @@ button:hover{filter:brightness(1.06)}
   padding:12px 20px 30px 20px;
   max-width:1700px;
 }
-
 .card{
   background: linear-gradient(180deg, rgba(10,16,30,.92), rgba(8,12,24,.92));
   border:1px solid var(--border);
@@ -240,7 +240,6 @@ button:hover{filter:brightness(1.06)}
   overflow:hidden;
   margin-bottom:16px;
 }
-
 .cardHeader{
   padding:12px 14px;
   border-bottom:1px solid rgba(255,255,255,.06);
@@ -250,7 +249,6 @@ button:hover{filter:brightness(1.06)}
   flex-wrap:wrap;
   align-items:center;
 }
-
 .cardTitle{
   font-family:var(--headline);
   letter-spacing:1px;
@@ -258,7 +256,6 @@ button:hover{filter:brightness(1.06)}
   font-size:12px;
   color:var(--muted);
 }
-
 .cardBody{ padding: 10px 14px 14px 14px; }
 
 .btcPrice{
@@ -267,7 +264,6 @@ button:hover{filter:brightness(1.06)}
   letter-spacing:-.5px;
   margin-top:8px;
 }
-
 .delta.good{color:var(--good)}
 .delta.bad{color:var(--bad)}
 
@@ -277,30 +273,23 @@ button:hover{filter:brightness(1.06)}
   gap:10px;
   margin-top:12px;
 }
-
 .statBox{
   background:rgba(255,255,255,.03);
   border:1px solid rgba(55,85,130,.45);
   border-radius:12px;
   padding:10px;
 }
-
 .k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
 .v{ font-size: 14px; }
 
 /* ===== Markets Grid ===== */
-/* Default: responsive auto-fit */
 .marketsGrid{
   display:grid;
   gap:14px;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
-
-/* Force 5 per row on wide screens */
 @media (min-width: 1500px){
-  .marketsGrid{
-    grid-template-columns: repeat(5, 1fr);
-  }
+  .marketsGrid{ grid-template-columns: repeat(5, 1fr); }
 }
 
 /* Tiles */
@@ -319,15 +308,10 @@ button:hover{filter:brightness(1.06)}
   align-items:center;
   gap:10px;
 }
-.tileTitle{
-  font-size:12px;
-  color:var(--muted);
-}
-.tileBody{
-  padding:10px 10px 12px 10px;
-}
+.tileTitle{ font-size:12px; color:var(--muted); }
+.tileBody{ padding:10px 10px 12px 10px; }
 
-/* ===== NEWS TICKER + RANGE BUTTONS (where you circled) ===== */
+/* ===== NEWS TICKER + RANGE BUTTONS ===== */
 .marketTopRow{
   display:flex;
   align-items:center;
@@ -335,7 +319,6 @@ button:hover{filter:brightness(1.06)}
   gap:12px;
   flex-wrap:wrap;
 }
-
 .tickerBar{
   flex: 1 1 640px;
   position: relative;
@@ -345,7 +328,6 @@ button:hover{filter:brightness(1.06)}
   border: 1px solid rgba(70,120,190,.45);
   background: rgba(255,255,255,.03);
 }
-
 .tickerInner{
   position:absolute;
   inset:0;
@@ -357,19 +339,13 @@ button:hover{filter:brightness(1.06)}
   will-change: transform;
   animation: tickerMove 26s linear infinite;
 }
-
-.tickerItem{
-  color: var(--muted);
-  font-size: 12px;
-}
+.tickerItem{ color: var(--muted); font-size: 12px; }
 .tickerItem a{
   color: var(--text);
   text-decoration: none;
   border-bottom: 1px solid rgba(255,255,255,.18);
 }
-.tickerItem a:hover{
-  border-bottom-color: rgba(25,195,125,.55);
-}
+.tickerItem a:hover{ border-bottom-color: rgba(25,195,125,.55); }
 
 @keyframes tickerMove{
   0%{ transform: translateX(0); }
@@ -403,16 +379,6 @@ button:hover{filter:brightness(1.06)}
 
 <body>
 
-<!-- Background video wall -->
-<div class="bgWall" aria-hidden="true">
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-  <video class="bgTile" autoplay muted loop playsinline><source src="assets/bg.mp4" type="video/mp4"></video>
-</div>
-
 <!-- Side Panel -->
 <div class="sidePanel">
   <div class="notePanel">
@@ -428,7 +394,11 @@ button:hover{filter:brightness(1.06)}
     <div class="noteHint">+ new • − clear • $ save .txt</div>
   </div>
 
-  <div class="panelTitle">Market View</div>
+  <div class="panelTitle">Pages</div>
+  <a class="navBtn active" href="index.html">Dashboard</a>
+  <a class="navBtn" href="intel.html">Intel Page</a>
+
+  <div class="panelTitle" style="margin-top:10px;">Market View</div>
   <button class="modeBtn active" data-mode="devil">Devil's Chess Board</button>
   <button class="modeBtn" data-mode="global">Global</button>
   <button class="modeBtn" data-mode="crypto">Crypto</button>
@@ -517,7 +487,6 @@ button:hover{filter:brightness(1.06)}
           <span class="pill" id="modePill">Loadout</span>
         </div>
 
-        <!-- THIS IS THE SPOT YOU CIRCLED: ticker + timeframe buttons -->
         <div class="tickerBar" title="Live headlines from @DeItaone on refresh">
           <div class="tickerInner" id="tickerInner"></div>
         </div>
@@ -612,7 +581,7 @@ button:hover{filter:brightness(1.06)}
     const start = performance.now();
 
     try{
-      await Promise.all([fetchBTC(), fetchGBPUSD()]);
+      await Promise.all([fetchBTC(), fetchGBPUSD(), loadTicker()]);
       const ms = Math.round(performance.now() - start);
       setStatus(`OK • ${ms}ms`);
     } catch(e){
@@ -625,9 +594,11 @@ button:hover{filter:brightness(1.06)}
 
   // ---------- Ticker ----------
   function buildTicker(items){
-    // We duplicate items so the animation can loop smoothly (moving -50%)
-    const safe = (items && items.length) ? items : [{ text:"Add headlines in assets/ticker.json", url:"" }];
+    const safe = (items && items.length)
+      ? items
+      : [{ text:"Add headlines in assets/ticker.json", url:"" }];
 
+    // duplicate items for smooth loop (-50%)
     const doubled = [...safe, ...safe];
     const inner = $("tickerInner");
     inner.innerHTML = "";
@@ -651,16 +622,13 @@ button:hover{filter:brightness(1.06)}
       }
       inner.appendChild(span);
     });
-
-    // If items are short, speed up less; if long, keep default.
-    // (We keep it simple; you can tune CSS animation duration too.)
   }
 
   async function loadTicker(){
     const username = "DeItaone";
+    const profileUrl = `https://x.com/${username}`;
 
-    // Use a CORS-friendly proxy + RSS feed so this works from static hosting.
-    // Reloading the page fetches a fresh feed snapshot.
+    // CORS-friendly proxy + RSS feed for static hosting
     const rssUrl = `https://nitter.poast.org/${username}/rss`;
     const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(rssUrl)}`;
 
@@ -674,12 +642,8 @@ button:hover{filter:brightness(1.06)}
 
       const items = entries.map((item) => {
         const title = (item.querySelector("title")?.textContent || "").trim();
-        const link = (item.querySelector("link")?.textContent || "").trim();
-
-        return {
-          text: `@${username}: ${title || "Update"}`,
-          url: link
-        };
+        const link  = (item.querySelector("link")?.textContent || "").trim();
+        return { text: `@${username}: ${title || "Update"}`, url: link };
       }).filter((it) => it.text && it.url);
 
       if(!items.length) throw new Error("No feed items");
@@ -687,17 +651,11 @@ button:hover{filter:brightness(1.06)}
     } catch(e){
       console.warn("Ticker feed unavailable", e);
       buildTicker([
-        { text:`@${username} feed unavailable right now`, url:"https://x.com/DeItaone" },
-        { text:"Open profile on X for latest updates", url:"https://x.com/DeItaone" }
+        { text:`@${username} feed unavailable right now`, url: profileUrl },
+        { text:"Open profile on X for latest updates", url: profileUrl },
+        { text:"Tap here to view the profile", url: profileUrl }
       ]);
     }
-
-    // Final fallback keeps ticker useful and clickable.
-    buildTicker([
-      { text:`@${username}: Open latest posts`, url:profileUrl },
-      { text:"Live feed temporarily unavailable", url:profileUrl },
-      { text:"Tap here to view the profile", url:profileUrl }
-    ]);
   }
 
   // ---------- TradingView helpers ----------
@@ -735,7 +693,7 @@ button:hover{filter:brightness(1.06)}
     tile.querySelector(`#${containerId}`).appendChild(s);
   }
 
-  // DXY real first (TVC:DXY), fallback to proxy (UUP)
+  // Generic fallback wrapper (use this for anything that sometimes blocks)
   function createTileWithFallback(containerId, primarySymbol, primaryTitle, fallbackSymbol, fallbackTitle){
     const tile = document.createElement("div");
     tile.className = "tile";
@@ -751,12 +709,14 @@ button:hover{filter:brightness(1.06)}
     `;
     $("marketsGrid").appendChild(tile);
 
-    const mount = () => {
+    const mount = (symbol) => {
+      const box = tile.querySelector(`#${containerId}`);
+      box.innerHTML = "";
       const s = document.createElement("script");
       s.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
       s.async = true;
       s.innerHTML = JSON.stringify({
-        symbol: primarySymbol,
+        symbol,
         width: "100%",
         height: 260,
         locale: "en",
@@ -766,38 +726,24 @@ button:hover{filter:brightness(1.06)}
         autosize: true,
         chartOnly: false
       });
-      tile.querySelector(`#${containerId}`).appendChild(s);
+      box.appendChild(s);
     };
 
-    mount();
+    mount(primarySymbol);
 
-    // Best-effort fallback: after 2.6s if the tile text contains common TV block messages
+    // Best-effort detect "blocked" / invalid and flip to fallback
     setTimeout(() => {
       const t = tile.innerText.toLowerCase();
-      const blocked = t.includes("invalid symbol") || t.includes("only available on tradingview");
+      const blocked =
+        t.includes("invalid symbol") ||
+        t.includes("only available on tradingview") ||
+        t.includes("no data") ||
+        t.includes("symbol is not supported");
 
-      if(blocked){
+      if(blocked && fallbackSymbol){
         tile.querySelector(".tileTitle").textContent = fallbackTitle;
         tile.querySelector(".pill").textContent = fallbackSymbol;
-
-        const box = tile.querySelector(`#${containerId}`);
-        box.innerHTML = "";
-
-        const f = document.createElement("script");
-        f.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
-        f.async = true;
-        f.innerHTML = JSON.stringify({
-          symbol: fallbackSymbol,
-          width: "100%",
-          height: 260,
-          locale: "en",
-          dateRange: currentRange,
-          colorTheme: "dark",
-          isTransparent: true,
-          autosize: true,
-          chartOnly: false
-        });
-        box.appendChild(f);
+        mount(fallbackSymbol);
       }
     }, 2600);
   }
@@ -810,8 +756,6 @@ button:hover{filter:brightness(1.06)}
     s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
     s.async = true;
 
-    // symbol-overview accepts a range-like config in some variants;
-    // dateRange works reliably in mini widgets; here we pass it too (ignored if unsupported).
     s.innerHTML = JSON.stringify({
       symbols: [["BTCUSD","COINBASE:BTCUSD"]],
       width: "100%",
@@ -836,10 +780,19 @@ button:hover{filter:brightness(1.06)}
     $("marketsGrid").innerHTML = "";
 
     let count = 0;
+
+    // Add exact symbol
     const add = (id, sym, title) => {
       if(count >= 10) return;
       count++;
       createTile(id, sym, title);
+    };
+
+    // Add with fallback (proxy)
+    const addF = (id, sym, title, fSym, fTitle) => {
+      if(count >= 10) return;
+      count++;
+      createTileWithFallback(id, sym, title, fSym, fTitle);
     };
 
     if(mode === "devil"){
@@ -854,7 +807,7 @@ button:hover{filter:brightness(1.06)}
       add("m_gd",   "NYSE:GD",     "General Dynamics");
 
       // Then strategic tech / energy
-      add("m_pltr", "NASDAQ:PLTR", "Palantir");          // FIXED
+      add("m_pltr", "NASDAQ:PLTR", "Palantir");
       add("m_nvda", "NASDAQ:NVDA", "Nvidia");
       add("m_orcl", "NYSE:ORCL",   "Oracle");
       add("m_amd",  "NASDAQ:AMD",  "AMD");
@@ -869,27 +822,25 @@ button:hover{filter:brightness(1.06)}
       // Commodities first
       add("g_xau",  "OANDA:XAUUSD", "Gold (XAUUSD / oz)");
       add("g_xag",  "OANDA:XAGUSD", "Silver (XAGUSD / oz)");
-      add("g_uso",  "AMEX:USO",     "Oil (USO / USD)");
+
+      // Oil: sometimes "TVC:USOIL" works, sometimes not. Use USO ETF fallback.
+      addF("g_oil", "TVC:USOIL", "WTI Crude (USOIL)", "AMEX:USO", "Oil Proxy (USO)");
 
       // Real DXY first, fallback to proxy
-      if(count < 10){
-        count++;
-        createTileWithFallback(
-          "g_dxy",
-          "TVC:DXY",
-          "US Dollar Index (DXY)",
-          "AMEX:UUP",
-          "DXY Proxy (UUP)"
-        );
-      }
+      addF("g_dxy", "TVC:DXY", "US Dollar Index (DXY)", "AMEX:UUP", "DXY Proxy (UUP)");
 
       // Indices after (use reliable proxies to avoid “TradingView only”)
       add("g_spy", "AMEX:SPY",   "S&P 500 (SPY)");
       add("g_qqq", "NASDAQ:QQQ", "NASDAQ 100 (QQQ)");
-      add("g_ewu", "AMEX:EWU",   "UK (FTSE proxy) EWU");      // avoids FTSE index block
+      add("g_dia", "AMEX:DIA",   "Dow Jones Proxy (DIA)");
+
+      // Regions
+      add("g_ewu", "AMEX:EWU",   "UK (FTSE proxy) EWU");
       add("g_ewj", "AMEX:EWJ",   "Japan (Nikkei proxy) EWJ");
       add("g_ewg", "AMEX:EWG",   "Germany (DAX proxy) EWG");
-      add("g_fez", "AMEX:FEZ",   "Euro STOXX 50 proxy (FEZ)");
+
+      // If you want EuroStoxx too, swap one of the above for:
+      // add("g_fez", "AMEX:FEZ", "Euro STOXX 50 proxy (FEZ)");
       return;
     }
 
@@ -901,6 +852,10 @@ button:hover{filter:brightness(1.06)}
       add("c_eth",   "COINBASE:ETHUSD", "Ethereum (ETHUSD)");
       add("c_total", "CRYPTOCAP:TOTAL", "Crypto Total Cap");
       add("c_dom",   "CRYPTOCAP:BTC.D", "BTC Dominance");
+
+      // optional extras (swap in if you want)
+      // add("c_sol", "COINBASE:SOLUSD", "Solana (SOLUSD)");
+      // add("c_bnb", "BINANCE:BNBUSD", "BNB (BNBUSD)");
       return;
     }
   }
@@ -908,13 +863,11 @@ button:hover{filter:brightness(1.06)}
   // Rebuild all charts when timeframe changes
   function applyRange(newRange){
     currentRange = newRange;
-
-    // Rebuild BTC chart and current section charts
     loadBTCChart();
     setMode(currentMode);
   }
 
-  // Side panel
+  // Side panel mode buttons
   document.querySelectorAll(".modeBtn").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       document.querySelectorAll(".modeBtn").forEach(b=>b.classList.remove("active"));
