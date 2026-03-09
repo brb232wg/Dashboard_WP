@@ -15,7 +15,7 @@
 <link rel="manifest" href="./assets/site.webmanifest">
 <meta name="theme-color" content="#05080f">
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -32,8 +32,8 @@
   --border2: rgba(209, 162, 74, .5);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
 
-  --terminal: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  --headline: 'Orbitron', system-ui, sans-serif;
+  --terminal: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --headline: 'Teko', 'Roboto Mono', sans-serif;
 }
 
 *{box-sizing:border-box}
@@ -113,10 +113,10 @@ body::after{
 
 .panelTitle{
   font-family:var(--headline);
-  font-size:12px;
+  font-size:16px;
   color:var(--muted);
   text-transform:uppercase;
-  letter-spacing:1.4px;
+  letter-spacing:.12em;
   margin-bottom:4px;
 }
 
@@ -124,7 +124,7 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:12px;
+  border-radius:2px;
   color:var(--text);
   cursor:pointer;
   font-family:var(--terminal);
@@ -148,7 +148,7 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:12px;
+  border-radius:2px;
   color:var(--text);
   transition:.18s ease;
   font-family:var(--terminal);
@@ -184,7 +184,7 @@ body::after{
 .noteBtn{
   width:28px;
   height:28px;
-  border-radius:9px;
+  border-radius:2px;
   padding:0;
   font-weight:700;
   line-height:1;
@@ -224,9 +224,11 @@ header{
 h1{
   margin:0;
   font-family:var(--headline);
-  letter-spacing:2px;
+  letter-spacing:.14em;
   text-transform:uppercase;
-  font-size:18px;
+  font-size:30px;
+  font-weight:500;
+  line-height:1;
 }
 .sub{
   color:var(--muted);
@@ -245,7 +247,7 @@ select, button{
   border:1px solid rgba(209,162,74,.36);
   color:var(--text);
   padding:9px 12px;
-  border-radius:12px;
+  border-radius:2px;
   cursor:pointer;
   font-family:var(--terminal);
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
@@ -285,9 +287,9 @@ button:hover{filter:brightness(1.06)}
 }
 .cardTitle{
   font-family:var(--headline);
-  letter-spacing:1px;
+  letter-spacing:.14em;
   text-transform:uppercase;
-  font-size:12px;
+  font-size:15px;
   color:var(--muted);
 }
 .cardBody{ padding: 10px 14px 14px 14px; }
@@ -295,7 +297,7 @@ button:hover{filter:brightness(1.06)}
 .btcPrice{
   font-size:44px;
   font-family:var(--headline);
-  letter-spacing:-.5px;
+  letter-spacing:.06em;
   margin-top:8px;
 }
 .delta.good{color:var(--good)}
@@ -357,7 +359,7 @@ button:hover{filter:brightness(1.06)}
   flex: 1 1 640px;
   position: relative;
   height: 40px;
-  border-radius: 14px;
+  border-radius: 2px;
   overflow: hidden;
   border: 1px solid rgba(209,162,74,.35);
   background: rgba(255,255,255,.03);
@@ -1013,13 +1015,13 @@ button:hover{filter:brightness(1.06)}
     if(!loader || !lineHost) return;
 
     const lines = [
-      "initializing command matrix",
-      "verifying data channels",
-      "connecting market feeds",
-      "btc module ready",
-      "chart matrix online",
-      "intel board sync",
-      "war room systems active"
+      "Initializing command matrix...",
+      "Verifying data channels...",
+      "Connecting market feeds...",
+      "BTC module ready...",
+      "Chart matrix online...",
+      "Intel board sync...",
+      "War room systems active."
     ];
 
     const delays = [0, 320, 680, 1050, 1430, 1800, 2190];
