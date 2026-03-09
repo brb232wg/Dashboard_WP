@@ -23,11 +23,11 @@
   --panel:#111111;
   --text:#f1eee8;
   --muted:#8f897d;
-  --good:#6d8a70;
-  --bad:#8d6660;
+  --good:#d1a24a;
+  --bad:#b76f5f;
   --accent:#d1a24a;
 
-  --radius:0px;
+  --radius:16px;
   --border: rgba(209, 162, 74, .35);
   --border2: rgba(209, 162, 74, .5);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
@@ -43,7 +43,7 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  letter-spacing:.015em;
+  letter-spacing:.02em;
   overflow-x:hidden;
 }
 
@@ -80,7 +80,7 @@ body::after{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:opacity .9s ease;
+  transition:opacity .65s ease;
 }
 .bootLoader::before{
   content:"";
@@ -95,26 +95,13 @@ body::after{
   width:min(760px,92vw);
   border:1px solid rgba(209,162,74,.36);
   background:rgba(12,12,12,.9);
-  padding:18px 20px;
+  padding:22px;
 }
-.bootGrid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:18px;align-items:center;}
-.bootHead{font-size:14px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:.16em;font-family:var(--headline);}
-.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:13px;line-height:1.2;}
-.bootLine{opacity:0;transform:translateY(2px);transition:opacity .26s ease,transform .26s ease;}
+.bootHead{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;}
+.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:7px;font-size:14px;}
+.bootLine{opacity:0;transform:translateY(3px);transition:opacity .2s ease,transform .2s ease;}
 .bootLine.visible{opacity:1;transform:translateY(0);}
 .bootLine::before{content:"> ";color:var(--muted);}
-.bootFoot{margin-top:12px;padding-top:8px;border-top:1px solid rgba(209,162,74,.25);display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
-.bootGlobeWrap{display:flex;justify-content:center;align-items:center;}
-.bootGlobe{width:150px;aspect-ratio:1;border:1px solid rgba(209,162,74,.35);border-radius:50%;position:relative;overflow:hidden;}
-.bootGlobe::before,.bootGlobe::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(209,162,74,.16);}
-.bootGlobe::after{inset:10%;border-color:rgba(209,162,74,.12);}
-.globeSpin{position:absolute;inset:0;animation:globeSpin 14s linear infinite;transform-style:preserve-3d;}
-.globeMeridian,.globeLatitude{position:absolute;left:50%;top:50%;border:1px solid rgba(209,162,74,.2);transform:translate(-50%,-50%);}
-.globeMeridian{width:35%;height:100%;border-radius:50%;}
-.globeLatitude{width:100%;height:32%;border-radius:50%;}
-.m2{transform:translate(-50%,-50%) rotateY(55deg);} .m3{transform:translate(-50%,-50%) rotateY(110deg);} .m4{transform:translate(-50%,-50%) rotateY(165deg);}
-.l2{transform:translate(-50%,-50%) scaleY(.65);} .l3{transform:translate(-50%,-50%) scaleY(.35);}
-@keyframes globeSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
 
 /* ===== SIDE PANEL ===== */
 .sidePanel{
@@ -147,7 +134,7 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:0;
+  border-radius:2px;
   color:var(--text);
   cursor:pointer;
   font-family:var(--terminal);
@@ -171,7 +158,7 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:0;
+  border-radius:2px;
   color:var(--text);
   transition:.18s ease;
   font-family:var(--terminal);
@@ -189,7 +176,7 @@ body::after{
 .notePanel{
   border:1px solid rgba(209,162,74,.34);
   background:rgba(12,12,12,.78);
-  border-radius:0;
+  border-radius:14px;
   padding:10px;
   margin-bottom:6px;
 }
@@ -207,7 +194,7 @@ body::after{
 .noteBtn{
   width:28px;
   height:28px;
-  border-radius:0;
+  border-radius:2px;
   padding:0;
   font-weight:700;
   line-height:1;
@@ -216,7 +203,7 @@ body::after{
   width:100%;
   min-height:118px;
   resize:vertical;
-  border-radius:0;
+  border-radius:10px;
   border:1px solid rgba(209,162,74,.36);
   background:rgba(7,7,7,.92);
   color:var(--text);
@@ -270,7 +257,7 @@ select, button{
   border:1px solid rgba(209,162,74,.36);
   color:var(--text);
   padding:9px 12px;
-  border-radius:0;
+  border-radius:2px;
   cursor:pointer;
   font-family:var(--terminal);
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
@@ -279,7 +266,7 @@ button:hover{filter:brightness(1.06)}
 .pill{
   font-size:11px;
   padding:5px 9px;
-  border-radius:0;
+  border-radius:999px;
   border:1px solid rgba(209,162,74,.32);
   background: rgba(255,255,255,.03);
   color: var(--muted);
@@ -343,7 +330,7 @@ button:hover{filter:brightness(1.06)}
 .statBox{
   background:rgba(255,255,255,.02);
   border:1px solid rgba(209,162,74,.28);
-  border-radius:0;
+  border-radius:12px;
   padding:10px;
 }
 .k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
@@ -361,10 +348,9 @@ button:hover{filter:brightness(1.06)}
 
 /* Tiles */
 .tile{
-  position:relative;
   background: rgba(12,12,12,.7);
   border: 1px solid rgba(209, 162, 74, .36);
-  border-radius:0;
+  border-radius: 16px;
   overflow:hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,.35);
 }
@@ -391,7 +377,7 @@ button:hover{filter:brightness(1.06)}
   flex: 1 1 640px;
   position: relative;
   height: 40px;
-  border-radius:0;
+  border-radius: 2px;
   overflow: hidden;
   border: 1px solid rgba(209,162,74,.35);
   background: rgba(255,255,255,.03);
@@ -427,7 +413,7 @@ button:hover{filter:brightness(1.06)}
 }
 .rangeBtn{
   padding:8px 10px;
-  border-radius:0;
+  border-radius:12px;
   border:1px solid rgba(209,162,74,.35);
   background: rgba(15,15,15,.88);
 }
@@ -451,21 +437,8 @@ button:hover{filter:brightness(1.06)}
 
 <div class="bootLoader" id="bootLoader" aria-live="polite">
   <div class="bootPanel">
-    <div class="bootGrid">
-      <div>
-        <div class="bootHead">Restricted Console // Boot Sequence</div>
-        <ul class="bootLines" id="bootLines"></ul>
-      </div>
-      <div class="bootGlobeWrap" aria-hidden="true">
-        <div class="bootGlobe">
-          <div class="globeSpin">
-            <span class="globeMeridian"></span><span class="globeMeridian m2"></span><span class="globeMeridian m3"></span><span class="globeMeridian m4"></span>
-            <span class="globeLatitude"></span><span class="globeLatitude l2"></span><span class="globeLatitude l3"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">phase 0/8</span></div>
+    <div class="bootHead">Restricted Console // Boot Sequence</div>
+    <ul class="bootLines" id="bootLines"></ul>
   </div>
 </div>
 
@@ -1082,23 +1055,19 @@ button:hover{filter:brightness(1.06)}
   function runBootSequence(){
     const loader = $("bootLoader");
     const lineHost = $("bootLines");
-    const phase = $("bootPhase");
-    const state = $("bootState");
     if(!loader || !lineHost) return;
 
     const lines = [
-      "power bus stabilization",
-      "checksum verification // core memory",
-      "uplink handshake // market relay",
-      "btc module calibration",
-      "chart matrix synchronization",
-      "intel board integrity check",
-      "command channel authorization",
-      "operational state nominal"
+      "Initializing command matrix...",
+      "Verifying data channels...",
+      "Connecting market feeds...",
+      "BTC module ready...",
+      "Chart matrix online...",
+      "Intel board sync...",
+      "War room systems active."
     ];
 
-    const lineStep = 620;
-    const startDelay = 250;
+    const delays = [0, 320, 680, 1050, 1430, 1800, 2190];
 
     lines.forEach((text, idx) => {
       setTimeout(() => {
@@ -1106,17 +1075,14 @@ button:hover{filter:brightness(1.06)}
         item.className = "bootLine";
         item.textContent = text;
         lineHost.appendChild(item);
-        if(phase) phase.textContent = `phase ${idx + 1}/${lines.length}`;
-        if(state) state.textContent = idx === lines.length - 1 ? "System Ready" : "System Initialization";
         requestAnimationFrame(() => item.classList.add("visible"));
-      }, startDelay + (idx * lineStep));
+      }, delays[idx]);
     });
 
-    const fadeAt = startDelay + (lines.length * lineStep) + 900;
     setTimeout(() => {
       loader.classList.add("fade-out");
-      setTimeout(() => loader.remove(), 1000);
-    }, fadeAt);
+      setTimeout(() => loader.remove(), 700);
+    }, 2850);
   }
 
   runBootSequence();
