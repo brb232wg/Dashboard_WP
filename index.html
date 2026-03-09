@@ -486,7 +486,7 @@ button:hover{filter:brightness(1.06)}
         </div>
       </div>
     </div>
-    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">phase 0/8</span></div>
+    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">0%</span></div>
   </div>
 </div>
 
@@ -1114,18 +1114,38 @@ button:hover{filter:brightness(1.06)}
     if(!loader || !lineHost) return;
 
     const lines = [
-      { text:"Power bus stabilization", code:"Ok" },
-      { text:"Checksum verification // core memory", code:"Ok" },
-      { text:"Uplink handshake // market relay", code:"Ok" },
-      { text:"BTC module calibration", code:"Ok" },
-      { text:"Chart matrix synchronization", code:"Ok" },
-      { text:"Intel board integrity check", code:"Ok" },
-      { text:"Command channel authorization", code:"Ok" },
-      { text:"Operational state nominal", code:"Ready" }
+      { text:"Power Bus Stabilization", code:"✓" },
+      { text:"Checksum Verification // Core Memory", code:"✓" },
+      { text:"Uplink Handshake // Market Relay", code:"✓" },
+      { text:"BTC Module Calibration", code:"✓" },
+      { text:"Chart Matrix Synchronization", code:"✓" },
+      { text:"Intel Board Integrity Check", code:"✓" },
+      { text:"Command Channel Authorization", code:"✓" },
+      { text:"Operational State Nominal", code:"✓" }
     ];
 
     const lineStep = 620;
     const startDelay = 250;
+    let progress = 0;
+    let targetProgress = 0;
+    let loaderActive = true;
+
+    if(phase) phase.textContent = "0%";
+
+    const pulseProgress = () => {
+      if(!loaderActive) return;
+
+      if(progress < targetProgress){
+        const jump = Math.max(1, Math.floor(Math.random() * 6));
+        progress = Math.min(targetProgress, progress + jump);
+        if(phase) phase.textContent = `${progress}%`;
+      }
+
+      const nextTick = 70 + Math.floor(Math.random() * 180);
+      setTimeout(pulseProgress, nextTick);
+    };
+
+    pulseProgress();
 
     lines.forEach((entry, idx) => {
       setTimeout(() => {
@@ -1133,7 +1153,7 @@ button:hover{filter:brightness(1.06)}
         item.className = "bootLine";
         item.innerHTML = `<span class="bootLabel">${entry.text}</span><span class="bootCode">${entry.code}</span>`;
         lineHost.appendChild(item);
-        if(phase) phase.textContent = `phase ${idx + 1}/${lines.length}`;
+        targetProgress = Math.round(((idx + 1) / lines.length) * 100);
         if(state) state.textContent = idx === lines.length - 1 ? "System Ready" : "System Initialization";
         requestAnimationFrame(() => item.classList.add("visible"));
       }, startDelay + (idx * lineStep));
@@ -1141,6 +1161,9 @@ button:hover{filter:brightness(1.06)}
 
     const fadeAt = startDelay + (lines.length * lineStep) + 900;
     setTimeout(() => {
+      targetProgress = 100;
+      if(phase) phase.textContent = "100%";
+      loaderActive = false;
       loader.classList.add("fade-out");
       setTimeout(() => loader.remove(), 1000);
     }, fadeAt);
