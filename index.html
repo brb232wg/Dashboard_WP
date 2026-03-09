@@ -23,11 +23,11 @@
   --panel:#111111;
   --text:#f1eee8;
   --muted:#8f897d;
-  --good:#d1a24a;
-  --bad:#b76f5f;
+  --good:#6d8a70;
+  --bad:#8d6660;
   --accent:#d1a24a;
 
-  --radius:16px;
+  --radius:0px;
   --border: rgba(209, 162, 74, .35);
   --border2: rgba(209, 162, 74, .5);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
@@ -43,7 +43,7 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  letter-spacing:.02em;
+  letter-spacing:.015em;
   overflow-x:hidden;
 }
 
@@ -80,7 +80,7 @@ body::after{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:opacity .65s ease;
+  transition:opacity .9s ease;
 }
 .bootLoader::before{
   content:"";
@@ -94,14 +94,32 @@ body::after{
 .bootPanel{
   width:min(760px,92vw);
   border:1px solid rgba(209,162,74,.36);
-  background:rgba(12,12,12,.9);
-  padding:22px;
+  background:linear-gradient(180deg, rgba(14,14,14,.94), rgba(9,9,9,.97));
+  padding:16px 18px;
+  box-shadow:inset 0 0 0 1px rgba(209,162,74,.11);
 }
-.bootHead{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;}
-.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:7px;font-size:14px;}
-.bootLine{opacity:0;transform:translateY(3px);transition:opacity .2s ease,transform .2s ease;}
+.bootGrid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:18px;align-items:center;}
+.bootHead{font-size:14px;color:var(--accent);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(209,162,74,.28);text-transform:uppercase;letter-spacing:.2em;font-family:var(--headline);}
+.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:12px;line-height:1.2;font-variant-ligatures:none;}
+.bootLine{opacity:0;transform:translateY(2px);transition:opacity .26s ease,transform .26s ease;}
 .bootLine.visible{opacity:1;transform:translateY(0);}
-.bootLine::before{content:"> ";color:var(--muted);}
+.bootLine{display:grid;grid-template-columns:1fr auto;gap:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.bootLine::before{content:none;}
+.bootLabel::before{content:"> ";color:var(--muted);}
+.bootCode{color:rgba(209,162,74,.82);font-size:11px;letter-spacing:.08em;}
+.bootFoot{margin-top:12px;padding-top:8px;border-top:1px solid rgba(209,162,74,.25);display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.bootGlobeWrap{display:flex;justify-content:center;align-items:center;}
+.bootGlobe{width:150px;aspect-ratio:1;border:1px solid rgba(209,162,74,.35);border-radius:50%;position:relative;overflow:hidden;}
+.bootGlobe::before,.bootGlobe::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(209,162,74,.16);}
+.bootGlobe::after{inset:10%;border-color:rgba(209,162,74,.12);}
+.globeSpin{position:absolute;inset:0;animation:globeSpin 14s linear infinite;transform-style:preserve-3d;}
+.globeLandmass{position:absolute;inset:22% 18%;opacity:.42;filter:contrast(115%);background:radial-gradient(circle at 35% 38%, rgba(209,162,74,.44) 0 18%, transparent 22%),radial-gradient(circle at 62% 48%, rgba(209,162,74,.36) 0 17%, transparent 21%),radial-gradient(circle at 48% 68%, rgba(209,162,74,.28) 0 14%, transparent 18%);animation:globeSpin 22s linear infinite reverse;}
+.globeMeridian,.globeLatitude{position:absolute;left:50%;top:50%;border:1px solid rgba(209,162,74,.2);transform:translate(-50%,-50%);}
+.globeMeridian{width:35%;height:100%;border-radius:50%;}
+.globeLatitude{width:100%;height:32%;border-radius:50%;}
+.m2{transform:translate(-50%,-50%) rotateY(55deg);} .m3{transform:translate(-50%,-50%) rotateY(110deg);} .m4{transform:translate(-50%,-50%) rotateY(165deg);}
+.l2{transform:translate(-50%,-50%) scaleY(.65);} .l3{transform:translate(-50%,-50%) scaleY(.35);}
+@keyframes globeSpin{from{transform:rotateY(0deg);}to{transform:rotateY(360deg);}}
 
 /* ===== SIDE PANEL ===== */
 .sidePanel{
@@ -134,12 +152,14 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:2px;
+  border-radius:0;
   color:var(--text);
   cursor:pointer;
   font-family:var(--terminal);
   transition:.18s ease;
   text-align:left;
+  text-transform:uppercase;
+  letter-spacing:.07em;
 }
 .modeBtn:hover{
   border-color: rgba(209,162,74,.55);
@@ -158,10 +178,12 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:2px;
+  border-radius:0;
   color:var(--text);
   transition:.18s ease;
   font-family:var(--terminal);
+  text-transform:uppercase;
+  letter-spacing:.07em;
 }
 .navBtn:hover{
   border-color: rgba(209,162,74,.55);
@@ -176,7 +198,7 @@ body::after{
 .notePanel{
   border:1px solid rgba(209,162,74,.34);
   background:rgba(12,12,12,.78);
-  border-radius:14px;
+  border-radius:0;
   padding:10px;
   margin-bottom:6px;
 }
@@ -194,7 +216,7 @@ body::after{
 .noteBtn{
   width:28px;
   height:28px;
-  border-radius:2px;
+  border-radius:0;
   padding:0;
   font-weight:700;
   line-height:1;
@@ -203,7 +225,7 @@ body::after{
   width:100%;
   min-height:118px;
   resize:vertical;
-  border-radius:10px;
+  border-radius:0;
   border:1px solid rgba(209,162,74,.36);
   background:rgba(7,7,7,.92);
   color:var(--text);
@@ -257,7 +279,7 @@ select, button{
   border:1px solid rgba(209,162,74,.36);
   color:var(--text);
   padding:9px 12px;
-  border-radius:2px;
+  border-radius:0;
   cursor:pointer;
   font-family:var(--terminal);
   box-shadow: 0 10px 25px rgba(0,0,0,.25);
@@ -266,7 +288,7 @@ button:hover{filter:brightness(1.06)}
 .pill{
   font-size:11px;
   padding:5px 9px;
-  border-radius:999px;
+  border-radius:0;
   border:1px solid rgba(209,162,74,.32);
   background: rgba(255,255,255,.03);
   color: var(--muted);
@@ -294,7 +316,17 @@ button:hover{filter:brightness(1.06)}
   border:1px solid rgba(209,162,74,.08);
   pointer-events:none;
 }
+.cardHeader::before,.tileHeader::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(209,162,74,.35), transparent);
+}
 .cardHeader{
+  position:relative;
   padding:12px 14px;
   border-bottom:1px solid rgba(255,255,255,.06);
   display:flex;
@@ -330,7 +362,7 @@ button:hover{filter:brightness(1.06)}
 .statBox{
   background:rgba(255,255,255,.02);
   border:1px solid rgba(209,162,74,.28);
-  border-radius:12px;
+  border-radius:0;
   padding:10px;
 }
 .k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
@@ -348,13 +380,15 @@ button:hover{filter:brightness(1.06)}
 
 /* Tiles */
 .tile{
+  position:relative;
   background: rgba(12,12,12,.7);
   border: 1px solid rgba(209, 162, 74, .36);
-  border-radius: 16px;
+  border-radius:0;
   overflow:hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,.35);
 }
 .tileHeader{
+  position:relative;
   padding:10px 12px 8px 12px;
   border-bottom:1px solid rgba(255,255,255,.06);
   display:flex;
@@ -377,7 +411,7 @@ button:hover{filter:brightness(1.06)}
   flex: 1 1 640px;
   position: relative;
   height: 40px;
-  border-radius: 2px;
+  border-radius:0;
   overflow: hidden;
   border: 1px solid rgba(209,162,74,.35);
   background: rgba(255,255,255,.03);
@@ -413,7 +447,7 @@ button:hover{filter:brightness(1.06)}
 }
 .rangeBtn{
   padding:8px 10px;
-  border-radius:12px;
+  border-radius:0;
   border:1px solid rgba(209,162,74,.35);
   background: rgba(15,15,15,.88);
 }
@@ -437,8 +471,22 @@ button:hover{filter:brightness(1.06)}
 
 <div class="bootLoader" id="bootLoader" aria-live="polite">
   <div class="bootPanel">
-    <div class="bootHead">Restricted Console // Boot Sequence</div>
-    <ul class="bootLines" id="bootLines"></ul>
+    <div class="bootGrid">
+      <div>
+        <div class="bootHead">Restricted Console // Boot Sequence</div>
+        <ul class="bootLines" id="bootLines"></ul>
+      </div>
+      <div class="bootGlobeWrap" aria-hidden="true">
+        <div class="bootGlobe">
+          <div class="globeSpin">
+            <span class="globeLandmass"></span>
+            <span class="globeMeridian"></span><span class="globeMeridian m2"></span><span class="globeMeridian m3"></span><span class="globeMeridian m4"></span>
+            <span class="globeLatitude"></span><span class="globeLatitude l2"></span><span class="globeLatitude l3"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">phase 0/8</span></div>
   </div>
 </div>
 
@@ -582,12 +630,12 @@ button:hover{filter:brightness(1.06)}
   // TradingView mini widget supports: 1D, 5D, 1M, 3M, 6M, 12M, 60M, ALL
   let currentRange = "1D";
   const chartTone = {
-    bg: "#0d0d0d",
-    line: "#b6904a",
-    top: "rgba(182,144,74,.22)",
-    bottom: "rgba(182,144,74,.04)",
-    up: "#6d8a70",
-    down: "#8d6660"
+    bg: "#0b0b0b",
+    line: "#8b7448",
+    top: "rgba(139,116,72,.16)",
+    bottom: "rgba(139,116,72,.03)",
+    up: "#627965",
+    down: "#7a5d57"
   };
 
   // ---------- Formatting ----------
@@ -761,6 +809,8 @@ button:hover{filter:brightness(1.06)}
       bottomColor: chartTone.bottom,
       upColor: chartTone.up,
       downColor: chartTone.down,
+      volumeUpColor: "rgba(98,121,101,.32)",
+      volumeDownColor: "rgba(122,93,87,.32)",
       isTransparent: true,
       autosize: true,
       chartOnly: false
@@ -803,6 +853,8 @@ button:hover{filter:brightness(1.06)}
         bottomColor: chartTone.bottom,
         upColor: chartTone.up,
         downColor: chartTone.down,
+        volumeUpColor: "rgba(98,121,101,.32)",
+        volumeDownColor: "rgba(122,93,87,.32)",
         isTransparent: true,
         autosize: true,
         chartOnly: false
@@ -851,6 +903,8 @@ button:hover{filter:brightness(1.06)}
       bottomColor: chartTone.bottom,
       upColor: chartTone.up,
       downColor: chartTone.down,
+      volumeUpColor: "rgba(98,121,101,.32)",
+      volumeDownColor: "rgba(122,93,87,.32)",
       isTransparent: true,
       dateRange: currentRange
     });
@@ -1055,34 +1109,41 @@ button:hover{filter:brightness(1.06)}
   function runBootSequence(){
     const loader = $("bootLoader");
     const lineHost = $("bootLines");
+    const phase = $("bootPhase");
+    const state = $("bootState");
     if(!loader || !lineHost) return;
 
     const lines = [
-      "Initializing command matrix...",
-      "Verifying data channels...",
-      "Connecting market feeds...",
-      "BTC module ready...",
-      "Chart matrix online...",
-      "Intel board sync...",
-      "War room systems active."
+      { text:"Power bus stabilization", code:"Ok" },
+      { text:"Checksum verification // core memory", code:"Ok" },
+      { text:"Uplink handshake // market relay", code:"Ok" },
+      { text:"BTC module calibration", code:"Ok" },
+      { text:"Chart matrix synchronization", code:"Ok" },
+      { text:"Intel board integrity check", code:"Ok" },
+      { text:"Command channel authorization", code:"Ok" },
+      { text:"Operational state nominal", code:"Ready" }
     ];
 
-    const delays = [0, 320, 680, 1050, 1430, 1800, 2190];
+    const lineStep = 620;
+    const startDelay = 250;
 
-    lines.forEach((text, idx) => {
+    lines.forEach((entry, idx) => {
       setTimeout(() => {
         const item = document.createElement("li");
         item.className = "bootLine";
-        item.textContent = text;
+        item.innerHTML = `<span class="bootLabel">${entry.text}</span><span class="bootCode">${entry.code}</span>`;
         lineHost.appendChild(item);
+        if(phase) phase.textContent = `phase ${idx + 1}/${lines.length}`;
+        if(state) state.textContent = idx === lines.length - 1 ? "System Ready" : "System Initialization";
         requestAnimationFrame(() => item.classList.add("visible"));
-      }, delays[idx]);
+      }, startDelay + (idx * lineStep));
     });
 
+    const fadeAt = startDelay + (lines.length * lineStep) + 900;
     setTimeout(() => {
       loader.classList.add("fade-out");
-      setTimeout(() => loader.remove(), 700);
-    }, 2850);
+      setTimeout(() => loader.remove(), 1000);
+    }, fadeAt);
   }
 
   runBootSequence();

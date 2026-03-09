@@ -29,7 +29,7 @@
   --bad:#b76f5f;
   --accent:#d1a24a;
 
-  --radius:16px;
+  --radius:0px;
   --border: rgba(209, 162, 74, .35);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
 
@@ -43,7 +43,7 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  letter-spacing:.02em;
+  letter-spacing:.015em;
   overflow-x:hidden;
 }
 body::before{
@@ -93,10 +93,12 @@ body::after{
   background:rgba(18,18,18,.86);
   border:1px solid rgba(209,162,74,.34);
   padding:10px;
-  border-radius:2px;
+  border-radius:0;
   color:var(--text);
   transition:.18s ease;
   font-family:var(--terminal);
+  text-transform:uppercase;
+  letter-spacing:.07em;
 }
 .navBtn:hover{
   border-color: rgba(209,162,74,.55);
@@ -157,6 +159,7 @@ h1{
   pointer-events:none;
 }
 .cardHeader{
+  position:relative;
   padding:12px 14px;
   border-bottom:1px solid rgba(255,255,255,.06);
   display:flex;
@@ -164,6 +167,15 @@ h1{
   gap:10px;
   flex-wrap:wrap;
   align-items:center;
+}
+.cardHeader::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(209,162,74,.35), transparent);
 }
 .cardTitle{
   font-family:var(--headline);
@@ -179,7 +191,7 @@ textarea, input, button{
   border:1px solid rgba(209,162,74,.36);
   color:var(--text);
   padding:10px 12px;
-  border-radius:2px;
+  border-radius:0;
   font-family:var(--terminal);
 }
 button{ cursor:pointer; }
@@ -307,7 +319,7 @@ button:hover{ filter:brightness(1.06); }
         : "";
 
       return `
-        <div style="border:1px solid rgba(209,162,74,.32);border-radius:12px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.02);">
+        <div style="border:1px solid rgba(209,162,74,.32);border-radius:0;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.02);">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <div><strong>${title || "Untitled"}</strong></div>
             <div style="color:var(--muted);">${when}</div>
