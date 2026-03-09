@@ -247,6 +247,110 @@ body::after{
 .heartbeat{animation:heartbeat 3.2s ease-in-out infinite;}
 @keyframes heartbeat{0%,100%{opacity:1}50%{opacity:.76}}
 
+.bootLoader{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:rgba(4,4,4,.97);
+  color:var(--accent);
+  border:1px solid rgba(209,162,74,.22);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity .9s ease;
+}
+.bootLoader::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0, rgba(255,255,255,.035) 1px, transparent 1px, transparent 4px);
+  opacity:.2;
+  pointer-events:none;
+}
+.bootLoader.fade-out{opacity:0;pointer-events:none;}
+.bootPanel{
+  width:min(760px,92vw);
+  border:1px solid rgba(209,162,74,.36);
+  background:linear-gradient(180deg, rgba(14,14,14,.94), rgba(9,9,9,.97));
+  padding:16px 18px;
+  box-shadow:inset 0 0 0 1px rgba(209,162,74,.11);
+}
+.bootSection.hidden{display:none;}
+.bootGrid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:18px;align-items:center;}
+.bootHead{font-size:14px;color:var(--accent);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(209,162,74,.28);text-transform:uppercase;letter-spacing:.2em;font-family:var(--headline);}
+.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:12px;line-height:1.2;font-variant-ligatures:none;}
+.bootLine{opacity:0;transform:translateY(2px);transition:opacity .26s ease,transform .26s ease;}
+.bootLine.visible{opacity:1;transform:translateY(0);}
+.bootLine{display:grid;grid-template-columns:1fr auto;gap:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.bootLine::before{content:none;}
+.bootLabel::before{content:"> ";color:var(--muted);}
+.bootCode{color:rgba(209,162,74,.82);font-size:11px;letter-spacing:.08em;}
+.bootFoot{margin-top:12px;padding-top:8px;border-top:1px solid rgba(209,162,74,.25);display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.bootProgress{margin-top:8px;height:6px;border:1px solid rgba(209,162,74,.35);background:rgba(0,0,0,.45);position:relative;}
+.bootProgressBar{height:100%;width:0%;background:linear-gradient(90deg, rgba(209,162,74,.45), rgba(209,162,74,.85));transition:width .18s linear;}
+.bootGlobeWrap{display:flex;justify-content:center;align-items:center;}
+.bootGlobe{width:150px;height:150px;position:relative;display:grid;place-items:center;}
+.bootGlobe svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 4px rgba(209,162,74,.12));}
+.globeSphere{fill:none;stroke:rgba(209,162,74,.4);stroke-width:1;}
+.globeLat,.globeLon{fill:none;stroke:rgba(209,162,74,.28);stroke-width:.85;}
+.geoRotate{transform-origin:80px 80px;animation:geoRotate 18s linear infinite;}
+.moonOrbit{position:absolute;inset:0;animation:moonOrbit 13s linear infinite;}
+.moon{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(209,162,74,.45);transform:translate(86px,0);box-shadow:0 0 5px rgba(209,162,74,.3);}
+@keyframes geoRotate{0%{transform:scaleX(1)}50%{transform:scaleX(.18)}100%{transform:scaleX(1)}}
+@keyframes moonOrbit{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.bootVisual{
+  height:170px;
+  border:1px solid rgba(209,162,74,.28);
+  margin-top:10px;
+  position:relative;
+  background:rgba(8,8,8,.7);
+  overflow:hidden;
+}
+.bootVisual svg{width:100%;height:100%;display:block;}
+.diagGrid{stroke:rgba(209,162,74,.16);stroke-width:.8;fill:none;}
+.diagGlobe{transform-origin:350px 90px;animation:geoRotate 18s linear infinite;}
+.diagSphere{fill:none;stroke:rgba(209,162,74,.36);stroke-width:1;}
+.diagLat,.diagLon{fill:none;stroke:rgba(209,162,74,.28);stroke-width:.85;}
+
+.bootSymbol{
+  margin-top:10px;
+  border:1px solid rgba(209,162,74,.28);
+  padding:14px;
+  display:grid;
+  justify-items:center;
+  gap:10px;
+  background:rgba(8,8,8,.68);
+}
+.bootSigil{
+  width:64px;
+  height:64px;
+  border:1px solid rgba(209,162,74,.45);
+  border-radius:50%;
+  position:relative;
+}
+.bootSigil::before,.bootSigil::after{content:"";position:absolute;inset:10px;border:1px solid rgba(209,162,74,.3);border-radius:50%;}
+.bootSigil::after{inset:0;border:none;border-top:1px solid rgba(209,162,74,.5);border-bottom:1px solid rgba(209,162,74,.5);animation:sigilSpin 8s linear infinite;}
+@keyframes sigilSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.finalLine{font-size:12px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+
+.screenFx,.noiseFx{position:fixed;inset:0;pointer-events:none;z-index:30;}
+.screenFx{background:repeating-linear-gradient(180deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 1px, transparent 1px, transparent 3px);opacity:.1;mix-blend-mode:screen;}
+.noiseFx{background-image:radial-gradient(circle, rgba(255,255,255,.08) 0 1px, transparent 1px);background-size:3px 3px;opacity:.025;animation:noiseShift .35s steps(2) infinite, flicker 6s ease-in-out infinite;}
+@keyframes noiseShift{0%{transform:translate(0,0)}50%{transform:translate(.8px,-.8px)}100%{transform:translate(-.6px,.6px)}}
+@keyframes flicker{0%,100%{opacity:.02}50%{opacity:.035}}
+
+.heartbeat{animation:heartbeat 3.2s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{opacity:1}50%{opacity:.76}}
+
+.sideGlobePanel{border:1px solid rgba(209,162,74,.3);padding:8px;background:rgba(7,7,7,.88)}
+.sideGlobeHead{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.sideGlobe{width:100%;display:grid;place-items:center;}
+.sideGlobe svg{width:96px;height:96px;display:block;filter:drop-shadow(0 0 3px rgba(209,162,74,.12));}
+.sgSphere{fill:none;stroke:rgba(209,162,74,.38);stroke-width:1;}
+.sgLat,.sgLon{fill:none;stroke:rgba(209,162,74,.26);stroke-width:.8;}
+.sgRotate{transform-origin:48px 48px;animation:geoRotate 18s linear infinite;}
+
 /* ===== SIDE PANEL ===== */
 .sidePanel{
   position:fixed;
@@ -637,13 +741,20 @@ button:hover{filter:brightness(1.06)}
     </div>
 
     <div class="bootSection hidden" id="bootVizSection">
-      <div class="bootHead">Diagnostic Visualization // Terrain Matrix</div>
+      <div class="bootHead">Diagnostic Visualization // Global Matrix</div>
       <div class="bootVisual">
         <svg viewBox="0 0 700 180" preserveAspectRatio="none" aria-hidden="true">
-          <path class="terrainGrid" d="M0 140 H700 M0 115 H700 M0 90 H700 M0 65 H700 M0 40 H700"/>
-          <path class="terrainGrid" d="M70 0 V180 M140 0 V180 M210 0 V180 M280 0 V180 M350 0 V180 M420 0 V180 M490 0 V180 M560 0 V180 M630 0 V180"/>
-          <path class="terrainPath" d="M0 125 L40 112 L85 118 L135 94 L175 100 L220 86 L268 90 L310 72 L356 81 L401 68 L452 74 L500 57 L545 62 L595 49 L645 56 L700 44"/>
-          <path class="terrainPath" d="M0 145 L58 136 L103 141 L150 122 L203 126 L250 112 L300 118 L344 99 L394 107 L441 94 L495 101 L548 84 L598 92 L648 78 L700 83"/>
+          <path class="diagGrid" d="M0 150 H700 M0 120 H700 M0 90 H700 M0 60 H700 M0 30 H700"/>
+          <path class="diagGrid" d="M70 0 V180 M140 0 V180 M210 0 V180 M280 0 V180 M350 0 V180 M420 0 V180 M490 0 V180 M560 0 V180 M630 0 V180"/>
+          <g class="diagGlobe">
+            <circle class="diagSphere" cx="350" cy="90" r="58"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="40"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="26"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="13"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="44" ry="58"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="30" ry="58"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="16" ry="58"/>
+          </g>
         </svg>
       </div>
     </div>
@@ -664,6 +775,23 @@ button:hover{filter:brightness(1.06)}
 
 <!-- Side Panel -->
 <div class="sidePanel">
+  <div class="sideGlobePanel" aria-hidden="true">
+    <div class="sideGlobeHead">Global Monitor</div>
+    <div class="sideGlobe">
+      <svg viewBox="0 0 96 96">
+        <circle class="sgSphere" cx="48" cy="48" r="32"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="22"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="14"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="7"/>
+        <g class="sgRotate">
+          <ellipse class="sgLon" cx="48" cy="48" rx="24" ry="32"/>
+          <ellipse class="sgLon" cx="48" cy="48" rx="16" ry="32"/>
+          <ellipse class="sgLon" cx="48" cy="48" rx="8" ry="32"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
   <div class="notePanel">
     <div class="noteRow">
       <div class="panelTitle" style="margin:0;">Notes</div>
@@ -692,11 +820,11 @@ button:hover{filter:brightness(1.06)}
   <div class="topBar">
     <div>
       <h1>Macro War Room</h1>
-      <div class="sub">BTC always on top • global timeframe controls • ticker + loadout below</div>
+      <div class="sub">BTC • DATA • SYS</div>
     </div>
 
     <div class="controls">
-      <label style="color:var(--muted);font-size:12px;">Auto refresh</label>
+      <label style="color:var(--muted);font-size:12px;">REF</label>
       <select id="refreshEvery">
         <option value="0">Off</option>
         <option value="30">30s</option>
@@ -706,7 +834,7 @@ button:hover{filter:brightness(1.06)}
       </select>
 
       <button id="btnRefresh">Refresh</button>
-      <button id="btnMusic">Play music</button>
+      <button id="btnMusic" aria-label="Toggle music">▶</button>
       <span class="pill heartbeat" id="status">Idle</span>
     </div>
   </div>
@@ -717,7 +845,7 @@ button:hover{filter:brightness(1.06)}
   <!-- BTC TOP CARD -->
   <section class="card">
     <div class="cardHeader">
-      <div class="cardTitle">Bitcoin</div>
+      <div class="cardTitle">BTC</div>
       <span class="pill" id="btcUpdated">–</span>
     </div>
 
@@ -767,7 +895,7 @@ button:hover{filter:brightness(1.06)}
       <div class="marketTopRow" style="width:100%;">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <div class="cardTitle" id="modeTitle">Devil's Chess Board</div>
-          <span class="pill heartbeat" id="modePill">Loadout</span>
+          <span class="pill heartbeat" id="modePill">SYS</span>
         </div>
 
         <div class="tickerBar" title="Live headlines from @DeItaone on refresh">
@@ -1109,7 +1237,7 @@ button:hover{filter:brightness(1.06)}
 
     if(mode === "devil"){
       $("modeTitle").textContent = "Devil's Chess Board";
-      $("modePill").textContent = "Equities";
+      $("modePill").textContent = "EQTY";
 
       // Defense first
       add("m_eslt", "NASDAQ:ESLT", "Elbit Systems");
@@ -1129,7 +1257,7 @@ button:hover{filter:brightness(1.06)}
 
     if(mode === "global"){
       $("modeTitle").textContent = "Global";
-      $("modePill").textContent = "Macro";
+      $("modePill").textContent = "MACR";
 
       // Commodities first
       add("g_xau",  "OANDA:XAUUSD", "Gold (XAUUSD / oz)");
@@ -1158,7 +1286,7 @@ button:hover{filter:brightness(1.06)}
 
     if(mode === "crypto"){
       $("modeTitle").textContent = "Crypto";
-      $("modePill").textContent = "Digital";
+      $("modePill").textContent = "CRYP";
 
       add("c_btc",   "COINBASE:BTCUSD", "Bitcoin (BTCUSD)");
       add("c_eth",   "COINBASE:ETHUSD", "Ethereum (ETHUSD)");
@@ -1266,11 +1394,11 @@ button:hover{filter:brightness(1.06)}
       if(!musicOn){
         await music.play();
         musicOn = true;
-        btnMusic.textContent = "Pause music";
+        btnMusic.textContent = "❚❚";
       } else {
         music.pause();
         musicOn = false;
-        btnMusic.textContent = "Play music";
+        btnMusic.textContent = "▶";
       }
     } catch(e){
       alert("Music couldn't start. Make sure assets/music.mp3 exists, then click again.");
