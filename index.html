@@ -47,6 +47,16 @@ body{
   overflow-x:hidden;
 }
 
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.015) 0, rgba(255,255,255,.015) 1px, transparent 1px, transparent 3px);
+  opacity:.08;
+  pointer-events:none;
+}
+
 /* Overlay */
 body::after{
   content:"";
@@ -274,7 +284,15 @@ button:hover{filter:brightness(1.06)}
   border-radius:var(--radius);
   box-shadow: var(--shadow);
   overflow:hidden;
+  position:relative;
   margin-bottom:16px;
+}
+.card::before,.tile::before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border:1px solid rgba(209,162,74,.08);
+  pointer-events:none;
 }
 .cardHeader{
   padding:12px 14px;
@@ -409,6 +427,8 @@ button:hover{filter:brightness(1.06)}
 @media (max-width: 980px){
   .sidePanel{ position:static; transform:none; width:auto; margin:12px; }
   header,.wrap{ margin-left:0; }
+  .bootGrid{grid-template-columns:1fr;}
+  .bootGlobeWrap{display:none;}
 }
 </style>
 </head>
@@ -561,6 +581,14 @@ button:hover{filter:brightness(1.06)}
   // ===== Global chart range (applies to ALL charts) =====
   // TradingView mini widget supports: 1D, 5D, 1M, 3M, 6M, 12M, 60M, ALL
   let currentRange = "1D";
+  const chartTone = {
+    bg: "#0d0d0d",
+    line: "#b6904a",
+    top: "rgba(182,144,74,.22)",
+    bottom: "rgba(182,144,74,.04)",
+    up: "#6d8a70",
+    down: "#8d6660"
+  };
 
   // ---------- Formatting ----------
   function fmtUSD2(n){
@@ -728,6 +756,11 @@ button:hover{filter:brightness(1.06)}
       locale: "en",
       dateRange: currentRange,
       colorTheme: "dark",
+      lineColor: chartTone.line,
+      topColor: chartTone.top,
+      bottomColor: chartTone.bottom,
+      upColor: chartTone.up,
+      downColor: chartTone.down,
       isTransparent: true,
       autosize: true,
       chartOnly: false
@@ -765,6 +798,11 @@ button:hover{filter:brightness(1.06)}
         locale: "en",
         dateRange: currentRange,
         colorTheme: "dark",
+        lineColor: chartTone.line,
+        topColor: chartTone.top,
+        bottomColor: chartTone.bottom,
+        upColor: chartTone.up,
+        downColor: chartTone.down,
         isTransparent: true,
         autosize: true,
         chartOnly: false
@@ -807,7 +845,12 @@ button:hover{filter:brightness(1.06)}
       colorTheme: "dark",
       autosize: true,
       showVolume: true,
-      chartType: "area",
+      chartType: "candlesticks",
+      lineColor: chartTone.line,
+      topColor: chartTone.top,
+      bottomColor: chartTone.bottom,
+      upColor: chartTone.up,
+      downColor: chartTone.down,
       isTransparent: true,
       dateRange: currentRange
     });
