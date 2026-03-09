@@ -1,377 +1,54 @@
-<!-- =========================
-     FILE 2: intel.html
-     (same vibe, second page)
-     ========================= -->
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Macro War Room • Intel</title>
-
+<title>Intel Page • Decommissioned</title>
 <link rel="icon" href="./assets/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
-<link rel="manifest" href="./assets/site.webmanifest">
-<meta name="theme-color" content="#05080f">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
 <style>
-/* (Keep styles identical so the site feels like one app) */
 :root{
-  --bg:#05080f;
-  --panel:#0b1220;
-  --text:#e6edf3;
-  --muted:#7f8ea3;
-  --good:#19c37d;
-  --bad:#ff4d4f;
-  --accent:#19c37d;
-
-  --radius:16px;
-  --border: rgba(55, 85, 130, .45);
-  --shadow: 0 18px 55px rgba(0,0,0,.55);
-
-  --terminal: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  --headline: 'Orbitron', system-ui, sans-serif;
+  --bg:#090909;
+  --text:#f1eee8;
+  --muted:#8f897d;
+  --accent:#d1a24a;
+  --border: rgba(209, 162, 74, .35);
+  --terminal: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
+  display:grid;
+  place-items:center;
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  overflow-x:hidden;
 }
-body::after{
+body::before{
   content:"";
-  position:fixed; inset:0; z-index:-2;
-  background:
-    radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
-    radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
-    linear-gradient(180deg, rgba(5,8,15,.90), rgba(5,8,15,.96));
-  pointer-events:none;
-}
-.sidePanel{
   position:fixed;
-  top:50%; left:0;
-  transform:translateY(-50%);
-  width:230px;
-  background:rgba(7,12,22,.94);
-  border-right:1px solid var(--border);
-  padding:18px 12px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  z-index:10;
-  backdrop-filter: blur(10px);
-  box-shadow: 12px 0 40px rgba(0,0,0,.35);
+  inset:0;
+  z-index:-1;
+  background:rgba(0,0,0,.3);
 }
-.panelTitle{
-  font-family:var(--headline);
-  font-size:12px;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:1.4px;
-  margin-bottom:4px;
-}
-.navBtn{
-  display:block;
-  text-decoration:none;
-  background:rgba(16,26,44,.75);
-  border:1px solid rgba(55,85,130,.55);
-  padding:10px;
-  border-radius:12px;
-  color:var(--text);
-  transition:.18s ease;
-  font-family:var(--terminal);
-}
-.navBtn:hover{
-  border-color: rgba(25,195,125,.55);
-  background: rgba(20,40,70,.55);
-}
-.navBtn.active{
-  border-color: var(--accent);
-  box-shadow: 0 0 16px rgba(25,195,125,.35);
-  background: rgba(25,195,125,.08);
-}
-
-header{
-  margin-left:240px;
-  padding:18px 20px 0 20px;
-  max-width:1700px;
-}
-.topBar{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:12px;
-}
-h1{
-  margin:0;
-  font-family:var(--headline);
-  letter-spacing:2px;
-  text-transform:uppercase;
-  font-size:18px;
-}
-.sub{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:6px;
-}
-.wrap{
-  margin-left:240px;
-  padding:12px 20px 30px 20px;
-  max-width:1700px;
-}
-.card{
-  background: linear-gradient(180deg, rgba(10,16,30,.92), rgba(8,12,24,.92));
+.panel{
+  width:min(720px,92vw);
   border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow: var(--shadow);
-  overflow:hidden;
-  margin-bottom:16px;
+  padding:20px;
+  background:rgba(12,12,12,.92);
 }
-.cardHeader{
-  padding:12px 14px;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-.cardTitle{
-  font-family:var(--headline);
-  letter-spacing:1px;
-  text-transform:uppercase;
-  font-size:12px;
-  color:var(--muted);
-}
-.cardBody{ padding: 12px 14px 14px 14px; }
-
-textarea, input, button{
-  background:rgba(12,20,35,.72);
-  border:1px solid rgba(55,85,130,.65);
-  color:var(--text);
-  padding:10px 12px;
-  border-radius:12px;
-  font-family:var(--terminal);
-}
-button{ cursor:pointer; }
-button:hover{ filter:brightness(1.06); }
-
-.grid2{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:12px;
-}
-@media (max-width: 980px){
-  .sidePanel{ position:static; transform:none; width:auto; margin:12px; }
-  header,.wrap{ margin-left:0; }
-  .grid2{ grid-template-columns: 1fr; }
-}
-.small{ color:var(--muted); font-size:12px; }
+.k{color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+h1{font-size:24px;margin:0 0 8px 0;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);}
+p{margin:0 0 12px 0;color:var(--muted);}
+a{color:var(--text);text-decoration:none;border:1px solid var(--border);padding:8px 12px;display:inline-block;text-transform:uppercase;letter-spacing:.07em;}
 </style>
 </head>
-
 <body>
-
-<div class="sidePanel">
-  <div class="panelTitle">Pages</div>
-  <a class="navBtn" href="index.html">Dashboard</a>
-  <a class="navBtn active" href="intel.html">Intel Page</a>
-
-  <div class="panelTitle" style="margin-top:10px;">Quick links</div>
-  <a class="navBtn" href="https://x.com/DeItaone" target="_blank" rel="noopener noreferrer">DeItaone</a>
-  <a class="navBtn" href="https://tradingview.com" target="_blank" rel="noopener noreferrer">TradingView</a>
-</div>
-
-<header>
-  <div class="topBar">
-    <div>
-      <h1>Intel</h1>
-      <div class="sub">Drop items / links / quick briefs • stored locally</div>
-    </div>
-  </div>
-</header>
-
-<div class="wrap">
-  <section class="card">
-    <div class="cardHeader">
-      <div class="cardTitle">Intel Scratchpad</div>
-      <div class="small" id="savedAt">–</div>
-    </div>
-    <div class="cardBody">
-      <div class="grid2">
-        <div>
-          <div class="small" style="margin-bottom:8px;">Headline</div>
-          <input id="intelTitle" placeholder="e.g. Shipping lanes risk spikes / policy leak / earnings bomb" style="width:100%;">
-          <div class="small" style="margin:12px 0 8px;">Link (optional)</div>
-          <input id="intelLink" placeholder="https://..." style="width:100%;">
-          <div class="small" style="margin:12px 0 8px;">Tags</div>
-          <input id="intelTags" placeholder="e.g. IRAN, OIL, RATES, UK, BTC" style="width:100%;">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-            <button id="btnIntelAdd">Add</button>
-            <button id="btnIntelClear">Clear all</button>
-            <button id="btnIntelExport">Export .txt</button>
-          </div>
-          <div class="small" style="margin-top:10px;">
-            Stored in <code>localStorage</code> on this device.
-          </div>
-        </div>
-
-        <div>
-          <div class="small" style="margin-bottom:8px;">Brief / Notes</div>
-          <textarea id="intelBody" rows="12" style="width:100%;resize:vertical;" placeholder="Write the brief here..."></textarea>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="cardHeader">
-      <div class="cardTitle">Saved Intel</div>
-    </div>
-    <div class="cardBody">
-      <div id="intelList" class="small">–</div>
-    </div>
-  </section>
-</div>
-
-<script>
-  const $ = (id) => document.getElementById(id);
-
-  const key = "macroWarRoom.intelItems";
-
-  function loadItems(){
-    try{
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function saveItems(items){
-    localStorage.setItem(key, JSON.stringify(items));
-    $("savedAt").textContent = "Saved " + new Date().toLocaleString();
-  }
-
-  function escapeHtml(s){
-    return (s || "").replace(/[&<>"']/g, (c) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  function render(){
-    const items = loadItems();
-    if(!items.length){
-      $("intelList").innerHTML = "No intel saved yet.";
-      return;
-    }
-
-    $("intelList").innerHTML = items.map((it, idx) => {
-      const title = escapeHtml(it.title);
-      const tags  = escapeHtml(it.tags);
-      const body  = escapeHtml(it.body);
-      const when  = escapeHtml(it.when);
-      const link  = (it.link || "").trim();
-
-      const linkHtml = link
-        ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link)}</a>`
-        : "";
-
-      return `
-        <div style="border:1px solid rgba(55,85,130,.45);border-radius:12px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.03);">
-          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-            <div><strong>${title || "Untitled"}</strong></div>
-            <div style="color:var(--muted);">${when}</div>
-          </div>
-          <div style="margin-top:6px;color:var(--muted);">Tags: ${tags || "–"}</div>
-          ${linkHtml ? `<div style="margin-top:6px;">${linkHtml}</div>` : ""}
-          <pre style="white-space:pre-wrap;margin:10px 0 0 0;color:var(--text);font-family:var(--terminal);">${body || ""}</pre>
-          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button onclick="removeItem(${idx})">Delete</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  window.removeItem = (idx) => {
-    const items = loadItems();
-    items.splice(idx, 1);
-    saveItems(items);
-    render();
-  };
-
-  $("btnIntelAdd").addEventListener("click", () => {
-    const title = $("intelTitle").value.trim();
-    const link  = $("intelLink").value.trim();
-    const tags  = $("intelTags").value.trim();
-    const body  = $("intelBody").value.trim();
-
-    const items = loadItems();
-    items.unshift({
-      title, link, tags, body,
-      when: new Date().toLocaleString()
-    });
-
-    saveItems(items);
-    $("intelTitle").value = "";
-    $("intelLink").value = "";
-    $("intelTags").value = "";
-    $("intelBody").value = "";
-    render();
-  });
-
-  $("btnIntelClear").addEventListener("click", () => {
-    localStorage.removeItem(key);
-    $("savedAt").textContent = "Cleared " + new Date().toLocaleString();
-    render();
-  });
-
-  $("btnIntelExport").addEventListener("click", () => {
-    const items = loadItems();
-    const lines = items.map((it) => {
-      return [
-        `=== ${it.title || "Untitled"} ===`,
-        `When: ${it.when || ""}`,
-        `Tags: ${it.tags || ""}`,
-        `Link: ${it.link || ""}`,
-        ``,
-        `${it.body || ""}`,
-        ``,
-        `------------------------------`,
-        ``
-      ].join("\n");
-    }).join("\n");
-
-    const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const fileName = `macro-war-room-intel-${stamp}.txt`;
-
-    const blob = new Blob([lines || ""], { type: "text/plain;charset=utf-8" });
-    const href = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(href);
-  });
-
-  // boot
-  $("savedAt").textContent = "Loaded " + new Date().toLocaleString();
-  render();
-</script>
-
+  <main class="panel">
+    <div class="k">System Notice</div>
+    <h1>Intel Page Decommissioned</h1>
+    <p>This module has been retired. Return to the main dashboard.</p>
+    <a href="index.html">Return to Dashboard</a>
+  </main>
 </body>
 </html>
