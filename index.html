@@ -27,7 +27,7 @@
   --bad:#b76f5f;
   --accent:#d1a24a;
 
-  --radius:2px;
+  --radius:16px;
   --border: rgba(209, 162, 74, .35);
   --border2: rgba(209, 162, 74, .5);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
@@ -43,7 +43,7 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  letter-spacing:.015em;
+  letter-spacing:.02em;
   overflow-x:hidden;
 }
 
@@ -70,7 +70,7 @@ body::after{
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:opacity .9s ease;
+  transition:opacity .65s ease;
 }
 .bootLoader::before{
   content:"";
@@ -85,14 +85,13 @@ body::after{
   width:min(760px,92vw);
   border:1px solid rgba(209,162,74,.36);
   background:rgba(12,12,12,.9);
-  padding:18px 20px;
+  padding:22px;
 }
-.bootHead{font-size:14px;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:.16em;font-family:var(--headline);}
-.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:13px;line-height:1.2;}
-.bootLine{opacity:0;transform:translateY(2px);transition:opacity .26s ease,transform .26s ease;}
+.bootHead{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;}
+.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:7px;font-size:14px;}
+.bootLine{opacity:0;transform:translateY(3px);transition:opacity .2s ease,transform .2s ease;}
 .bootLine.visible{opacity:1;transform:translateY(0);}
 .bootLine::before{content:"> ";color:var(--muted);}
-.bootFoot{margin-top:12px;padding-top:8px;border-top:1px solid rgba(209,162,74,.25);display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
 
 /* ===== SIDE PANEL ===== */
 .sidePanel{
@@ -167,7 +166,7 @@ body::after{
 .notePanel{
   border:1px solid rgba(209,162,74,.34);
   background:rgba(12,12,12,.78);
-  border-radius:2px;
+  border-radius:14px;
   padding:10px;
   margin-bottom:6px;
 }
@@ -194,7 +193,7 @@ body::after{
   width:100%;
   min-height:118px;
   resize:vertical;
-  border-radius:2px;
+  border-radius:10px;
   border:1px solid rgba(209,162,74,.36);
   background:rgba(7,7,7,.92);
   color:var(--text);
@@ -257,7 +256,7 @@ button:hover{filter:brightness(1.06)}
 .pill{
   font-size:11px;
   padding:5px 9px;
-  border-radius:2px;
+  border-radius:999px;
   border:1px solid rgba(209,162,74,.32);
   background: rgba(255,255,255,.03);
   color: var(--muted);
@@ -313,7 +312,7 @@ button:hover{filter:brightness(1.06)}
 .statBox{
   background:rgba(255,255,255,.02);
   border:1px solid rgba(209,162,74,.28);
-  border-radius:2px;
+  border-radius:12px;
   padding:10px;
 }
 .k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; }
@@ -333,7 +332,7 @@ button:hover{filter:brightness(1.06)}
 .tile{
   background: rgba(12,12,12,.7);
   border: 1px solid rgba(209, 162, 74, .36);
-  border-radius: 2px;
+  border-radius: 16px;
   overflow:hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,.35);
 }
@@ -396,7 +395,7 @@ button:hover{filter:brightness(1.06)}
 }
 .rangeBtn{
   padding:8px 10px;
-  border-radius:2px;
+  border-radius:12px;
   border:1px solid rgba(209,162,74,.35);
   background: rgba(15,15,15,.88);
 }
@@ -420,7 +419,6 @@ button:hover{filter:brightness(1.06)}
   <div class="bootPanel">
     <div class="bootHead">Restricted Console // Boot Sequence</div>
     <ul class="bootLines" id="bootLines"></ul>
-    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">phase 0/8</span></div>
   </div>
 </div>
 
@@ -1014,23 +1012,19 @@ button:hover{filter:brightness(1.06)}
   function runBootSequence(){
     const loader = $("bootLoader");
     const lineHost = $("bootLines");
-    const phase = $("bootPhase");
-    const state = $("bootState");
     if(!loader || !lineHost) return;
 
     const lines = [
-      "power bus stabilization",
-      "checksum verification // core memory",
-      "uplink handshake // market relay",
-      "btc module calibration",
-      "chart matrix synchronization",
-      "intel board integrity check",
-      "command channel authorization",
-      "operational state nominal"
+      "Initializing command matrix...",
+      "Verifying data channels...",
+      "Connecting market feeds...",
+      "BTC module ready...",
+      "Chart matrix online...",
+      "Intel board sync...",
+      "War room systems active."
     ];
 
-    const lineStep = 620;
-    const startDelay = 250;
+    const delays = [0, 320, 680, 1050, 1430, 1800, 2190];
 
     lines.forEach((text, idx) => {
       setTimeout(() => {
@@ -1038,17 +1032,14 @@ button:hover{filter:brightness(1.06)}
         item.className = "bootLine";
         item.textContent = text;
         lineHost.appendChild(item);
-        if(phase) phase.textContent = `phase ${idx + 1}/${lines.length}`;
-        if(state) state.textContent = idx === lines.length - 1 ? "System Ready" : "System Initialization";
         requestAnimationFrame(() => item.classList.add("visible"));
-      }, startDelay + (idx * lineStep));
+      }, delays[idx]);
     });
 
-    const fadeAt = startDelay + (lines.length * lineStep) + 900;
     setTimeout(() => {
       loader.classList.add("fade-out");
-      setTimeout(() => loader.remove(), 1000);
-    }, fadeAt);
+      setTimeout(() => loader.remove(), 700);
+    }, 2850);
   }
 
   runBootSequence();

@@ -29,7 +29,7 @@
   --bad:#b76f5f;
   --accent:#d1a24a;
 
-  --radius:2px;
+  --radius:16px;
   --border: rgba(209, 162, 74, .35);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
 
@@ -43,7 +43,7 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
-  letter-spacing:.015em;
+  letter-spacing:.02em;
   overflow-x:hidden;
 }
 body::after{
@@ -290,7 +290,7 @@ button:hover{ filter:brightness(1.06); }
         : "";
 
       return `
-        <div style="border:1px solid rgba(209,162,74,.32);border-radius:2px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.02);">
+        <div style="border:1px solid rgba(209,162,74,.32);border-radius:12px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.02);">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <div><strong>${title || "Untitled"}</strong></div>
             <div style="color:var(--muted);">${when}</div>
