@@ -21,16 +21,16 @@
 <style>
 /* (Keep styles identical so the site feels like one app) */
 :root{
-  --bg:#05080f;
-  --panel:#0b1220;
-  --text:#e6edf3;
-  --muted:#7f8ea3;
-  --good:#19c37d;
-  --bad:#ff4d4f;
-  --accent:#19c37d;
+  --bg:#090909;
+  --panel:#111111;
+  --text:#f1eee8;
+  --muted:#8f897d;
+  --good:#d1a24a;
+  --bad:#b76f5f;
+  --accent:#d1a24a;
 
   --radius:16px;
-  --border: rgba(55, 85, 130, .45);
+  --border: rgba(209, 162, 74, .35);
   --shadow: 0 18px 55px rgba(0,0,0,.55);
 
   --terminal: 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -43,15 +43,16 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--terminal);
+  letter-spacing:.02em;
   overflow-x:hidden;
 }
 body::after{
   content:"";
   position:fixed; inset:0; z-index:-2;
   background:
-    radial-gradient(1000px 700px at 15% 15%, rgba(25,195,125,.12), transparent 60%),
-    radial-gradient(1000px 700px at 85% 10%, rgba(100,149,237,.14), transparent 60%),
-    linear-gradient(180deg, rgba(5,8,15,.90), rgba(5,8,15,.96));
+    radial-gradient(1200px 820px at 10% 10%, rgba(209,162,74,.08), transparent 65%),
+    radial-gradient(1000px 760px at 90% 0%, rgba(255,255,255,.03), transparent 70%),
+    linear-gradient(180deg, rgba(9,9,9,.96), rgba(6,6,6,.98));
   pointer-events:none;
 }
 .sidePanel{
@@ -59,14 +60,14 @@ body::after{
   top:50%; left:0;
   transform:translateY(-50%);
   width:230px;
-  background:rgba(7,12,22,.94);
+  background:rgba(12,12,12,.94);
   border-right:1px solid var(--border);
   padding:18px 12px;
   display:flex;
   flex-direction:column;
   gap:12px;
   z-index:10;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(4px);
   box-shadow: 12px 0 40px rgba(0,0,0,.35);
 }
 .panelTitle{
@@ -80,8 +81,8 @@ body::after{
 .navBtn{
   display:block;
   text-decoration:none;
-  background:rgba(16,26,44,.75);
-  border:1px solid rgba(55,85,130,.55);
+  background:rgba(18,18,18,.86);
+  border:1px solid rgba(209,162,74,.34);
   padding:10px;
   border-radius:12px;
   color:var(--text);
@@ -89,13 +90,13 @@ body::after{
   font-family:var(--terminal);
 }
 .navBtn:hover{
-  border-color: rgba(25,195,125,.55);
-  background: rgba(20,40,70,.55);
+  border-color: rgba(209,162,74,.55);
+  background: rgba(28,24,16,.55);
 }
 .navBtn.active{
   border-color: var(--accent);
-  box-shadow: 0 0 16px rgba(25,195,125,.35);
-  background: rgba(25,195,125,.08);
+  box-shadow: none;
+  background: rgba(209,162,74,.1);
 }
 
 header{
@@ -129,7 +130,7 @@ h1{
   max-width:1700px;
 }
 .card{
-  background: linear-gradient(180deg, rgba(10,16,30,.92), rgba(8,12,24,.92));
+  background: linear-gradient(180deg, rgba(14,14,14,.94), rgba(10,10,10,.96));
   border:1px solid var(--border);
   border-radius:var(--radius);
   box-shadow: var(--shadow);
@@ -155,8 +156,8 @@ h1{
 .cardBody{ padding: 12px 14px 14px 14px; }
 
 textarea, input, button{
-  background:rgba(12,20,35,.72);
-  border:1px solid rgba(55,85,130,.65);
+  background:rgba(15,15,15,.88);
+  border:1px solid rgba(209,162,74,.36);
   color:var(--text);
   padding:10px 12px;
   border-radius:12px;
@@ -287,7 +288,7 @@ button:hover{ filter:brightness(1.06); }
         : "";
 
       return `
-        <div style="border:1px solid rgba(55,85,130,.45);border-radius:12px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.03);">
+        <div style="border:1px solid rgba(209,162,74,.32);border-radius:12px;padding:10px;margin-bottom:10px;background:rgba(255,255,255,.02);">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
             <div><strong>${title || "Untitled"}</strong></div>
             <div style="color:var(--muted);">${when}</div>
