@@ -1000,21 +1000,48 @@ async function loadMarkets(){
   const started = performance.now();
 
   try{
-    // Pull a larger active set and filter client-side.
-    const raw = await fetchJSON("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200");
-    const normalized = (Array.isArray(raw) ? raw : []).map(normalizeMarket);
+    const q = currentQuery.trim();
 
-    const q = currentQuery.trim().toLowerCase();
+    // 1) Use Gamma search first
+    const searchUrl = `https://gamma-api.polymarket.com/public-search?query=${encodeURIComponent(q)}`;
+    const searchData = await fetchJSON(searchUrl);
 
-    let filtered = normalized.filter(m => m.active !== false && m.closed !== true);
+    // Search payload shape can vary; flatten likely arrays
+    const buckets = [
+      ...(Array.isArray(searchData) ? searchData : []),
+      ...(Array.isArray(searchData?.markets) ? searchData.markets : []),
+      ...(Array.isArray(searchData?.events) ? searchData.events.flatMap(e => e.markets || []) : []),
+      ...(Array.isArray(searchData?.data) ? searchData.data : [])
+    ];
 
-    if (q) {
-      filtered = filtered.filter(m => scoreMarket(m, q) > 0);
+    let normalized = buckets.map(normalizeMarket);
+
+    // 2) Fallback to active events if search returns nothing useful
+    if (!normalized.length) {
+      const eventsUrl = `https://gamma-api.polymarket.com/events?active=true&closed=false&limit=100`;
+      const eventsData = await fetchJSON(eventsUrl);
+
+      const eventMarkets = (Array.isArray(eventsData) ? eventsData : [])
+        .flatMap(e => Array.isArray(e?.markets) ? e.markets : []);
+
+      normalized = eventMarkets
+        .map(normalizeMarket)
+        .filter(m => m.question.toLowerCase().includes(q.toLowerCase()) || m.slug.toLowerCase().includes(q.toLowerCase()));
     }
 
-    filtered = sortMarkets(filtered, currentSort, q).slice(0, 18);
-    latestMarkets = filtered;
+    // de-dupe
+    const seen = new Set();
+    let filtered = normalized.filter(m => {
+      const key = m.slug || m.id;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
+    filtered = filtered.filter(m => m.closed !== true);
+    filtered = sortMarkets(filtered, currentSort, q).slice(0, 18);
+
+    latestMarkets = filtered;
     renderSummary(filtered);
     renderMarkets(filtered);
     setLastUpdated();
@@ -1022,7 +1049,7 @@ async function loadMarkets(){
     const ms = Math.round(performance.now() - started);
     setStatus(`OK • ${ms}ms`);
   } catch (err) {
-    console.warn(err);
+    console.warn("Polymarket load failed:", err);
     latestMarkets = [];
     renderSummary([]);
     renderMarkets([]);
