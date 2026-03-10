@@ -4,7 +4,8 @@ export function createGlobalMonitorMap(containerId) {
   const map = new maplibregl.Map({
     container: containerId,
     style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-    center: [53.688, 31.5],
+    // MapLibre expects [longitude, latitude]; this centers on the Levant/Iran theater.
+    center: [31.5, 53.688],
     zoom: 4,
     minZoom: 3,
     maxZoom: 12,
