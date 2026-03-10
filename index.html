@@ -349,7 +349,8 @@ body::after{
 .sideGlobe svg{width:96px;height:96px;display:block;filter:drop-shadow(0 0 3px rgba(209,162,74,.12));}
 .sgSphere{fill:none;stroke:rgba(209,162,74,.38);stroke-width:1;}
 .sgLat,.sgLon{fill:none;stroke:rgba(209,162,74,.26);stroke-width:.8;}
-.sgRotate{transform-origin:48px 48px;animation:geoRotate 18s linear infinite;}
+.sgRotate{transform-box:fill-box;transform-origin:center;animation:sgSpin 6s linear infinite;}
+@keyframes sgSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
 /* ===== SIDE PANEL ===== */
 .sidePanel{
