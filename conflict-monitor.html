@@ -143,10 +143,15 @@ subscribe((snapshot) => {
 
 async function ingestFromBackendOrMock() {
   try {
+    await fetch('/api/global-monitor/ingest/telegram', { method: 'POST' });
     const response = await fetch('/api/global-monitor/events?window=60m&category=all');
     if (!response.ok) throw new Error('No API');
     const data = await response.json();
-    ingestStories(data.events || []);
+    if (Array.isArray(data.events) && data.events.length) {
+      ingestStories(data.events);
+      return;
+    }
+    throw new Error('No events from backend');
   } catch {
     // TODO: replace with server-side X ingestion credentials in production
     ingestStories(MOCK_X_STORIES);
@@ -157,7 +162,7 @@ renderFilters();
 seedMockEvents();
 setMarkets(MOCK_MARKETS);
 await ingestFromBackendOrMock();
-setInterval(ingestFromBackendOrMock, 20000);
+setInterval(ingestFromBackendOrMock, 45000);
 
 window.addEventListener('gm-focus-feed-item', (event) => {
   const id = event.detail?.id;

@@ -30,3 +30,9 @@ Current channel wired:
 - This uses public channel scraping and **does not require bot admin rights**.
 - Parsing logic is isolated under `lib/global-monitor/ingestors/telegram/` for future channels.
 - If using serverless, trigger `/api/global-monitor/ingest/telegram` via scheduler.
+
+
+## Local run
+- Start unified static + API server: `npm start`
+- Open `http://localhost:4173/conflict-monitor.html`
+- The page triggers `POST /api/global-monitor/ingest/telegram` and then reads `GET /api/global-monitor/events` for live flow.
