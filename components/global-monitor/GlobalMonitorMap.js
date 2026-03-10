@@ -32,21 +32,25 @@ export function createGlobalMonitorMap(containerId) {
       if (!f) return;
       const p = f.properties;
       const link = p.source_url ? `<br><a href="${p.source_url}" target="_blank" rel="noreferrer">External link</a>` : '';
-      new maplibregl.Popup({ offset: 12 }).setLngLat(f.geometry.coordinates).setHTML(`<strong>${p.title}</strong><br><small>${p.category}</small><br><small>${new Date(p.published_at).toLocaleString()}</small><br><small>${p.source_name}</small><br><small>${p.location_name}</small><br><small>${p.summary}</small>${link}`).addTo(map);
+      new maplibregl.Popup({ offset: 12 }).setLngLat(f.geometry.coordinates).setHTML(`<strong>${p.title || 'Telegram alert'}</strong><br><small>${p.category}</small><br><small>${new Date(p.published_at).toLocaleString()}</small><br><small>${p.source_name}</small><br><small>${p.location_name || 'Unknown location'}</small><br><small>${p.summary || ''}</small>${link}`).addTo(map);
+      window.dispatchEvent(new CustomEvent('gm-focus-feed-item', { detail: { id: p.id } }));
     });
   });
 
   const update = (events) => {
     const source = map.getSource('gm-events');
     if (!source) return;
-    source.setData({
-      type: 'FeatureCollection',
-      features: events.map((event) => ({
+
+    const features = events
+      .filter((event) => Number.isFinite(event.longitude) && Number.isFinite(event.latitude))
+      .filter((event) => event.source_type !== 'telegram' || event.confidence !== 'low')
+      .map((event) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [event.longitude, event.latitude] },
         properties: { ...event, color: CATEGORY_TO_COLOR[event.category] || '#d1a24a' },
-      })),
-    });
+      }));
+
+    source.setData({ type: 'FeatureCollection', features });
   };
 
   return { map, update };

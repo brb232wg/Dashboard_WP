@@ -158,6 +158,16 @@ seedMockEvents();
 setMarkets(MOCK_MARKETS);
 await ingestFromBackendOrMock();
 setInterval(ingestFromBackendOrMock, 20000);
+
+window.addEventListener('gm-focus-feed-item', (event) => {
+  const id = event.detail?.id;
+  if (!id) return;
+  const el = document.querySelector(`[data-event-id="${id}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.style.outline = '1px solid rgba(209,162,74,.65)';
+  setTimeout(() => { el.style.outline = ''; }, 1800);
+});
 </script>
 </body>
 </html>
