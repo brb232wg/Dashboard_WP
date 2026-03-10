@@ -1000,11 +1000,38 @@ async function loadMarkets(){
   const started = performance.now();
 
   try{
-    // Pull a larger active set and filter client-side.
-    const raw = await fetchJSON("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200");
-    const normalized = (Array.isArray(raw) ? raw : []).map(normalizeMarket);
-
     const q = currentQuery.trim().toLowerCase();
+    const sources = [];
+
+    if (q) {
+      sources.push(`https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200&search=${encodeURIComponent(q)}`);
+    }
+
+    // Fall back to active feeds. We include multiple offsets so query sets like
+    // "iran" are not dropped just because they don't appear in the first page.
+    sources.push(
+      "https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200&offset=0",
+      "https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200&offset=200",
+      "https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200&offset=400"
+    );
+
+    const batches = await Promise.allSettled(sources.map(fetchJSON));
+    const merged = [];
+
+    for (const batch of batches) {
+      if (batch.status === "fulfilled" && Array.isArray(batch.value)) {
+        merged.push(...batch.value);
+      }
+    }
+
+    const byKey = new Map();
+    (Array.isArray(merged) ? merged : []).forEach((market, idx) => {
+      const normalized = normalizeMarket(market, idx);
+      const key = normalized.slug || normalized.id;
+      if (!byKey.has(key)) byKey.set(key, normalized);
+    });
+
+    const normalized = [...byKey.values()];
 
     let filtered = normalized.filter(m => m.active !== false && m.closed !== true);
 
