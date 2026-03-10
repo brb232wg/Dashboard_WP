@@ -14,6 +14,7 @@ const API_ROUTES = {
   '/api/global-monitor/markets': './api/global-monitor/markets.js',
   '/api/global-monitor/ingest/x': './api/global-monitor/ingest/x.js',
   '/api/global-monitor/ingest/telegram': './api/global-monitor/ingest/telegram.js',
+  '/api/global-monitor/debug/sources': './api/global-monitor/debug/sources.js',
 };
 
 const MIME = {

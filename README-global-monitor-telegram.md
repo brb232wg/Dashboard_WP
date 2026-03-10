@@ -21,7 +21,8 @@ Current channel wired:
 6. Same shared store powers map markers, live feed, and summary widgets.
 
 ## Endpoints
-- `GET /api/global-monitor/events?window=60m&category=all`
+- `GET /api/global-monitor/events?window=60m&category=all` (includes `sources` health)
+- `GET /api/global-monitor/debug/sources`
 - `GET /api/global-monitor/summary`
 - `GET /api/global-monitor/markets`
 - `GET|POST /api/global-monitor/ingest/telegram` (manual trigger)
@@ -36,3 +37,10 @@ Current channel wired:
 - Start unified static + API server: `npm start`
 - Open `http://localhost:4173/conflict-monitor.html`
 - The page triggers `POST /api/global-monitor/ingest/telegram` and then reads `GET /api/global-monitor/events` for live flow.
+
+## Diagnostics and transport
+- Set `TELEGRAM_FIXTURE_MODE=true` to ingest from local fixture HTML instead of network.
+- Optional `TELEGRAM_FIXTURE_FILE=/absolute/or/relative/path.html` overrides per-channel fixture path.
+- Optional `TELEGRAM_PROXY_BASE_URL` enables proxy transport; use `{url}` placeholder or a prefix that accepts encoded target URL.
+- Optional channel alternate upstream via `WARMONITORS_ALT_UPSTREAM_URL`.
+- Source status fields: `ok`, `lastAttemptAt`, `lastSuccessAt`, `error`, `lastHttpStatus`, `lastContentType`, `responseLength`, `parsedCount`, `insertCount`, `transport`, `finalUrl`.
