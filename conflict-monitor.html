@@ -1,0 +1,1238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BR Dashboard • Global Monitor</title>
+
+<link rel="icon" href="./assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+<link rel="manifest" href="./assets/site.webmanifest">
+<meta name="theme-color" content="#05080f">
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Teko:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#090909;
+  --panel:#111111;
+  --text:#f1eee8;
+  --muted:#8f897d;
+  --good:#6d8a70;
+  --bad:#8d6660;
+  --accent:#d1a24a;
+
+  --radius:0px;
+  --border: rgba(209, 162, 74, .35);
+  --border2: rgba(209, 162, 74, .5);
+  --shadow: 0 18px 55px rgba(0,0,0,.55);
+
+  --terminal: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --headline: 'Teko', 'Roboto Mono', sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--terminal);
+  letter-spacing:.015em;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 8% 14%, rgba(0,0,0,.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 32% 63%, rgba(0,0,0,.68) 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 26%, rgba(0,0,0,.74) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 78%, rgba(0,0,0,.66) 0 1px, transparent 2px),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.015) 0, rgba(255,255,255,.015) 1px, transparent 1px, transparent 3px),
+    rgba(0,0,0,.3);
+  background-size: 180px 180px, 240px 240px, 220px 220px, 260px 260px, auto, auto;
+  opacity:1;
+  pointer-events:none;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(1200px 820px at 10% 10%, rgba(209,162,74,.08), transparent 65%),
+    radial-gradient(1000px 760px at 90% 0%, rgba(255,255,255,.03), transparent 70%),
+    linear-gradient(180deg, rgba(9,9,9,.96), rgba(6,6,6,.98));
+  pointer-events:none;
+}
+
+.screenFx,.noiseFx{position:fixed;inset:0;pointer-events:none;z-index:30;}
+.screenFx{background:repeating-linear-gradient(180deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 1px, transparent 1px, transparent 3px);opacity:.1;mix-blend-mode:screen;}
+.noiseFx{background-image:radial-gradient(circle, rgba(255,255,255,.08) 0 1px, transparent 1px);background-size:3px 3px;opacity:.025;animation:noiseShift .35s steps(2) infinite, flicker 6s ease-in-out infinite;}
+@keyframes noiseShift{0%{transform:translate(0,0)}50%{transform:translate(.8px,-.8px)}100%{transform:translate(-.6px,.6px)}}
+@keyframes flicker{0%,100%{opacity:.02}50%{opacity:.035}}
+
+.heartbeat{animation:heartbeat 3.2s ease-in-out infinite;}
+@keyframes heartbeat{0%,100%{opacity:1}50%{opacity:.76}}
+
+.bootLoader{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:rgba(4,4,4,.97);
+  color:var(--accent);
+  border:1px solid rgba(209,162,74,.22);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity .9s ease;
+}
+.bootLoader::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0, rgba(255,255,255,.035) 1px, transparent 1px, transparent 4px);
+  opacity:.2;
+  pointer-events:none;
+}
+.bootLoader.fade-out{opacity:0;pointer-events:none;}
+.bootPanel{
+  width:min(760px,92vw);
+  border:1px solid rgba(209,162,74,.36);
+  background:linear-gradient(180deg, rgba(14,14,14,.94), rgba(9,9,9,.97));
+  padding:16px 18px;
+  box-shadow:inset 0 0 0 1px rgba(209,162,74,.11);
+}
+.bootSection.hidden{display:none;}
+.bootGrid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:18px;align-items:center;}
+.bootHead{font-size:14px;color:var(--accent);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(209,162,74,.28);text-transform:uppercase;letter-spacing:.2em;font-family:var(--headline);}
+.bootLines{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:12px;line-height:1.2;font-variant-ligatures:none;}
+.bootLine{opacity:0;transform:translateY(2px);transition:opacity .26s ease,transform .26s ease;}
+.bootLine.visible{opacity:1;transform:translateY(0);}
+.bootLine{display:grid;grid-template-columns:1fr auto;gap:10px;padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.bootLabel::before{content:"> ";color:var(--muted);}
+.bootCode{color:rgba(209,162,74,.82);font-size:11px;letter-spacing:.08em;}
+.bootFoot{margin-top:12px;padding-top:8px;border-top:1px solid rgba(209,162,74,.25);display:flex;justify-content:space-between;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.bootProgress{margin-top:8px;height:6px;border:1px solid rgba(209,162,74,.35);background:rgba(0,0,0,.45);position:relative;}
+.bootProgressBar{height:100%;width:0%;background:linear-gradient(90deg, rgba(209,162,74,.45), rgba(209,162,74,.85));transition:width .18s linear;}
+.bootGlobeWrap{display:flex;justify-content:center;align-items:center;}
+.bootGlobe{width:150px;height:150px;position:relative;display:grid;place-items:center;}
+.bootGlobe svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 4px rgba(209,162,74,.12));}
+.globeSphere{fill:none;stroke:rgba(209,162,74,.4);stroke-width:1;}
+.globeLat,.globeLon{fill:none;stroke:rgba(209,162,74,.28);stroke-width:.85;}
+.geoRotate{transform-origin:80px 80px;animation:geoRotate 18s linear infinite;}
+.moonOrbit{position:absolute;inset:0;animation:moonOrbit 13s linear infinite;}
+.moon{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(209,162,74,.45);transform:translate(86px,0);box-shadow:0 0 5px rgba(209,162,74,.3);}
+@keyframes geoRotate{0%{transform:scaleX(1)}50%{transform:scaleX(.18)}100%{transform:scaleX(1)}}
+@keyframes moonOrbit{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.bootVisual{
+  height:170px;
+  border:1px solid rgba(209,162,74,.28);
+  margin-top:10px;
+  position:relative;
+  background:rgba(8,8,8,.7);
+  overflow:hidden;
+}
+.bootVisual svg{width:100%;height:100%;display:block;}
+.diagGrid{stroke:rgba(209,162,74,.16);stroke-width:.8;fill:none;}
+.diagGlobe{transform-origin:350px 90px;animation:geoRotate 18s linear infinite;}
+.diagSphere{fill:none;stroke:rgba(209,162,74,.36);stroke-width:1;}
+.diagLat,.diagLon{fill:none;stroke:rgba(209,162,74,.28);stroke-width:.85;}
+
+.bootSymbol{
+  margin-top:10px;
+  border:1px solid rgba(209,162,74,.28);
+  padding:14px;
+  display:grid;
+  justify-items:center;
+  gap:10px;
+  background:rgba(8,8,8,.68);
+}
+.bootSigil{
+  width:64px;
+  height:64px;
+  border:1px solid rgba(209,162,74,.45);
+  border-radius:50%;
+  position:relative;
+}
+.bootSigil::before,.bootSigil::after{content:"";position:absolute;inset:10px;border:1px solid rgba(209,162,74,.3);border-radius:50%;}
+.bootSigil::after{inset:0;border:none;border-top:1px solid rgba(209,162,74,.5);border-bottom:1px solid rgba(209,162,74,.5);animation:sigilSpin 8s linear infinite;}
+@keyframes sigilSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.finalLine{font-size:12px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+
+.sideGlobePanel{border:1px solid rgba(209,162,74,.3);padding:8px;background:rgba(7,7,7,.88)}
+.sideGlobeHead{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.sideGlobe{width:100%;display:grid;place-items:center;}
+.sideGlobe svg{width:96px;height:96px;display:block;filter:drop-shadow(0 0 3px rgba(209,162,74,.12));}
+.sgSphere{fill:none;stroke:rgba(209,162,74,.38);stroke-width:1;}
+.sgLat,.sgLon{fill:none;stroke:rgba(209,162,74,.26);stroke-width:.8;}
+.sgRotate{transform-box:fill-box;transform-origin:center;animation:sgSpin 6s linear infinite;}
+@keyframes sgSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* ===== SIDE PANEL ===== */
+.sidePanel{
+  position:fixed;
+  top:50%;
+  left:0;
+  transform:translateY(-50%);
+  width:230px;
+  background:rgba(12,12,12,.94);
+  border-right:1px solid var(--border);
+  padding:18px 12px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  z-index:10;
+  backdrop-filter: blur(4px);
+  box-shadow: 12px 0 40px rgba(0,0,0,.35);
+}
+.panelTitle{
+  font-family:var(--headline);
+  font-size:16px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:4px;
+}
+.modeBtn,.navBtn,.filterBtn,select,button,input{
+  background:rgba(15,15,15,.88);
+  border:1px solid rgba(209,162,74,.36);
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:0;
+  font-family:var(--terminal);
+}
+.modeBtn,.navBtn,.filterBtn,button{cursor:pointer}
+.modeBtn,.navBtn{
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  text-decoration:none;
+  transition:.18s ease;
+}
+.modeBtn:hover,.navBtn:hover,.filterBtn:hover,button:hover{filter:brightness(1.06)}
+.modeBtn.active,.navBtn.active,.filterBtn.active{
+  border-color:var(--accent);
+  background:rgba(209,162,74,.1);
+}
+
+.notePanel{
+  border:1px solid rgba(209,162,74,.34);
+  background:rgba(12,12,12,.78);
+  padding:10px;
+  margin-bottom:6px;
+}
+.noteRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:8px;
+}
+.noteBtns{display:flex;gap:6px;}
+.noteBtn{
+  width:28px;
+  height:28px;
+  padding:0;
+  font-weight:700;
+  line-height:1;
+}
+.noteArea{
+  width:100%;
+  min-height:118px;
+  resize:vertical;
+  border:1px solid rgba(209,162,74,.36);
+  background:rgba(7,7,7,.92);
+  color:var(--text);
+  padding:8px;
+  font-family:var(--terminal);
+  font-size:12px;
+}
+.noteHint{margin-top:6px;color:var(--muted);font-size:10px;}
+
+/* ===== TOP BAR ===== */
+header{
+  margin-left:240px;
+  padding:18px 20px 0 20px;
+  max-width:1700px;
+}
+.topBar{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+h1{
+  margin:0;
+  font-family:var(--headline);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:30px;
+  font-weight:500;
+  line-height:1;
+}
+.sub{color:var(--muted);font-size:12px;margin-top:6px;}
+.controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.pill{
+  font-size:11px;
+  padding:5px 9px;
+  border:1px solid rgba(209,162,74,.32);
+  background: rgba(255,255,255,.03);
+  color: var(--muted);
+}
+
+/* ===== MAIN ===== */
+.wrap{
+  margin-left:240px;
+  padding:12px 20px 30px 20px;
+  max-width:1700px;
+}
+.card{
+  background: linear-gradient(180deg, rgba(14,14,14,.94), rgba(10,10,10,.96));
+  border:1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  position:relative;
+  margin-bottom:16px;
+}
+.card::before,.tile::before{
+  content:"";
+  position:absolute;
+  inset:6px;
+  border:1px solid rgba(209,162,74,.08);
+  pointer-events:none;
+}
+.cardHeader::before,.tileHeader::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(209,162,74,.35), transparent);
+}
+.cardHeader{
+  position:relative;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.cardTitle{
+  font-family:var(--headline);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:15px;
+  color:var(--muted);
+}
+.cardBody{ padding: 10px 14px 14px 14px; }
+
+.heroGrid{
+  display:grid;
+  grid-template-columns: 1.3fr .7fr;
+  gap:14px;
+}
+@media (max-width: 1200px){
+  .heroGrid{grid-template-columns:1fr;}
+}
+
+.monitorBig{
+  min-height:280px;
+  border:1px solid rgba(209,162,74,.36);
+  padding:14px;
+  background:rgba(12,12,12,.72);
+  position:relative;
+}
+.bigLabel{
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.bigValue{
+  font-family:var(--headline);
+  font-size:52px;
+  line-height:1;
+  letter-spacing:.05em;
+  margin:10px 0 6px;
+}
+.bigSub{
+  color:var(--text);
+  font-size:14px;
+  max-width:70ch;
+}
+.keywordRow{
+  margin-top:16px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.quickTag{
+  border:1px solid rgba(209,162,74,.34);
+  background:rgba(255,255,255,.02);
+  color:var(--muted);
+  padding:7px 10px;
+  font-size:11px;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.quickTag.active{
+  border-color:var(--accent);
+  background:rgba(209,162,74,.1);
+  color:var(--text);
+}
+
+.summaryGrid{
+  display:grid;
+  gap:10px;
+}
+.statBox{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(209,162,74,.28);
+  padding:10px;
+}
+.k{ color: var(--muted); font-size: 11px; margin-bottom: 6px; text-transform:uppercase; letter-spacing:.08em; }
+.v{ font-size: 14px; }
+.v.good{color:var(--good)}
+.v.bad{color:var(--bad)}
+
+.searchRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  width:100%;
+}
+.searchInput{
+  flex:1 1 320px;
+  min-width:240px;
+}
+.filterBar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.marketsGrid{
+  display:grid;
+  gap:14px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.tile{
+  position:relative;
+  background: rgba(12,12,12,.7);
+  border: 1px solid rgba(209, 162, 74, .36);
+  overflow:hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.35);
+}
+.tileHeader{
+  position:relative;
+  padding:10px 12px 8px 12px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+}
+.tileTitle{
+  font-size:13px;
+  color:var(--text);
+  line-height:1.35;
+}
+.tileMeta{
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-top:4px;
+}
+.tileBody{ padding:12px; }
+
+.priceGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:12px;
+}
+.priceBox{
+  border:1px solid rgba(209,162,74,.28);
+  background:rgba(255,255,255,.02);
+  padding:10px;
+}
+.priceLabel{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.priceValue{
+  font-family:var(--headline);
+  font-size:30px;
+  line-height:1;
+}
+.priceValue.good{color:var(--good)}
+.priceValue.bad{color:var(--bad)}
+
+.detailGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.detail{
+  border:1px solid rgba(209,162,74,.2);
+  background:rgba(0,0,0,.18);
+  padding:8px;
+}
+.detail .dK{
+  font-size:10px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:5px;
+}
+.detail .dV{
+  font-size:12px;
+  color:var(--text);
+  word-break:break-word;
+}
+
+.emptyState{
+  border:1px dashed rgba(209,162,74,.32);
+  padding:18px;
+  color:var(--muted);
+  text-align:center;
+}
+
+.footerNote{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:10px;
+}
+
+@media (max-width: 980px){
+  .sidePanel{ position:static; transform:none; width:auto; margin:12px; }
+  header,.wrap{ margin-left:0; }
+  .bootGrid{grid-template-columns:1fr;}
+  .bootGlobeWrap{display:none;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="screenFx" aria-hidden="true"></div>
+<div class="noiseFx" aria-hidden="true"></div>
+
+<div class="bootLoader" id="bootLoader" aria-live="polite">
+  <div class="bootPanel">
+    <div class="bootSection" id="bootLogSection">
+      <div class="bootGrid">
+        <div>
+          <div class="bootHead">Restricted Console // Boot Sequence</div>
+          <ul class="bootLines" id="bootLines"></ul>
+        </div>
+        <div class="bootGlobeWrap" aria-hidden="true">
+          <div class="bootGlobe">
+            <svg viewBox="0 0 160 160" aria-hidden="true">
+              <circle class="globeSphere" cx="80" cy="80" r="56"/>
+              <ellipse class="globeLat" cx="80" cy="80" rx="56" ry="40"/>
+              <ellipse class="globeLat" cx="80" cy="80" rx="56" ry="26"/>
+              <ellipse class="globeLat" cx="80" cy="80" rx="56" ry="13"/>
+              <g class="geoRotate">
+                <ellipse class="globeLon" cx="80" cy="80" rx="44" ry="56"/>
+                <ellipse class="globeLon" cx="80" cy="80" rx="30" ry="56"/>
+                <ellipse class="globeLon" cx="80" cy="80" rx="16" ry="56"/>
+              </g>
+            </svg>
+            <span class="moonOrbit"><span class="moon"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bootSection hidden" id="bootVizSection">
+      <div class="bootHead">Diagnostic Visualization // Global Matrix</div>
+      <div class="bootVisual">
+        <svg viewBox="0 0 700 180" preserveAspectRatio="none" aria-hidden="true">
+          <path class="diagGrid" d="M0 150 H700 M0 120 H700 M0 90 H700 M0 60 H700 M0 30 H700"/>
+          <path class="diagGrid" d="M70 0 V180 M140 0 V180 M210 0 V180 M280 0 V180 M350 0 V180 M420 0 V180 M490 0 V180 M560 0 V180 M630 0 V180"/>
+          <g class="diagGlobe">
+            <circle class="diagSphere" cx="350" cy="90" r="58"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="40"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="26"/>
+            <ellipse class="diagLat" cx="350" cy="90" rx="58" ry="13"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="44" ry="58"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="30" ry="58"/>
+            <ellipse class="diagLon" cx="350" cy="90" rx="16" ry="58"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="bootSection hidden" id="bootSymbolSection">
+      <div class="bootHead">Command Mark // Authentication Layer</div>
+      <div class="bootSymbol">
+        <div class="bootSigil" aria-hidden="true"></div>
+        <div class="finalLine">System Online</div>
+        <div class="finalLine">Link Stable</div>
+      </div>
+    </div>
+
+    <div class="bootFoot"><span id="bootState">System Initialization</span><span id="bootPhase">0%</span></div>
+    <div class="bootProgress" aria-hidden="true"><div class="bootProgressBar" id="bootProgressBar"></div></div>
+  </div>
+</div>
+
+<div class="sidePanel">
+  <div class="sideGlobePanel" aria-hidden="true">
+    <div class="sideGlobeHead">Global Monitor</div>
+    <div class="sideGlobe">
+      <svg viewBox="0 0 96 96">
+        <circle class="sgSphere" cx="48" cy="48" r="32"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="22"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="14"/>
+        <ellipse class="sgLat" cx="48" cy="48" rx="32" ry="7"/>
+        <g class="sgRotate">
+          <ellipse class="sgLon" cx="48" cy="48" rx="24" ry="32"/>
+          <ellipse class="sgLon" cx="48" cy="48" rx="16" ry="32"/>
+          <ellipse class="sgLon" cx="48" cy="48" rx="8" ry="32"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="notePanel">
+    <div class="noteRow">
+      <div class="panelTitle" style="margin:0;">Notes</div>
+      <div class="noteBtns" aria-label="Note actions">
+        <button class="noteBtn" id="btnNoteNew" title="New note">+</button>
+        <button class="noteBtn" id="btnNoteClear" title="Clear note">−</button>
+        <button class="noteBtn" id="btnNoteSave" title="Save as .txt">$</button>
+      </div>
+    </div>
+    <textarea id="noteArea" class="noteArea" placeholder="Write notes here..."></textarea>
+    <div class="noteHint">+ new • − clear • $ save .txt</div>
+  </div>
+
+  <div class="panelTitle">Pages</div>
+  <a class="navBtn" href="index.html">Dashboard</a>
+  <a class="navBtn active" href="conflict-monitor.html">Global Monitor</a>
+
+  <div class="panelTitle" style="margin-top:10px;">Query Sets</div>
+  <button class="modeBtn active" data-query="oil">Oil</button>
+  <button class="modeBtn" data-query="iran">Iran</button>
+  <button class="modeBtn" data-query="israel">Israel</button>
+  <button class="modeBtn" data-query="shipping">Shipping</button>
+  <button class="modeBtn" data-query="rates">Rates</button>
+</div>
+
+<header>
+  <div class="topBar">
+    <div>
+      <h1>Conflict Monitor</h1>
+      <div class="sub">POLYMARKET • EVENT FLOW • PROBABILITY</div>
+    </div>
+
+    <div class="controls">
+      <label style="color:var(--muted);font-size:12px;">REF</label>
+      <select id="refreshEvery">
+        <option value="0">Off</option>
+        <option value="30">30s</option>
+        <option value="60" selected>60s</option>
+        <option value="120">2m</option>
+        <option value="300">5m</option>
+      </select>
+
+      <button id="btnRefresh">Refresh</button>
+      <span class="pill heartbeat" id="status">Idle</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="card">
+    <div class="cardHeader">
+      <div class="cardTitle">Monitor Overview</div>
+      <span class="pill" id="lastUpdated">–</span>
+    </div>
+    <div class="cardBody">
+      <div class="heroGrid">
+        <div class="monitorBig">
+          <div class="bigLabel">Primary Keyword</div>
+          <div class="bigValue" id="heroKeyword">OIL</div>
+          <div class="bigSub" id="heroSummary">
+            Tracking active Polymarket markets that match the current keyword set.
+          </div>
+
+          <div class="keywordRow" id="quickTags">
+            <button class="quickTag active" data-query="oil">Oil</button>
+            <button class="quickTag" data-query="iran">Iran</button>
+            <button class="quickTag" data-query="israel">Israel</button>
+            <button class="quickTag" data-query="strait of hormuz">Hormuz</button>
+            <button class="quickTag" data-query="energy">Energy</button>
+            <button class="quickTag" data-query="inflation">Inflation</button>
+          </div>
+        </div>
+
+        <div class="summaryGrid">
+          <div class="statBox">
+            <div class="k">Markets Loaded</div>
+            <div class="v" id="sumCount">–</div>
+          </div>
+          <div class="statBox">
+            <div class="k">Highest Yes</div>
+            <div class="v good" id="sumHighYes">–</div>
+          </div>
+          <div class="statBox">
+            <div class="k">Highest Volume</div>
+            <div class="v" id="sumHighVol">–</div>
+          </div>
+          <div class="statBox">
+            <div class="k">Top Market</div>
+            <div class="v" id="sumTopName">–</div>
+          </div>
+        </div>
+      </div>
+      <div class="footerNote">
+        Keyword search is flexible, but for production you should pin exact market slugs once you know which markets you want permanently on screen.
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="cardHeader">
+      <div class="searchRow">
+        <div class="cardTitle">Polymarket Feed</div>
+        <input id="searchInput" class="searchInput" type="text" placeholder="Search markets, e.g. oil, Iran, Israel, inflation..." value="oil">
+        <button id="btnSearch">Search</button>
+        <div class="filterBar">
+          <button class="filterBtn active" data-sort="relevance">Relevance</button>
+          <button class="filterBtn" data-sort="yes">Yes %</button>
+          <button class="filterBtn" data-sort="volume">Volume</button>
+          <button class="filterBtn" data-sort="liquidity">Liquidity</button>
+          <button class="filterBtn" data-sort="end">Ending Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cardBody">
+      <div class="marketsGrid" id="marketsGrid"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+let currentQuery = "oil";
+let currentSort = "relevance";
+let refreshTimer = null;
+let latestMarkets = [];
+
+function fmtNum(n, max = 2){
+  if (n == null || Number.isNaN(n)) return "–";
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: max }).format(n);
+}
+
+function fmtPct(n){
+  if (n == null || Number.isNaN(n)) return "–";
+  return `${fmtNum(n * 100, 1)}%`;
+}
+
+function fmtMoney(n){
+  if (n == null || Number.isNaN(n)) return "–";
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(n);
+}
+
+function fmtDate(s){
+  if (!s) return "–";
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleString();
+}
+
+function setStatus(text){
+  $("status").textContent = text;
+}
+
+function setLastUpdated(){
+  $("lastUpdated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+}
+
+async function fetchJSON(url){
+  const res = await fetch(url, { headers: { "Accept": "application/json" } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+function normalizePrices(m){
+  let prices = m?.outcomePrices ?? m?.outcomeprices ?? null;
+
+  if (typeof prices === "string") {
+    try { prices = JSON.parse(prices); } catch { prices = null; }
+  }
+
+  if (Array.isArray(prices) && prices.length >= 2) {
+    const yes = Number(prices[0]);
+    const no  = Number(prices[1]);
+    return {
+      yes: Number.isFinite(yes) ? yes : null,
+      no: Number.isFinite(no) ? no : null
+    };
+  }
+
+  return { yes: null, no: null };
+}
+
+function normalizeMarket(m, idx){
+  const prices = normalizePrices(m);
+
+  const question = m.question || m.title || "Untitled market";
+  const slug = m.slug || "";
+  const endDate = m.endDate || m.end_date || m.end_time || null;
+  const volume = Number(m.volume ?? m.volumeNum ?? m.volume24hr ?? 0);
+  const liquidity = Number(m.liquidity ?? 0);
+  const active = m.active;
+  const closed = m.closed;
+  const category = m.category || "market";
+
+  const haystack = [
+    question,
+    slug,
+    category,
+    m.description || "",
+    m.groupItemTitle || "",
+    m.seriesSlug || ""
+  ].join(" ").toLowerCase();
+
+  return {
+    id: m.id || slug || `m_${idx}`,
+    question,
+    slug,
+    category,
+    active,
+    closed,
+    endDate,
+    volume,
+    liquidity,
+    yes: prices.yes,
+    no: prices.no,
+    url: slug ? `https://polymarket.com/event/${slug}` : "",
+    haystack
+  };
+}
+
+function scoreMarket(m, query){
+  const q = query.trim().toLowerCase();
+  if (!q) return 0;
+
+  let score = 0;
+  const words = q.split(/\s+/).filter(Boolean);
+
+  if (m.question.toLowerCase() === q) score += 100;
+  if (m.question.toLowerCase().includes(q)) score += 45;
+  if (m.slug.toLowerCase().includes(q)) score += 30;
+  if (m.category.toLowerCase().includes(q)) score += 12;
+
+  for (const word of words){
+    if (m.question.toLowerCase().includes(word)) score += 14;
+    if (m.slug.toLowerCase().includes(word)) score += 10;
+    if (m.haystack.includes(word)) score += 4;
+  }
+
+  if (m.active && !m.closed) score += 8;
+  return score;
+}
+
+function sortMarkets(markets, sort, query){
+  const arr = [...markets];
+
+  if (sort === "yes") {
+    return arr.sort((a, b) => (b.yes ?? -1) - (a.yes ?? -1));
+  }
+
+  if (sort === "volume") {
+    return arr.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
+  }
+
+  if (sort === "liquidity") {
+    return arr.sort((a, b) => (b.liquidity ?? 0) - (a.liquidity ?? 0));
+  }
+
+  if (sort === "end") {
+    return arr.sort((a, b) => {
+      const ad = a.endDate ? new Date(a.endDate).getTime() : Number.MAX_SAFE_INTEGER;
+      const bd = b.endDate ? new Date(b.endDate).getTime() : Number.MAX_SAFE_INTEGER;
+      return ad - bd;
+    });
+  }
+
+  return arr.sort((a, b) => scoreMarket(b, query) - scoreMarket(a, query));
+}
+
+function renderSummary(markets){
+  $("heroKeyword").textContent = currentQuery.toUpperCase();
+
+  if (!markets.length) {
+    $("heroSummary").textContent = "No active matching markets were found for the current query.";
+    $("sumCount").textContent = "0";
+    $("sumHighYes").textContent = "–";
+    $("sumHighVol").textContent = "–";
+    $("sumTopName").textContent = "–";
+    return;
+  }
+
+  const sortedByYes = [...markets].filter(m => m.yes != null).sort((a,b) => (b.yes - a.yes));
+  const sortedByVol = [...markets].sort((a,b) => (b.volume ?? 0) - (a.volume ?? 0));
+
+  $("heroSummary").textContent = `Displaying ${markets.length} active Polymarket result${markets.length === 1 ? "" : "s"} for "${currentQuery}".`;
+  $("sumCount").textContent = String(markets.length);
+
+  if (sortedByYes.length) {
+    $("sumHighYes").textContent = `${fmtPct(sortedByYes[0].yes)} • ${sortedByYes[0].question}`;
+  } else {
+    $("sumHighYes").textContent = "–";
+  }
+
+  if (sortedByVol.length) {
+    $("sumHighVol").textContent = `${fmtMoney(sortedByVol[0].volume)} • ${sortedByVol[0].question}`;
+    $("sumTopName").textContent = sortedByVol[0].question;
+  } else {
+    $("sumHighVol").textContent = "–";
+    $("sumTopName").textContent = "–";
+  }
+}
+
+function renderMarkets(markets){
+  const host = $("marketsGrid");
+  host.innerHTML = "";
+
+  if (!markets.length) {
+    host.innerHTML = `<div class="emptyState">No active Polymarket markets matched "<strong>${currentQuery}</strong>". Try another keyword.</div>`;
+    return;
+  }
+
+  for (const m of markets) {
+    const tile = document.createElement("article");
+    tile.className = "tile";
+
+    tile.innerHTML = `
+      <div class="tileHeader">
+        <div>
+          <div class="tileTitle">${escapeHtml(m.question)}</div>
+          <div class="tileMeta">${escapeHtml(m.category || "market")} • ${m.active ? "active" : "inactive"}${m.closed ? " • closed" : ""}</div>
+        </div>
+        <span class="pill">${escapeHtml(m.slug || m.id)}</span>
+      </div>
+      <div class="tileBody">
+        <div class="priceGrid">
+          <div class="priceBox">
+            <div class="priceLabel">Yes</div>
+            <div class="priceValue good">${fmtPct(m.yes)}</div>
+          </div>
+          <div class="priceBox">
+            <div class="priceLabel">No</div>
+            <div class="priceValue bad">${fmtPct(m.no)}</div>
+          </div>
+        </div>
+
+        <div class="detailGrid">
+          <div class="detail">
+            <div class="dK">Volume</div>
+            <div class="dV">${fmtMoney(m.volume)}</div>
+          </div>
+          <div class="detail">
+            <div class="dK">Liquidity</div>
+            <div class="dV">${fmtMoney(m.liquidity)}</div>
+          </div>
+          <div class="detail">
+            <div class="dK">End Date</div>
+            <div class="dV">${escapeHtml(fmtDate(m.endDate))}</div>
+          </div>
+          <div class="detail">
+            <div class="dK">Market Link</div>
+            <div class="dV">${m.url ? `<a href="${m.url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:none;">Open market</a>` : "–"}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    host.appendChild(tile);
+  }
+}
+
+function escapeHtml(str){
+  return String(str ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function loadMarkets(){
+  setStatus("Refreshing…");
+  const started = performance.now();
+
+  try{
+    // Pull a larger active set and filter client-side.
+    const raw = await fetchJSON("https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=200");
+    const normalized = (Array.isArray(raw) ? raw : []).map(normalizeMarket);
+
+    const q = currentQuery.trim().toLowerCase();
+
+    let filtered = normalized.filter(m => m.active !== false && m.closed !== true);
+
+    if (q) {
+      filtered = filtered.filter(m => scoreMarket(m, q) > 0);
+    }
+
+    filtered = sortMarkets(filtered, currentSort, q).slice(0, 18);
+    latestMarkets = filtered;
+
+    renderSummary(filtered);
+    renderMarkets(filtered);
+    setLastUpdated();
+
+    const ms = Math.round(performance.now() - started);
+    setStatus(`OK • ${ms}ms`);
+  } catch (err) {
+    console.warn(err);
+    latestMarkets = [];
+    renderSummary([]);
+    renderMarkets([]);
+    setStatus("Error");
+  } finally {
+    setTimeout(() => setStatus("Idle"), 1200);
+  }
+}
+
+function setQuery(query){
+  currentQuery = query.trim();
+  $("searchInput").value = currentQuery;
+
+  document.querySelectorAll(".modeBtn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.query === currentQuery);
+  });
+
+  document.querySelectorAll(".quickTag").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.query === currentQuery);
+  });
+
+  loadMarkets();
+}
+
+function setSort(sort){
+  currentSort = sort;
+  document.querySelectorAll(".filterBtn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.sort === sort);
+  });
+  renderSummary(latestMarkets);
+  renderMarkets(sortMarkets(latestMarkets, currentSort, currentQuery));
+}
+
+function setAutoRefresh(seconds){
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = null;
+
+  if (seconds > 0) {
+    refreshTimer = setInterval(loadMarkets, seconds * 1000);
+  }
+}
+
+/* ---------- Notes ---------- */
+const noteArea = $("noteArea");
+const noteStorageKey = "conflictMonitor.note";
+
+const savedNote = localStorage.getItem(noteStorageKey);
+if (savedNote) noteArea.value = savedNote;
+
+noteArea.addEventListener("input", () => {
+  localStorage.setItem(noteStorageKey, noteArea.value);
+});
+
+$("btnNoteNew").addEventListener("click", () => {
+  const stamp = new Date().toLocaleString();
+  const prefix = noteArea.value.trim() ? "\n\n" : "";
+  noteArea.value += `${prefix}--- New note (${stamp}) ---\n`;
+  noteArea.focus();
+  localStorage.setItem(noteStorageKey, noteArea.value);
+});
+
+$("btnNoteClear").addEventListener("click", () => {
+  noteArea.value = "";
+  localStorage.removeItem(noteStorageKey);
+  noteArea.focus();
+});
+
+$("btnNoteSave").addEventListener("click", () => {
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = `conflict-monitor-note-${stamp}.txt`;
+  const content = noteArea.value || "";
+
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const href = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(href);
+});
+
+/* ---------- Controls ---------- */
+$("btnRefresh").addEventListener("click", loadMarkets);
+$("btnSearch").addEventListener("click", () => setQuery($("searchInput").value));
+$("searchInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") setQuery($("searchInput").value);
+});
+
+$("refreshEvery").addEventListener("change", (e) => {
+  setAutoRefresh(parseInt(e.target.value, 10));
+});
+
+document.querySelectorAll(".modeBtn").forEach(btn => {
+  btn.addEventListener("click", () => setQuery(btn.dataset.query));
+});
+
+document.querySelectorAll(".quickTag").forEach(btn => {
+  btn.addEventListener("click", () => setQuery(btn.dataset.query));
+});
+
+document.querySelectorAll(".filterBtn").forEach(btn => {
+  btn.addEventListener("click", () => setSort(btn.dataset.sort));
+});
+
+/* ---------- Boot ---------- */
+function runBootSequence(){
+  const loader = $("bootLoader");
+  const lineHost = $("bootLines");
+  const phase = $("bootPhase");
+  const state = $("bootState");
+  const progressBar = $("bootProgressBar");
+  const bootLogSection = $("bootLogSection");
+  const bootVizSection = $("bootVizSection");
+  const bootSymbolSection = $("bootSymbolSection");
+  if(!loader || !lineHost) return;
+
+  const lines = [
+    { text:"Initializing Polymarket channels...", code:"✓" },
+    { text:"Verifying public market feed...", code:"✓" },
+    { text:"Syncing active event matrix...", code:"✓" },
+    { text:"Liquidity layer ready...", code:"✓" },
+    { text:"Probability cards armed...", code:"✓" },
+    { text:"Conflict monitor online...", code:"✓" }
+  ];
+
+  const lineStep = 680;
+  const startDelay = 260;
+  let progress = 0;
+  let targetProgress = 0;
+  let loaderActive = true;
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  if(phase) phase.textContent = "0%";
+
+  const pulseProgress = () => {
+    if(!loaderActive) return;
+
+    if(progress < targetProgress){
+      const jump = Math.max(1, Math.floor(Math.random() * 6));
+      progress = Math.min(targetProgress, progress + jump);
+      if(phase) phase.textContent = `${progress}%`;
+      if(progressBar) progressBar.style.width = `${progress}%`;
+    }
+
+    const nextTick = 70 + Math.floor(Math.random() * 180);
+    setTimeout(pulseProgress, nextTick);
+  };
+
+  pulseProgress();
+
+  (async () => {
+    await wait(startDelay);
+
+    for(let idx = 0; idx < lines.length; idx++){
+      const entry = lines[idx];
+      const item = document.createElement("li");
+      item.className = "bootLine";
+      item.innerHTML = `<span class="bootLabel">${entry.text}</span><span class="bootCode">${entry.code}</span>`;
+      lineHost.appendChild(item);
+      targetProgress = Math.round(((idx + 1) / lines.length) * 72);
+      if(state) state.textContent = idx === lines.length - 1 ? "Boot Log Complete" : "System Initialization";
+      requestAnimationFrame(() => item.classList.add("visible"));
+      await wait(lineStep + Math.floor(Math.random() * 160));
+    }
+
+    await wait(520);
+
+    const items = [...lineHost.querySelectorAll(".bootLine")];
+    for(let i = 0; i < items.length; i++){
+      items[i].style.opacity = "0";
+      items[i].style.transform = "translateY(-3px)";
+      await wait(90);
+    }
+    lineHost.innerHTML = "";
+
+    if(bootLogSection) bootLogSection.classList.add("hidden");
+    if(bootVizSection) bootVizSection.classList.remove("hidden");
+    targetProgress = 86;
+    if(state) state.textContent = "Diagnostic Visualization";
+
+    await wait(1750);
+
+    if(bootVizSection) bootVizSection.classList.add("hidden");
+    if(bootSymbolSection) bootSymbolSection.classList.remove("hidden");
+    targetProgress = 96;
+    if(state) state.textContent = "Final Handshake";
+
+    await wait(1200);
+
+    targetProgress = 100;
+    if(phase) phase.textContent = "100%";
+    if(progressBar) progressBar.style.width = "100%";
+    if(state) state.textContent = "Console Active";
+
+    await wait(360);
+
+    loaderActive = false;
+    loader.classList.add("fade-out");
+    setTimeout(() => loader.remove(), 1000);
+  })();
+}
+
+runBootSequence();
+loadMarkets();
+setAutoRefresh(parseInt($("refreshEvery").value, 10));
+</script>
+
+</body>
+</html>
