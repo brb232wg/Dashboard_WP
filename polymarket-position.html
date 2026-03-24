@@ -23,6 +23,8 @@
   --border: rgba(209, 162, 74, .35);
   --terminal: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --headline: 'Teko', 'Roboto Mono', sans-serif;
+  --corridor-speed: 3.2s;
+  --rocket-float-dur: 2.8s;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--terminal);letter-spacing:.015em;}
@@ -63,15 +65,21 @@ canvas{display:block;width:100%;height:460px;}
 .pos{color:var(--good)!important;}
 .neg{color:var(--bad)!important;}
 .rocketPanel{margin-top:14px;border:1px solid rgba(209,162,74,.35);background:rgba(209,162,74,.05);padding:14px;display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:center;}
-.rocketWrap{height:130px;display:grid;place-items:center;border:1px solid rgba(209,162,74,.24);background:rgba(0,0,0,.25);}
-.rocketSvg{width:160px;height:110px;stroke:rgba(209,162,74,.85);fill:none;stroke-width:1.6;animation:rocketFloat 2.6s ease-in-out infinite;}
-.flame{stroke:rgba(102,183,255,.8);stroke-dasharray:6 4;animation:flamePulse .7s linear infinite;}
+.rocketPanel.stalled .rocketSvg,
+.rocketPanel.stalled .corridorSvg,
+.rocketPanel.stalled .flame{animation-play-state:paused;}
+.rocketPanel.stalled .flame{opacity:.25;}
+.rocketWrap{height:130px;display:grid;place-items:center;border:1px solid rgba(209,162,74,.24);background:rgba(0,0,0,.25);position:relative;overflow:hidden;}
+.corridorSvg{position:absolute;inset:0;width:100%;height:100%;stroke:rgba(209,162,74,.3);fill:none;stroke-width:1.05;stroke-dasharray:8 6;animation:corridorRush var(--corridor-speed) linear infinite;}
+.rocketSvg{position:relative;z-index:2;width:160px;height:110px;stroke:rgba(209,162,74,.9);fill:none;stroke-width:1.7;animation:rocketFloat var(--rocket-float-dur) steps(2,end) infinite;}
+.flame{stroke:rgba(102,183,255,.85);stroke-dasharray:6 4;animation:flamePulse .45s linear infinite;}
 .bigReadout{display:grid;gap:8px;}
 .bigLabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;}
 .bigValue,.bigPnl,.bigPrice{font-family:var(--headline);font-size:42px;line-height:.9;color:var(--text);letter-spacing:.03em;}
 .bigPnl{font-size:48px;}
 @keyframes rocketFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes flamePulse{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-20}}
+@keyframes corridorRush{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-120}}
 @media (max-width:1100px){.controls{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:900px){.sidePanel{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border);} .wrap{margin-left:0;} .rocketPanel{grid-template-columns:1fr;}}
 </style>
@@ -127,12 +135,21 @@ canvas{display:block;width:100%;height:460px;}
 
       <div class="rocketPanel">
         <div class="rocketWrap">
+          <svg class="corridorSvg" viewBox="0 0 220 130" aria-hidden="true">
+            <path d="M8 8 L212 8 L160 65 L60 65 Z"></path>
+            <path d="M18 20 L202 20 L154 65 L66 65 Z"></path>
+            <path d="M28 32 L192 32 L148 65 L72 65 Z"></path>
+            <path d="M38 44 L182 44 L142 65 L78 65 Z"></path>
+            <path d="M48 56 L172 56 L136 65 L84 65 Z"></path>
+            <path d="M60 65 L60 122 M84 65 L84 122 M136 65 L136 122 M160 65 L160 122"></path>
+          </svg>
           <svg class="rocketSvg" viewBox="0 0 200 130" aria-hidden="true">
-            <path d="M70 90 L100 20 L130 90 Z"></path>
-            <path d="M86 58 L100 38 L114 58 Z"></path>
-            <path d="M70 90 L52 108 M130 90 L148 108"></path>
-            <path d="M90 90 L100 114 L110 90"></path>
-            <path class="flame" d="M100 114 L94 126 L100 122 L106 126 Z"></path>
+            <rect x="74" y="34" width="52" height="48"></rect>
+            <path d="M84 34 L100 22 L116 34"></path>
+            <rect x="91" y="47" width="18" height="16"></rect>
+            <path d="M74 82 L62 98 L74 98 M126 82 L138 98 L126 98"></path>
+            <path d="M88 82 L88 102 L112 102 L112 82"></path>
+            <path class="flame" d="M96 102 L100 120 L104 102"></path>
           </svg>
         </div>
         <div class="bigReadout">
@@ -155,6 +172,7 @@ const bigPriceEl = document.getElementById('bigPrice');
 const bigValueEl = document.getElementById('bigValue');
 const bigPnlEl = document.getElementById('bigPnl');
 const bootLoaderEl = document.getElementById('bootLoader');
+const rocketPanelEl = document.querySelector('.rocketPanel');
 const canvas = document.getElementById('plChart');
 const ctx = canvas.getContext('2d');
 canvas.style.cursor = 'ew-resize';
@@ -307,7 +325,27 @@ function updateLiveReadout(){
   bigPnlEl.textContent = `P/L ${pnl >= 0 ? '+' : ''}${money(pnl)}`;
   bigPnlEl.classList.toggle('pos', pnl >= 0);
   bigPnlEl.classList.toggle('neg', pnl < 0);
+  updateRocketMotion(pnl, shares, costBasis);
   drawChart(points, costBasis, shares, price);
+}
+
+function updateRocketMotion(pnl, shares, costBasis){
+  if(!rocketPanelEl) return;
+  const maxGain = Math.max(1, shares * (1 - costBasis));
+  const gainRatio = clamp(pnl / maxGain, 0, 1);
+
+  if(pnl <= 0){
+    rocketPanelEl.classList.add('stalled');
+    rocketPanelEl.style.setProperty('--corridor-speed', '8s');
+    rocketPanelEl.style.setProperty('--rocket-float-dur', '4.5s');
+    return;
+  }
+
+  rocketPanelEl.classList.remove('stalled');
+  const corridorSpeed = (3.8 - (gainRatio * 3.2)).toFixed(2);
+  const rocketFloatDur = (2.8 - (gainRatio * 2.1)).toFixed(2);
+  rocketPanelEl.style.setProperty('--corridor-speed', `${corridorSpeed}s`);
+  rocketPanelEl.style.setProperty('--rocket-float-dur', `${Math.max(0.45, Number(rocketFloatDur))}s`);
 }
 
 function setPriceFromPointerEvent(e){
