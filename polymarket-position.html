@@ -36,7 +36,7 @@ header{border:1px solid var(--border);padding:14px 16px;background:rgba(18,18,18
 h1{margin:0;font-family:var(--headline);font-size:44px;line-height:.9;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);}
 .sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;}
 .card{border:1px solid var(--border);background:rgba(15,15,15,.82);padding:14px;}
-.controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
 label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;}
 input{width:100%;padding:8px;background:#0f0f0f;color:var(--text);border:1px solid rgba(209,162,74,.35);font-family:var(--terminal);}
 button{padding:8px 10px;border:1px solid rgba(209,162,74,.5);background:rgba(209,162,74,.12);color:var(--text);font-family:var(--terminal);cursor:pointer;}
@@ -82,10 +82,6 @@ input[type="range"]{width:100%;accent-color:#d1a24a;}
           <label for="shares">Shares</label>
           <input id="shares" type="number" min="1" step="1" value="2185" />
         </div>
-        <div>
-          <label for="stepSize">Price step ($)</label>
-          <input id="stepSize" type="number" min="0.001" step="0.001" value="0.005" />
-        </div>
         <div style="align-self:end;display:flex;gap:8px;align-items:flex-end;">
           <button id="recalc">Recalculate</button>
         </div>
@@ -106,7 +102,7 @@ input[type="range"]{width:100%;accent-color:#d1a24a;}
         <div class="sliderTitle">Price Tracker</div>
         <div class="sliderMeta">Move along X-axis to inspect current value at any price level.</div>
         <div class="sliderRow">
-          <input id="priceSlider" type="range" min="0" max="1" step="0.005" value="0.213" />
+          <input id="priceSlider" type="range" min="0" max="1" step="0.01" value="0.21" />
           <div class="stat">Price: <strong id="livePrice">$0.213</strong></div>
           <div class="stat">Value / P&amp;L: <strong id="liveValue">$0.00</strong> <strong id="livePnl">$0.00</strong></div>
         </div>
@@ -117,7 +113,6 @@ input[type="range"]{width:100%;accent-color:#d1a24a;}
 <script>
 const costBasisEl = document.getElementById('costBasis');
 const sharesEl = document.getElementById('shares');
-const stepSizeEl = document.getElementById('stepSize');
 const recalcBtn = document.getElementById('recalc');
 const totalCostEl = document.getElementById('totalCost');
 const breakevenEl = document.getElementById('breakeven');
@@ -128,7 +123,8 @@ const livePnlEl = document.getElementById('livePnl');
 const canvas = document.getElementById('plChart');
 const ctx = canvas.getContext('2d');
 let activePrice = Number(priceSliderEl.value);
-let state = { costBasis: 0.213, shares: 2185, step: 0.005, points: [] };
+let state = { costBasis: 0.213, shares: 2185, step: 0.01, points: [] };
+const DEFAULT_STEP = 0.01;
 
 function clamp(num, min, max){ return Math.min(Math.max(num, min), max); }
 function money(v){ return `$${v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`; }
@@ -158,7 +154,7 @@ function fitCanvasToContainer(){
 function drawChart(points, costBasis, shares, trackerPrice){
   const w = canvas.clientWidth;
   const h = canvas.clientHeight || 460;
-  const pad = {top: 24, right: 28, bottom: 78, left: 104};
+  const pad = {top: 34, right: 28, bottom: 78, left: 138};
   const cw = w - pad.left - pad.right;
   const ch = h - pad.top - pad.bottom;
 
@@ -179,7 +175,7 @@ function drawChart(points, costBasis, shares, trackerPrice){
     const val = maxY - (i/5)*(maxY-minY);
     ctx.fillStyle = '#8f897d';
     ctx.font = '11px Roboto Mono';
-    ctx.fillText(money(val), 10, yy + 4);
+    ctx.fillText(money(val), 18, yy + 4);
   }
 
   for(let i=0;i<=10;i++){
@@ -222,12 +218,7 @@ function drawChart(points, costBasis, shares, trackerPrice){
   ctx.fillStyle = '#f1eee8';
   ctx.font = '12px Roboto Mono';
   ctx.fillText('Share Price ($)', w/2 - 48, h-14);
-
-  ctx.save();
-  ctx.translate(22, h/2 + 30);
-  ctx.rotate(-Math.PI/2);
-  ctx.fillText('Total Dollar Value ($)', 0, 0);
-  ctx.restore();
+  ctx.fillText('Total Dollar Value ($)', pad.left, 18);
 
   const nearest = points.reduce((best, pt) => Math.abs(pt.price-costBasis) < Math.abs(best.price-costBasis) ? pt : best, points[0]);
   const pnlAtBreak = nearest.pnl;
@@ -254,7 +245,7 @@ function drawChart(points, costBasis, shares, trackerPrice){
 function recalc(){
   const costBasis = clamp(Number(costBasisEl.value) || 0, 0, 1);
   const shares = Math.max(1, Number(sharesEl.value) || 1);
-  const step = clamp(Number(stepSizeEl.value) || 0.005, 0.001, 0.5);
+  const step = DEFAULT_STEP;
 
   const points = buildData(costBasis, shares, step);
   totalCostEl.textContent = money(costBasis * shares);
@@ -283,7 +274,7 @@ function updateLiveReadout(){
 }
 
 recalcBtn.addEventListener('click', recalc);
-[costBasisEl, sharesEl, stepSizeEl].forEach(el => el.addEventListener('input', recalc));
+[costBasisEl, sharesEl].forEach(el => el.addEventListener('input', recalc));
 priceSliderEl.addEventListener('input', updateLiveReadout);
 window.addEventListener('resize', recalc);
 recalc();
