@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>BR Dashboard • Oil Position Visual</title>
+<title>BR Dashboard • Position Visualizer</title>
 <link rel="icon" href="./assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
@@ -45,14 +45,15 @@ strong{color:var(--text)}
 .chartWrap{border:1px solid rgba(209,162,74,.35);background:#0c0c0c;padding:8px;}
 canvas{display:block;width:100%;height:460px;}
 .note{font-size:12px;color:var(--muted);margin-top:8px;}
-.exampleCard{margin-top:14px;border:1px solid rgba(209,162,74,.35);background:rgba(209,162,74,.04);padding:10px;}
-.exampleTitle{font-family:var(--headline);font-size:24px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;}
-.exampleSub{font-size:12px;color:var(--muted);margin-bottom:8px;}
-table{width:100%;border-collapse:collapse;font-size:12px;}
-th,td{border:1px solid rgba(209,162,74,.24);padding:6px 8px;text-align:right;}
-th:first-child,td:first-child{text-align:left;}
-.pos{color:var(--good);}
-.neg{color:var(--bad);}
+.sliderWrap{margin-top:14px;border:1px solid rgba(209,162,74,.35);background:rgba(209,162,74,.04);padding:10px;}
+.sliderTitle{font-family:var(--headline);font-size:24px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;}
+.sliderMeta{font-size:12px;color:var(--muted);margin:4px 0 10px;}
+.sliderRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;}
+input[type="range"]{width:100%;accent-color:#d1a24a;}
+.stat{font-size:12px;white-space:nowrap;}
+.stat strong{display:inline-block;min-width:90px;text-align:right;}
+.pos{color:var(--good)!important;}
+.neg{color:var(--bad)!important;}
 @media (max-width:1100px){.controls{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media (max-width:900px){.sidePanel{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border);} .wrap{margin-left:0;}}
 </style>
@@ -62,12 +63,12 @@ th:first-child,td:first-child{text-align:left;}
     <div class="panelTitle">Pages</div>
     <a class="navBtn" href="index.html">Dashboard</a>
     <a class="navBtn" href="conflict-monitor.html">Global Monitor</a>
-    <a class="navBtn active" href="polymarket-position.html">Oil Position Visual</a>
+    <a class="navBtn active" href="polymarket-position.html">Position Visualizer</a>
   </div>
 
   <div class="wrap">
     <header>
-      <h1>Oil Position Visual</h1>
+      <h1>Position Visualizer</h1>
       <div class="sub">POLYMARKET POSITION • P/L CURVE • BREAKEVEN MARKER</div>
     </header>
 
@@ -99,21 +100,16 @@ th:first-child,td:first-child{text-align:left;}
       <div class="chartWrap">
         <canvas id="plChart" width="1280" height="460" aria-label="Profit loss chart"></canvas>
       </div>
-      <div class="note">Red dotted line = your cost basis (breakeven). Green values are profit, red values are loss. X-axis advances by your selected step (default 0.5¢ / $0.005).</div>
+      <div class="note">Red dotted line = your cost basis (breakeven). Drag the slider to watch value and P/L change as price moves on X.</div>
 
-      <div class="exampleCard">
-        <div class="exampleTitle">Example View</div>
-        <div class="exampleSub">Using your screenshot numbers (cost basis 0.213, shares 2,185), this is what the 0.5¢ ladder looks like around breakeven.</div>
-        <table>
-          <thead>
-            <tr>
-              <th>Share Price</th>
-              <th>Total Value</th>
-              <th>P/L vs Cost</th>
-            </tr>
-          </thead>
-          <tbody id="exampleRows"></tbody>
-        </table>
+      <div class="sliderWrap">
+        <div class="sliderTitle">Price Tracker</div>
+        <div class="sliderMeta">Move along X-axis to inspect current value at any price level.</div>
+        <div class="sliderRow">
+          <input id="priceSlider" type="range" min="0" max="1" step="0.005" value="0.213" />
+          <div class="stat">Price: <strong id="livePrice">$0.213</strong></div>
+          <div class="stat">Value / P&amp;L: <strong id="liveValue">$0.00</strong> <strong id="livePnl">$0.00</strong></div>
+        </div>
       </div>
     </section>
   </div>
@@ -125,9 +121,14 @@ const stepSizeEl = document.getElementById('stepSize');
 const recalcBtn = document.getElementById('recalc');
 const totalCostEl = document.getElementById('totalCost');
 const breakevenEl = document.getElementById('breakeven');
-const exampleRowsEl = document.getElementById('exampleRows');
+const priceSliderEl = document.getElementById('priceSlider');
+const livePriceEl = document.getElementById('livePrice');
+const liveValueEl = document.getElementById('liveValue');
+const livePnlEl = document.getElementById('livePnl');
 const canvas = document.getElementById('plChart');
 const ctx = canvas.getContext('2d');
+let activePrice = Number(priceSliderEl.value);
+let state = { costBasis: 0.213, shares: 2185, step: 0.005, points: [] };
 
 function clamp(num, min, max){ return Math.min(Math.max(num, min), max); }
 function money(v){ return `$${v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`; }
@@ -145,10 +146,19 @@ function buildData(costBasis, shares, step){
   return points;
 }
 
-function drawChart(points, costBasis, shares){
-  const w = canvas.width;
-  const h = canvas.height;
-  const pad = {top: 18, right: 20, bottom: 52, left: 82};
+function fitCanvasToContainer(){
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  const cssWidth = canvas.clientWidth || 1280;
+  const cssHeight = 460;
+  canvas.width = Math.round(cssWidth * ratio);
+  canvas.height = Math.round(cssHeight * ratio);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function drawChart(points, costBasis, shares, trackerPrice){
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight || 460;
+  const pad = {top: 24, right: 28, bottom: 78, left: 104};
   const cw = w - pad.left - pad.right;
   const ch = h - pad.top - pad.bottom;
 
@@ -158,8 +168,8 @@ function drawChart(points, costBasis, shares){
 
   const minY = 0;
   const maxY = shares;
-  const x = p => pad.left + (p/1) * cw;
-  const y = v => pad.top + (1 - (v-minY)/(maxY-minY || 1)) * ch;
+  const x = p => pad.left + p * cw;
+  const y = v => pad.top + (1 - (v-minY) / (maxY-minY || 1)) * ch;
 
   ctx.strokeStyle = 'rgba(209,162,74,.18)';
   ctx.lineWidth = 1;
@@ -169,14 +179,14 @@ function drawChart(points, costBasis, shares){
     const val = maxY - (i/5)*(maxY-minY);
     ctx.fillStyle = '#8f897d';
     ctx.font = '11px Roboto Mono';
-    ctx.fillText(money(val), 8, yy + 4);
+    ctx.fillText(money(val), 10, yy + 4);
   }
 
   for(let i=0;i<=10;i++){
     const xx = pad.left + (i/10) * cw;
     ctx.beginPath(); ctx.moveTo(xx,pad.top); ctx.lineTo(xx,h-pad.bottom); ctx.stroke();
     ctx.fillStyle = '#8f897d';
-    ctx.fillText(`$${(i/10).toFixed(2)}`, xx-16, h-30);
+    ctx.fillText(`$${(i/10).toFixed(2)}`, xx-16, h-46);
   }
 
   ctx.strokeStyle = '#d1a24a';
@@ -211,10 +221,10 @@ function drawChart(points, costBasis, shares){
 
   ctx.fillStyle = '#f1eee8';
   ctx.font = '12px Roboto Mono';
-  ctx.fillText('Share Price ($)', w/2 - 48, h-10);
+  ctx.fillText('Share Price ($)', w/2 - 48, h-14);
 
   ctx.save();
-  ctx.translate(18, h/2 + 30);
+  ctx.translate(22, h/2 + 30);
   ctx.rotate(-Math.PI/2);
   ctx.fillText('Total Dollar Value ($)', 0, 0);
   ctx.restore();
@@ -223,6 +233,22 @@ function drawChart(points, costBasis, shares){
   const pnlAtBreak = nearest.pnl;
   ctx.fillStyle = pnlAtBreak >= 0 ? '#6d8a70' : '#8d6660';
   ctx.fillText(`P/L near breakeven: ${money(pnlAtBreak)}`, w - 270, 24);
+
+  const trackerX = x(trackerPrice);
+  const trackerValue = trackerPrice * shares;
+  const trackerY = y(trackerValue);
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle = 'rgba(102, 183, 255, .9)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(trackerX, pad.top);
+  ctx.lineTo(trackerX, h - pad.bottom);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(102, 183, 255, .95)';
+  ctx.beginPath();
+  ctx.arc(trackerX, trackerY, 4, 0, Math.PI*2);
+  ctx.fill();
 }
 
 function recalc(){
@@ -233,30 +259,33 @@ function recalc(){
   const points = buildData(costBasis, shares, step);
   totalCostEl.textContent = money(costBasis * shares);
   breakevenEl.textContent = `$${costBasis.toFixed(3)}`;
-  drawChart(points, costBasis, shares);
-  renderExampleRows(costBasis, shares);
+  priceSliderEl.step = step.toString();
+  priceSliderEl.value = clamp(activePrice, 0, 1).toFixed(3);
+  activePrice = Number(priceSliderEl.value);
+  state = { costBasis, shares, step, points };
+  fitCanvasToContainer();
+  drawChart(points, costBasis, shares, activePrice);
+  updateLiveReadout();
 }
 
-function renderExampleRows(costBasis, shares){
-  const rows = [];
-  for(let offset=-3; offset<=3; offset++){
-    const price = clamp(costBasis + (offset * 0.005), 0, 1);
-    const totalValue = price * shares;
-    const pnl = totalValue - (costBasis * shares);
-    rows.push({price, totalValue, pnl});
-  }
-
-  exampleRowsEl.innerHTML = rows.map(row => `
-    <tr>
-      <td>$${row.price.toFixed(3)}</td>
-      <td>${money(row.totalValue)}</td>
-      <td class="${row.pnl >= 0 ? 'pos' : 'neg'}">${row.pnl >= 0 ? '+' : ''}${money(row.pnl)}</td>
-    </tr>
-  `).join('');
+function updateLiveReadout(){
+  const { costBasis, shares, points } = state;
+  const price = clamp(Number(priceSliderEl.value) || 0, 0, 1);
+  activePrice = price;
+  const value = price * shares;
+  const pnl = value - (costBasis * shares);
+  livePriceEl.textContent = `$${price.toFixed(3)}`;
+  liveValueEl.textContent = money(value);
+  livePnlEl.textContent = `${pnl >= 0 ? '+' : ''}${money(pnl)}`;
+  livePnlEl.classList.toggle('pos', pnl >= 0);
+  livePnlEl.classList.toggle('neg', pnl < 0);
+  drawChart(points, costBasis, shares, price);
 }
 
 recalcBtn.addEventListener('click', recalc);
 [costBasisEl, sharesEl, stepSizeEl].forEach(el => el.addEventListener('input', recalc));
+priceSliderEl.addEventListener('input', updateLiveReadout);
+window.addEventListener('resize', recalc);
 recalc();
 </script>
 </body>
