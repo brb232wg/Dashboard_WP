@@ -23,7 +23,7 @@
   --border: rgba(209, 162, 74, .35);
   --terminal: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --headline: 'Teko', 'Roboto Mono', sans-serif;
-  --corridor-speed: 3.2s;
+  --orbit-speed: 6s;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--terminal);letter-spacing:.015em;}
@@ -63,18 +63,22 @@ canvas{display:block;width:100%;height:460px;}
 .note{font-size:12px;color:var(--muted);margin-top:8px;}
 .pos{color:var(--good)!important;}
 .neg{color:var(--bad)!important;}
-.corridorPanel{margin-top:14px;border:1px solid rgba(209,162,74,.35);background:rgba(209,162,74,.05);padding:14px;display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:center;}
-.corridorPanel.stalled .corridorSvg{animation-play-state:paused;}
-.corridorWrap{height:150px;display:grid;place-items:center;border:1px solid rgba(209,162,74,.24);background:rgba(0,0,0,.3);position:relative;overflow:hidden;}
-.corridorSvg{position:absolute;inset:0;width:100%;height:100%;stroke:rgba(209,162,74,.42);fill:none;stroke-width:1;animation:corridorRush var(--corridor-speed) linear infinite;}
-.corridorDeep{stroke:rgba(209,162,74,.65);stroke-width:1.2;}
+.globePanel{margin-top:14px;border:1px solid rgba(209,162,74,.35);background:rgba(209,162,74,.05);padding:14px;display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:center;}
+.globeWrap{height:150px;display:grid;place-items:center;border:1px solid rgba(209,162,74,.24);background:rgba(0,0,0,.3);position:relative;overflow:hidden;}
+.globeSvg{width:220px;height:140px;overflow:visible;}
+.globeSphere,.globeLat,.globeLon,.orbitRing{stroke:rgba(209,162,74,.65);fill:none;stroke-width:1;}
+.orbitRing{stroke:rgba(209,162,74,.35);stroke-dasharray:4 6;}
+.satelliteGroup{transform-origin:110px 70px;animation:orbitSpin var(--orbit-speed) linear infinite;}
+.satelliteGroup.reverse{animation-direction:reverse;}
+.satellite{fill:rgba(102,183,255,.95);stroke:rgba(209,162,74,.6);stroke-width:.8;}
+.satellite2{fill:rgba(209,162,74,.95);}
 .bigReadout{display:grid;gap:8px;}
 .bigLabel{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.2em;}
 .bigValue,.bigPnl,.bigPrice{font-family:var(--terminal);font-size:30px;line-height:1.05;color:var(--text);letter-spacing:.02em;font-weight:700;}
 .bigPnl{font-size:36px;}
-@keyframes corridorRush{0%{transform:translateY(0)}100%{transform:translateY(14px)}}
+@keyframes orbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @media (max-width:1100px){.controls{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media (max-width:900px){.sidePanel{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border);} .wrap{margin-left:0;} .corridorPanel{grid-template-columns:1fr;}}
+@media (max-width:900px){.sidePanel{position:static;width:auto;border-right:none;border-bottom:1px solid var(--border);} .wrap{margin-left:0;} .globePanel{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -127,19 +131,28 @@ canvas{display:block;width:100%;height:460px;}
       </div>
       <div class="note">Red dotted line = your cost basis (breakeven). Drag the blue tracker line on the chart to move across X and inspect live Value/P&amp;L.</div>
 
-      <div class="corridorPanel">
-        <div class="corridorWrap">
-          <svg class="corridorSvg" viewBox="0 0 220 130" aria-hidden="true">
-            <path d="M8 8 H212 V122 H8 Z"></path>
-            <path class="corridorDeep" d="M68 38 H152 V92 H68 Z"></path>
-            <path d="M8 8 L68 38 M212 8 L152 38 M8 122 L68 92 M212 122 L152 92"></path>
-            <path d="M8 20 H212 M8 34 H212 M8 48 H212 M8 62 H212 M8 76 H212 M8 90 H212 M8 104 H212"></path>
-            <path d="M20 8 V122 M36 8 V122 M52 8 V122 M68 8 V122 M84 8 V122 M100 8 V122 M116 8 V122 M132 8 V122 M148 8 V122 M164 8 V122 M180 8 V122 M196 8 V122"></path>
-            <path d="M8 8 L68 38 M20 8 L74 38 M32 8 L80 38 M44 8 L86 38 M56 8 L92 38 M68 8 L98 38 M80 8 L104 38 M92 8 L110 38 M104 8 L116 38 M116 8 L122 38 M128 8 L128 38 M140 8 L134 38 M152 8 L140 38 M164 8 L146 38 M176 8 L152 38 M188 8 L158 38 M200 8 L164 38 M212 8 L152 38"></path>
+      <div class="globePanel">
+        <div class="globeWrap">
+          <svg class="globeSvg" viewBox="0 0 220 140" aria-hidden="true">
+            <circle class="globeSphere" cx="110" cy="70" r="40"></circle>
+            <ellipse class="globeLat" cx="110" cy="70" rx="40" ry="12"></ellipse>
+            <ellipse class="globeLat" cx="110" cy="70" rx="40" ry="22"></ellipse>
+            <ellipse class="globeLon" cx="110" cy="70" rx="26" ry="40"></ellipse>
+            <ellipse class="globeLon" cx="110" cy="70" rx="12" ry="40"></ellipse>
+            <ellipse class="orbitRing" cx="110" cy="70" rx="60" ry="28"></ellipse>
+            <ellipse class="orbitRing" cx="110" cy="70" rx="70" ry="34"></ellipse>
+            <g class="satelliteGroup" id="satelliteGroupA">
+              <rect class="satellite" x="165" y="66" width="7" height="7" rx="1"></rect>
+              <line x1="162" y1="69.5" x2="175" y2="69.5" stroke="rgba(209,162,74,.55)" stroke-width="1"></line>
+            </g>
+            <g class="satelliteGroup reverse" id="satelliteGroupB">
+              <rect class="satellite satellite2" x="41" y="66" width="7" height="7" rx="1"></rect>
+              <line x1="38" y1="69.5" x2="51" y2="69.5" stroke="rgba(102,183,255,.55)" stroke-width="1"></line>
+            </g>
           </svg>
         </div>
         <div class="bigReadout">
-          <div class="bigLabel">Corridor Vector</div>
+          <div class="bigLabel">Orbital Readout</div>
           <div class="bigPrice" id="bigPrice">$0.21</div>
           <div class="bigValue" id="bigValue">$0.00</div>
           <div class="bigPnl" id="bigPnl">$0.00</div>
@@ -160,7 +173,9 @@ const bigPnlEl = document.getElementById('bigPnl');
 const bootLoaderEl = document.getElementById('bootLoader');
 const bootProgressBarEl = document.getElementById('bootProgressBar');
 const bootPctEl = document.getElementById('bootPct');
-const corridorPanelEl = document.querySelector('.corridorPanel');
+const globePanelEl = document.querySelector('.globePanel');
+const satelliteGroupAEl = document.getElementById('satelliteGroupA');
+const satelliteGroupBEl = document.getElementById('satelliteGroupB');
 const canvas = document.getElementById('plChart');
 const ctx = canvas.getContext('2d');
 canvas.style.cursor = 'ew-resize';
@@ -313,24 +328,18 @@ function updateLiveReadout(){
   bigPnlEl.textContent = `P/L ${pnl >= 0 ? '+' : ''}${money(pnl)}`;
   bigPnlEl.classList.toggle('pos', pnl >= 0);
   bigPnlEl.classList.toggle('neg', pnl < 0);
-  updateCorridorMotion(pnl, shares, costBasis);
+  updateOrbitMotion(pnl, shares, costBasis);
   drawChart(points, costBasis, shares, price);
 }
 
-function updateCorridorMotion(pnl, shares, costBasis){
-  if(!corridorPanelEl) return;
+function updateOrbitMotion(pnl, shares, costBasis){
+  if(!globePanelEl) return;
   const maxGain = Math.max(1, shares * (1 - costBasis));
-  const gainRatio = clamp(pnl / maxGain, 0, 1);
-
-  if(pnl <= 0){
-    corridorPanelEl.classList.add('stalled');
-    corridorPanelEl.style.setProperty('--corridor-speed', '8s');
-    return;
-  }
-
-  corridorPanelEl.classList.remove('stalled');
-  const corridorSpeed = (3.8 - (gainRatio * 3.2)).toFixed(2);
-  corridorPanelEl.style.setProperty('--corridor-speed', `${corridorSpeed}s`);
+  const intensity = clamp(Math.abs(pnl) / maxGain, 0, 1);
+  const orbitSpeed = (7 - (intensity * 6)).toFixed(2);
+  globePanelEl.style.setProperty('--orbit-speed', `${Math.max(0.6, Number(orbitSpeed))}s`);
+  satelliteGroupAEl.classList.toggle('reverse', pnl < 0);
+  satelliteGroupBEl.classList.toggle('reverse', pnl >= 0);
 }
 
 function setPriceFromPointerEvent(e){
