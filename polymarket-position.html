@@ -49,8 +49,21 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-grad
 .navBtn.active{background:rgba(209,162,74,.16);border-color:rgba(209, 162, 74, .6);}
 .wrap{margin-left:250px;min-height:100vh;padding:20px 26px 28px;}
 header{border:1px solid var(--border);padding:14px 16px;background:rgba(18,18,18,.84);margin-bottom:16px;}
-h1{margin:0;font-family:var(--headline);font-size:44px;line-height:.9;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);}
-.sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.2em;margin-top:4px;}
+h1{
+  margin:0;
+  font-family:var(--headline);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-size:30px;
+  font-weight:500;
+  line-height:1;
+  color:var(--text);
+}
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:6px;
+}
 .card{border:1px solid var(--border);background:rgba(15,15,15,.82);padding:14px;}
 .controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
 label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;}
@@ -67,6 +80,7 @@ canvas{display:block;width:100%;height:460px;}
 .globeWrap{height:150px;display:grid;place-items:center;border:1px solid rgba(209,162,74,.24);background:rgba(0,0,0,.3);position:relative;overflow:hidden;}
 .globeSvg{width:220px;height:140px;overflow:visible;}
 .globeSphere,.globeLat,.globeLon,.orbitRing{stroke:rgba(209,162,74,.65);fill:none;stroke-width:1;}
+.globeMinor{stroke:rgba(209,162,74,.35);fill:none;stroke-width:.8;}
 .orbitRing{stroke:rgba(209,162,74,.35);stroke-dasharray:4 6;}
 .satelliteGroup{transform-origin:110px 70px;animation:orbitSpin var(--orbit-speed) linear infinite;}
 .satelliteGroup.reverse{animation-direction:reverse;}
@@ -135,10 +149,21 @@ canvas{display:block;width:100%;height:460px;}
         <div class="globeWrap">
           <svg class="globeSvg" viewBox="0 0 220 140" aria-hidden="true">
             <circle class="globeSphere" cx="110" cy="70" r="40"></circle>
+            <ellipse class="globeMinor" cx="110" cy="70" rx="40" ry="5"></ellipse>
+            <ellipse class="globeMinor" cx="110" cy="70" rx="40" ry="18"></ellipse>
+            <ellipse class="globeMinor" cx="110" cy="70" rx="40" ry="28"></ellipse>
             <ellipse class="globeLat" cx="110" cy="70" rx="40" ry="12"></ellipse>
             <ellipse class="globeLat" cx="110" cy="70" rx="40" ry="22"></ellipse>
             <ellipse class="globeLon" cx="110" cy="70" rx="26" ry="40"></ellipse>
             <ellipse class="globeLon" cx="110" cy="70" rx="12" ry="40"></ellipse>
+            <ellipse class="globeMinor" cx="110" cy="70" rx="34" ry="40"></ellipse>
+            <ellipse class="globeMinor" cx="110" cy="70" rx="6" ry="40"></ellipse>
+            <g transform="rotate(26 110 70)">
+              <ellipse class="globeMinor" cx="110" cy="70" rx="18" ry="40"></ellipse>
+            </g>
+            <g transform="rotate(-26 110 70)">
+              <ellipse class="globeMinor" cx="110" cy="70" rx="18" ry="40"></ellipse>
+            </g>
             <ellipse class="orbitRing" cx="110" cy="70" rx="60" ry="28"></ellipse>
             <ellipse class="orbitRing" cx="110" cy="70" rx="70" ry="34"></ellipse>
             <g class="satelliteGroup" id="satelliteGroupA">
